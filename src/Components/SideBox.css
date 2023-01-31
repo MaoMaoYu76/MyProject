@@ -1,0 +1,28 @@
+.sidebox{
+    display: flex;
+    height: 92vh;
+}
+
+.sidebar{
+    width: 90px;
+    height: 100%;
+    background-color: #d4d4d4;
+}
+
+.side-icon{
+    width: 45px;
+    height: 45px;
+    margin: 10px 20px 0 ;
+    cursor: pointer;
+}
+
+.icontext{
+    font-weight: 900;
+    text-align: center;
+}
+
+.side-container{
+    width: 350px;
+    background-color: #e6e6e6;
+    position: relative;
+}
