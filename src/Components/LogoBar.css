@@ -1,12 +1,12 @@
 .barcontain{
     width: 100%;
-    height: 8vh;
+    height: 7vh;
     position: sticky;
     top: 0px;
     background-color: #FFFFFF;
     box-shadow: 0 0 5px #c4c3c3;
     display: flex;
-
+    z-index: 1;
 }
 
 .bar {
@@ -60,4 +60,28 @@
     border-radius: 5px;
 }
 
+.edit-function{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
 
+.bar-icon{
+    height: 15px;
+    width: 15px;
+    margin: 5px;
+}
+
+.size-options{
+    position: absolute;
+    background-color: #FFA99F;
+    padding: 5px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.size{
+    margin: 10px 5px;
+    border-radius: 5px;
+}

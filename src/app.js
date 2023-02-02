@@ -4,13 +4,13 @@ import { BrowserRouter } from "react-router-dom";
 import { Route } from "react-router-dom";
 import { Routes } from "react-router-dom";
 import REGISTER from "./Pages/register";
-import CANVAS from "./Pages/Canvas";
+import EDIT from "./Pages/edit";
 
 function APP(){
     return(
         <BrowserRouter>
             <Routes>
-                <Route path="/canvas" element={<CANVAS />} />
+                <Route path="/canvas" element={<EDIT />} />
                 <Route path="/register" element={<REGISTER />} />
                 <Route path="*" element={<HOME />} />
             </Routes>
