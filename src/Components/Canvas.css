@@ -16,9 +16,19 @@
 }
 
 .canvas-container{
+    height: 73vh;
+    overflow: auto;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.canvas-container-overflow{
     height: 73vh;
     overflow: auto;
+    display: flex;
+    justify-content: center;
+    
 }
+
+

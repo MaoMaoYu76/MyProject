@@ -6,7 +6,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import "../Components/LogoBar.css";
 
 const CanvasBar = (props) => {
-    const [size, setSize] = useState(["42cm", "59.4cm"])
     const [currentUser, setCurrentUser] = useState(null);
     const [showSizeOptions, setSizeOptions] = useState(false);
     // props = size;
@@ -16,11 +15,10 @@ const CanvasBar = (props) => {
             setCurrentUser(null);
             window.location = '/';
         }).catch((error) => {
-            console.log(error)
+            console.log(error);
         });
     }
     const handleSizeChange = (newSize) => {
-        setSize(newSize);
         props.onSizeChange(newSize);
     };
     
@@ -59,9 +57,9 @@ const CanvasBar = (props) => {
                     <div onClick={() => setSizeOptions(!showSizeOptions)}>調整尺寸
                         {showSizeOptions && <>
                             <div className="size-options">
-                                <p className="size" onClick={() => handleSizeChange(["42cm", "59.4cm"])}>42*59.4cm</p>
+                                <p className="size" onClick={() => handleSizeChange([42, 59.4,"cm",30])}>42*59.4cm</p>
                                 {/* 35 */}
-                                <p className="size" onClick={() => handleSizeChange(["14cm", "10.5cm"])}>14*10.5cm</p>
+                                <p className="size" onClick={() => handleSizeChange([14, 10.5,"cm",170])}>14*10.5cm</p>
                                 {/* 175 */}
                                 {/* <p className="size">A4 size</p> */}
                             </div>

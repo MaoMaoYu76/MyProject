@@ -26,6 +26,9 @@
 }
 
 .edit-zone {
+    /* display: flex; */
+    display: grid;
+    grid-template-rows: repeat(3,fr);
     /* position: relative; */
     /* width: 100%; */
 }
