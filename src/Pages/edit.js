@@ -24,7 +24,6 @@ function EDIT() {
         <SizeData.Provider value={size}>
             <CanvasBar onSizeChange={handleSizeChange} />
             <EditZone />
-            {/* <EditZone size={size} initialScale={initialScale} /> */}
         </SizeData.Provider>
     </>
 }

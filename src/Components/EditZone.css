@@ -18,10 +18,9 @@
 
 .side-container {
     width: 400px;
-    display: block;
     background-color: #2e2e2e;
-    position: relative;
-
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     /* height: 100%; */
 }
 
@@ -31,4 +30,7 @@
     grid-template-rows: repeat(3,fr);
     /* position: relative; */
     /* width: 100%; */
+}
+.grid-item{
+    position: relative;
 }

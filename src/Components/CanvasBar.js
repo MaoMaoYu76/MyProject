@@ -5,6 +5,7 @@ import { signOut } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
 import "../Components/LogoBar.css";
 
+
 const CanvasBar = (props) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [showSizeOptions, setSizeOptions] = useState(false);
@@ -58,9 +59,7 @@ const CanvasBar = (props) => {
                         {showSizeOptions && <>
                             <div className="size-options">
                                 <p className="size" onClick={() => handleSizeChange([42, 59.4,"cm",30])}>42*59.4cm</p>
-                                {/* 35 */}
                                 <p className="size" onClick={() => handleSizeChange([14, 10.5,"cm",170])}>14*10.5cm</p>
-                                {/* 175 */}
                                 {/* <p className="size">A4 size</p> */}
                             </div>
                         </>}
