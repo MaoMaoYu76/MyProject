@@ -58,8 +58,8 @@ const CanvasBar = (props) => {
                     <div onClick={() => setSizeOptions(!showSizeOptions)}>調整尺寸
                         {showSizeOptions && <>
                             <div className="size-options">
-                                <p className="size" onClick={() => handleSizeChange([42, 59.4,"cm",30])}>42*59.4cm</p>
-                                <p className="size" onClick={() => handleSizeChange([14, 10.5,"cm",170])}>14*10.5cm</p>
+                                <p className="size" onClick={() => handleSizeChange([1587.4, 2245,30])}>42*59.4cm</p>
+                                <p className="size" onClick={() => handleSizeChange([529.1, 396.8,170])}>14*10.5cm</p>
                                 {/* <p className="size">A4 size</p> */}
                             </div>
                         </>}

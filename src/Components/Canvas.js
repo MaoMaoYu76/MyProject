@@ -10,9 +10,8 @@ import CanvasImage from "./CanvasImage";
 
 const Canvas = (props) => {
   const size = useContext(SizeData)
-  const [initialWidth, initialHeight, unit, initialScale] = size;
+  const [initialWidth, initialHeight, initialScale] = size;
   const [scale, setScale] = useState(initialScale)
-  const [className, setClassName] = useState("canvas-container")
   const [height, setHeight] = useState(initialHeight)
   const [width, setWidth] = useState(initialWidth)
 
@@ -37,60 +36,66 @@ const Canvas = (props) => {
 
   //拉桿與畫布顯示尺寸
   useEffect(() => {
-    setHeight(scale * 0.01 * initialHeight + unit)
-    setWidth(scale * 0.01 * initialWidth + unit)
-
-    const canvas = document.querySelector(".canvas");
-    const container = document.querySelector(`.${className}`);
-
-    if (canvas != null && container != null) {
-      const canvasRect = canvas.getBoundingClientRect()
-      const containerRect = container.getBoundingClientRect()
-
-      if (canvasRect.x < containerRect.x || canvasRect.y < containerRect.y) {
-        setClassName("canvas-container-overflow")
-      } else {
-        setClassName("canvas-container")
-      }
-    }
-
+    setHeight(scale * 0.01 * initialHeight)
+    setWidth(scale * 0.01 * initialWidth)
   }, [scale]);
 
 
   //偵測工具箱圖案落點用
   useEffect(() => {
-    const container = document.querySelector(`.${className}`);
+    const container = document.querySelector(".canvas-container");
     if (container != null) {
       const containerRect = container.getBoundingClientRect()
       props.boundaries([containerRect.top, containerRect.bottom, containerRect.left, containerRect.right])
     }
   }, [window.innerWidth, props.showBox]);
 
-
+  //按鍵刪除功能
   const handleKeyDown = (event) => {
-
     if (event.key === "Backspace") {
       const id = event.target.children[0].getAttribute('id');
       setCanvasImages(canvasImages.filter((Image) => Image.id !== id));
     }
   };
 
+  const handleFrame = () => {
+    return {
+      className: "frame",
+      style: {
+        height: height,
+        width: width,
+        backgroundColor: "#F2F2F2",
+        margin: "auto auto",
+        flexShrink: "0",
+      }
+    }
+  }
+
+  const handleCanvas = () => {
+    return {
+      className: "canvas",
+      style: {
+        width: initialWidth,
+        height: initialHeight,
+        backgroundColor: "#FFF",
+        transform: `scale(${scale * 0.01})`,
+        transformOrigin: "0 0",
+        overflow:"hidden"
+      }
+    }
+  }
+
   return <>
     <div className="editer-top editer"></div>
-    <div className={className}>
-      <div className="canvas"
-        style={{
-          width: width,
-          height: height,
-          backgroundColor: "#FFF",
-          flexShrink: "0",
-          position: "relative"
-        }}>
-        {canvasImages.map((Image, index) => <CanvasImage key={index} src={Image.src} id={Image.id} onKeyDown={handleKeyDown} />)}
+    <div className="canvas-container">
+      <div {...handleFrame()}>
+        <div {...handleCanvas()}>
+          {canvasImages.map((Image, index) => <CanvasImage key={index} src={Image.src} id={Image.id} onKeyDown={handleKeyDown} />)}
+        </div>
       </div>
     </div>
     <div>
-      <div className="editer-bottom editer"> <input className="transform-controller" onChange={handleChange} value={scale} type="range" min="10" max="500"></input></div>
+      <div className="editer-bottom editer"> <input className="transform-controller" onChange={handleChange} value={scale} type="range" min="10" max="500"></input>{scale}</div>
     </div>
   </>
 

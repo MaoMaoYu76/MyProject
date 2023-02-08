@@ -25,9 +25,11 @@
 }
 
 .edit-zone {
-    /* display: flex; */
-    display: grid;
-    grid-template-rows: repeat(3,fr);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* display: grid;
+    grid-template-rows: repeat(3,fr); */
     /* position: relative; */
     /* width: 100%; */
 }

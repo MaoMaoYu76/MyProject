@@ -10,7 +10,7 @@ import { createContext } from "react";
 export const SizeData = createContext()
 
 function EDIT() {
-    const [size, setSize] = useState([14, 10.5,"cm",170]);
+    const [size, setSize] = useState([529.1, 396.8, 170]);
     // const [initialScale, setInitialScale] = useState(175);
 
     const handleSizeChange = (newSize) => {

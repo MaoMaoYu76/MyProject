@@ -17,17 +17,10 @@
 
 .canvas-container{
     background-color: #ececec;
-    height: 73vh;
     overflow: auto;
+    height: 73vh;
     display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
-.canvas-container-overflow{
-    height: 73vh;
-    overflow: auto;
-    display: flex;
-}
 
 
