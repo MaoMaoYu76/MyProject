@@ -88,7 +88,7 @@ const EditZone = () => {
                 </div>
             </>}
             <div className="edit-zone">
-                <Canvas boundaries={handleBoundaries} showBox={showBox} newCanvasImage={newCanvasImage} id={id}/>
+                <Canvas boundaries={handleBoundaries} showBox={showBox} newCanvasImage={newCanvasImage} id={id} />
             </div>
         </div>
     </>
