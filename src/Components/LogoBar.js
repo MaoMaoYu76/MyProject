@@ -12,7 +12,7 @@ const LogoBar = () => {
     const logOut = () => {
 
         signOut(auth).then(() => {
-            console.log("logOut")
+            // console.log("logOut")
             setCurrentUser(null);
             window.location = '/'; 
         }).catch((error) => {

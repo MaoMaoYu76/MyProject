@@ -9,16 +9,19 @@ import "../Components/LogoBar.css";
 const CanvasBar = (props) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [showSizeOptions, setSizeOptions] = useState(false);
-    // props = size;
+
     const logOut = () => {
         signOut(auth).then(() => {
-            console.log("logOut")
+            //登出後重新導向
+            // console.log("logOut")
             setCurrentUser(null);
             window.location = '/';
         }).catch((error) => {
             console.log(error);
         });
     }
+
+    //傳遞畫布大小資訊
     const handleSizeChange = (newSize) => {
         props.onSizeChange(newSize);
     };
@@ -30,6 +33,7 @@ const CanvasBar = (props) => {
         };
     });
 
+    //登入資訊顯示
     const Barcontent = () => {
         if (currentUser != null) {
             const profilepic = () => {
@@ -58,8 +62,8 @@ const CanvasBar = (props) => {
                     <div onClick={() => setSizeOptions(!showSizeOptions)}>調整尺寸
                         {showSizeOptions && <>
                             <div className="size-options">
-                                <p className="size" onClick={() => handleSizeChange([1587.4, 2245,30])}>42*59.4cm</p>
-                                <p className="size" onClick={() => handleSizeChange([529.1, 396.8,170])}>14*10.5cm</p>
+                                <p className="size" onClick={() => handleSizeChange([1587.4, 2245,25])}>42*59.4cm</p>
+                                <p className="size" onClick={() => handleSizeChange([529.1, 396.8,130])}>14*10.5cm</p>
                                 {/* <p className="size">A4 size</p> */}
                             </div>
                         </>}
@@ -68,11 +72,13 @@ const CanvasBar = (props) => {
                 </div>
                 <div className="auth">
                     <Barcontent />
+                    
                 </div>
+                
+                
             </div>
         </div>
     )
 }
-// console.log("SizeContext",SizeContext.Consumer)
 
 export default CanvasBar

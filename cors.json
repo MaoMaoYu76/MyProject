@@ -1,0 +1,7 @@
+[
+    {
+    "origin": ["http://localhost:9000/","https://react-project-26a32.web.app/"],
+    "method": ["GET"],
+    "maxAgeSeconds": 3600
+    }
+    ]

@@ -22,5 +22,20 @@
     display: flex;
 }
 
+.deploy{
+    margin: 0 5px;
+    display: flex;
+    align-items: center;
+    background-color: #f4f4f6;
+    /* background-image:linear-gradient(-225deg, #fff2d3 0%, #ffd5d0 48%, #ffadc5 100%); */
+    padding: 0 15px;
+    height: 45px;
+    border-radius: 5px;
+    cursor: pointer;
+}
 
+.deployimg{
+    width: 30px;
+    height: 30px;
+}
 

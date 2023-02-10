@@ -7,6 +7,7 @@ const BoxImage = (props) => {
   const src = props.src
   const imgRef = useRef(null);
 
+
   const handleToolDown = (event) => {
       // console.log("打開監聽");
       const initialX = event.clientX;
@@ -20,8 +21,8 @@ const BoxImage = (props) => {
 
       };
 
+      //控制左鍵放開事件
       const handleToolUp = (e) => {
-
         if (e.target.getAttribute('id') === imgRef.current.getAttribute('id')) {
           if (left < e.clientX && e.clientX < right &&
             top < e.clientY && e.clientY < bottom) {
@@ -46,14 +47,12 @@ const BoxImage = (props) => {
       ondragstart = function () {
         return false;
       };
-
     };
   
 
   return <div className="grid-item"><img
     src={src}
     id={props.id}
-    // className={props.className}
     ref={imgRef}
     style={{
       position: 'absolute',

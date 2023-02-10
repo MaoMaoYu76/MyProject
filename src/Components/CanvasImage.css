@@ -1,0 +1,9 @@
+.resize-dot {
+    width: 15px;
+    height: 15px;
+    background-color: white;
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid gray;
+    z-index: 1;
+}

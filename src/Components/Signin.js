@@ -21,7 +21,7 @@ function Signin() {
     onAuthStateChanged(auth, (currentUser) => {
         if (currentUser) {
             setUser(currentUser)
-            console.log("User", User)
+            // console.log("User", User)
             window.location = '/';
         }
     });
@@ -29,7 +29,7 @@ function Signin() {
     const handleGoogle = () => {
         signInWithPopup(auth, Googleprovider).then(
             (userCredential) => {
-                console.log(userCredential.user)
+                // console.log(userCredential.user)
             }).catch((error) => {
             })
     };
@@ -37,7 +37,7 @@ function Signin() {
     const handleFacebook = () => {
         signInWithPopup(auth, Facebookprovider).then(
             (userCredential) => {
-                console.log(userCredential.user)
+                // console.log(userCredential.user)
             }).catch((error) => {
             })
     };
@@ -74,7 +74,7 @@ function Signin() {
                 const errorMessage = error.message;
                 console.log(errorMessage)
                 if (error.message = "Firebase: Error (auth/email-already-in-use).") {
-                    console.log("汪汪")
+                    // console.log("汪汪")
                     signInWithEmailAndPassword(auth, data.email, data.password)
                         .then((userCredential) => {
                             console.log(userCredential.user);
