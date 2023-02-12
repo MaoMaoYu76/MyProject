@@ -31,10 +31,10 @@ const CanvasImage = (props) => {
 
   useEffect(() => {
     document.addEventListener("pointerdown", handleSelect);
-    console.log("監聽啟用");
+    // console.log("監聽啟用");
     return () => {
       document.removeEventListener("pointerdown", handleSelect);
-      console.log("監聽關閉");
+      // console.log("監聽關閉");
     };
     //如果Image不存在就不要一直監聽下去，那我是不是應該上移，只保留一個監聽？
   }, []);
@@ -172,7 +172,7 @@ const CanvasImage = (props) => {
             bottom: "-8px",
             cursor: "nwse-resize",
           }} />
-          <div className="resize-dot" onPointerDown={handleResize}
+          {/* <div className="resize-dot" onPointerDown={handleResize}
             style={{
               right: "-8px",
               top: "-8px",
@@ -189,7 +189,8 @@ const CanvasImage = (props) => {
               left: "-8px",
               top: "-8px",
               cursor: "nwse-resize"
-            }} /></>}
+            }} /> */}
+            </>}
       </div>
     </div>
   </>

@@ -60,8 +60,8 @@ const BoxImage = (props) => {
       left: toolPosition.x,
       top: toolPosition.y,
       cursor: 'move',
-      width: "120px",
-      height: "120px",
+      width: "100px",
+      height: "100px",
       margin: "20px",
       zIndex: "1"
     }}

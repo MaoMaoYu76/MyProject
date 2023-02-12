@@ -6,7 +6,16 @@ import { useContext } from "react";
 import { SizeData } from "../Pages/edit";
 import { useLayoutEffect } from "react";
 import CanvasImage from "./CanvasImage";
-import html2canvas from 'html2canvas';
+import domtoimage from 'dom-to-image';
+import { uploadBytes } from "firebase/storage";
+import { collection, addDoc } from "firebase/firestore";
+import { doc } from "firebase/firestore";
+import { storage } from "../firebase";
+import { ref } from "firebase/storage";
+import { uploadString } from "firebase/storage";
+import { saveAs } from "file-saver";
+
+
 
 
 
@@ -42,6 +51,7 @@ const Canvas = (props) => {
   useEffect(() => {
     setHeight(scale * 0.01 * initialHeight)
     setWidth(scale * 0.01 * initialWidth)
+
   }, [scale]);
 
 
@@ -67,12 +77,14 @@ const Canvas = (props) => {
   const handleFrame = () => {
     return {
       className: "frame",
+
       style: {
         height: height,
         width: width,
         backgroundColor: "#F2F2F2",
         margin: "auto auto",
         flexShrink: "0",
+        boxShadow: "0 2px 8px rgb(14 19 24 / 7%)"
       }
     }
   }
@@ -81,7 +93,7 @@ const Canvas = (props) => {
   const handleCanvas = () => {
     return {
       className: "canvas",
-      id:"canvas",
+      id: "canvas",
       style: {
         width: initialWidth,
         height: initialHeight,
@@ -89,36 +101,84 @@ const Canvas = (props) => {
         transform: `scale(${scale * 0.01})`,
         transformOrigin: "0 0",
         overflow: "hidden",
-        boxShadow: "0 2px 8px rgb(14 19 24 / 7%)"
+        // boxShadow: "0 2px 8px rgb(14 19 24 / 7%)"
       }
     }
   }
-  const handleScreenShot = () => {
-    // console.log(document.querySelector(".canvas"));
-    html2canvas(document.querySelector("#canvas"),{
-      useCORS:true
-    }) 
 
-    .then(function(canvas) {
-      document.body.appendChild(canvas);
+  //處理快照
+  const handleScreenShot = async () => {
+    setScale(100);
+    const canvas = document.getElementById('canvas');
+    // console.log(node.getBoundingClientRect());
+
+  //   canvas.toBlob(function(blob) {
+  //     saveAs(blob, "pretty image.png");
+  // });
+    domtoimage.toBlob(canvas)
+    .then(function (blob) {
+        window.saveAs(blob, 'my-result.png');
     });
+    // document.getElementById('ODYFuiXhQC').style.left="90px",
+    // document.getElementById('ODYFuiXhQC').style.top="160px",
+    //讀取會員登入狀態否則跳出登入提示
 
+    //將圖片放入storage取得url
+    //html2位移情況很嚴重，可以再試著用absolute定義為至
+    //   html2canvas(node,{useCORS: true,allowTaint:true,}).then(function(canvas) {
+    //     document.body.appendChild(canvas);
+    // });
+    //也許可以試著修剪圖片
+    // domtoimage.toPng(node,
+    //   // { style: { 
+    //   //   height:397,
+    //   //   // width:initialWidth 
+    //   // } }
+    // )
+    //   .then(function (dataUrl) {
+    //     // console.log(dataUrl);
+    //     const img = new Image();
+    //     img.src = dataUrl;
+    //     const storageRef = ref(storage, 'post/project.jpg');
+        
+    //     // img.height =397;
+    //     // console.log(initialHeight);
+    //     // img.width =initialWidth;
+    //     // document.body.appendChild(img);
+    //     const message4 = 'data:text/plain;base64,5b6p5Y+344GX44G+44GX44Gf77yB44GK44KB44Gn44Go44GG77yB';
+    //     uploadString(storageRef, message4, dataUrl).then((snapshot) => {
+    //       console.log('Uploaded a data_url string!');
+    //       // });
+    //     })
+    //       .catch(function (error) {
+    //         console.error('oops, something went wrong!', error);
+    //       })
+    //   })
+    
+
+    //   // 'file' comes from the Blob or File API
+
+
+
+    //放入firestore並把doc.id放進會員中
   }
+
   return <>
-    <div className="editer-top editer"></div>
-    <div className="canvas-container">
+    <div className="result"></div>
+    <div className="editer-top editer">
+      <div className="deploy" onClick={handleScreenShot}><img className="deployimg" src="/images/download.png" /><a></a></div>
+    </div>
+    <div className="canvas-container" id="test">
       <div {...handleFrame()}>
         <div  {...handleCanvas()}>
           {canvasImages.map((Image, index) => <CanvasImage key={index} src={Image.src} id={Image.id} onKeyDown={handleKeyDown} />)}
-          <CanvasImage src="https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/6443634.png?alt=media&amp;token=3f95b586-7a33-4ae3-b266-07f70574d991" id="ODYFuiXhQC" />
-          {/* <CanvasImage src="/images/email.png" id="ODYFuiXh1C" /> */}
         </div>
       </div>
     </div>
     <div>
       <div className="editer-bottom editer">
         <input className="transform-controller" onChange={handleChange} value={scale} type="range" min="10" max="500"></input>
-        <div className="deploy" onClick={handleScreenShot}><img className="deployimg" src="/images/deploy.png" /><a>發布作品</a></div>
+
       </div>
     </div>
   </>
