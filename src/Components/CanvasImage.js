@@ -41,11 +41,10 @@ const CanvasImage = (props) => {
 
 
   const handleSelect = (event) => {
-    console.log("選取目標", event.target.parentElement.children[0]
-    );
+    // console.log("選取目標", event.target.parentElement.children[0]);
     const resizeDots = Array.from(document.getElementsByClassName("resize-dot"));
     //getElementsByClassName沒辦法被檢查，因為他們是HTMLCollection，所以要換成真正的陣列
-    console.log(resizeDots);
+    // console.log(resizeDots);
     if (event.target === document.getElementById(`${props.id}`)) {
       setSelecting(true)
       setBorder("5px")

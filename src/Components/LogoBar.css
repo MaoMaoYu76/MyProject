@@ -75,10 +75,11 @@
 
 .size-options{
     position: absolute;
-    background-color: #FFA99F;
+    background-color: #FFF;
     padding: 5px;
     border-radius: 5px;
     margin-top: 10px;
+    box-shadow: 0 2px 8px rgb(14 19 24 / 7%)
 }
 
 .size{

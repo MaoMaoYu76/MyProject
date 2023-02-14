@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
@@ -25,13 +25,17 @@ const CanvasBar = (props) => {
     const handleSizeChange = (newSize) => {
         props.onSizeChange(newSize);
     };
-    
+
     // console.log("props",props);
-    onAuthStateChanged(auth, (currentUser) => {
-        if (currentUser) {
-            setCurrentUser(currentUser);
-        };
-    });
+    useEffect(() => {
+        onAuthStateChanged(auth, (currentUser) => {
+            if (currentUser) {
+                setCurrentUser(currentUser);
+                props.currentUser(currentUser);
+            };
+        });
+    }, [])
+
 
     //登入資訊顯示
     const Barcontent = () => {
@@ -62,8 +66,8 @@ const CanvasBar = (props) => {
                     <div onClick={() => setSizeOptions(!showSizeOptions)}>調整尺寸
                         {showSizeOptions && <>
                             <div className="size-options">
-                                <p className="size" onClick={() => handleSizeChange([1587.4, 2245,25])}>42*59.4cm</p>
-                                <p className="size" onClick={() => handleSizeChange([529.1, 396.8,130])}>14*10.5cm</p>
+                                <p className="size" onClick={() => handleSizeChange([1587.4, 2245, 25])}>直立式海報42*59.4cm</p>
+                                <p className="size" onClick={() => handleSizeChange([529.1, 396.8, 130])}>卡片14*10.5cm</p>
                                 {/* <p className="size">A4 size</p> */}
                             </div>
                         </>}
@@ -72,10 +76,10 @@ const CanvasBar = (props) => {
                 </div>
                 <div className="auth">
                     <Barcontent />
-                    
+
                 </div>
-                
-                
+
+
             </div>
         </div>
     )

@@ -22,7 +22,9 @@ function Signin() {
         if (currentUser) {
             setUser(currentUser)
             // console.log("User", User)
-            window.location = '/';
+            if (window.location.pathname != "/canvas") {
+                window.location = '/';
+            }
         }
     });
 
@@ -90,6 +92,7 @@ function Signin() {
     };
 
     return (
+
         <div className="button-container">
             <Link to={"/"} className="logo"></Link>
             {showInput && <>
@@ -110,6 +113,7 @@ function Signin() {
             <p><button  {...handleDisplay()} onClick={handleGoogle}><img src="/images/google.png" className="icon" />　以Google繼續</button></p>
             <p><button  {...handleDisplay()} onClick={handleFacebook}><img src="/images/facebook.png" className="icon" />　以Facebook繼續</button></p>
         </div>
+
     );
 }
 export default Signin

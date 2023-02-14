@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useContext } from "react";
 import { SizeData } from "../Pages/edit";
+import { CurrentUser } from "../Pages/edit";
 import { useLayoutEffect } from "react";
 import CanvasImage from "./CanvasImage";
 import domtoimage from 'dom-to-image';
+import Signin from "./Signin"
 import { uploadBytes } from "firebase/storage";
 import { collection, addDoc } from "firebase/firestore";
 import { doc } from "firebase/firestore";
@@ -21,6 +23,7 @@ import { saveAs } from "file-saver";
 
 const Canvas = (props) => {
   const size = useContext(SizeData)
+  const currentUser = useContext(CurrentUser)
   const [initialWidth, initialHeight, initialScale] = size;
   const [scale, setScale] = useState(initialScale)
   const [height, setHeight] = useState(initialHeight)
@@ -28,6 +31,7 @@ const Canvas = (props) => {
   // var proxy = require('html2canvas-proxy');
 
   const [canvasImages, setCanvasImages] = useState([])
+  const [showSignin, setShowSignin] = useState(false)
 
 
   const handleChange = (event) => {
@@ -46,6 +50,12 @@ const Canvas = (props) => {
   useEffect(() => {
     setScale(initialScale);
   }, [size]);
+
+  useEffect(() => {
+    if(currentUser){
+      setShowSignin(false)
+    }
+  }, [currentUser]);
 
   //拉桿與畫布顯示尺寸
   useEffect(() => {
@@ -68,7 +78,7 @@ const Canvas = (props) => {
   const handleKeyDown = (event) => {
     if (event.key === "Backspace") {
       const id = event.target.children[0].children[0].getAttribute('id');
-      console.log(id);
+      // console.log(id);
       setCanvasImages(canvasImages.filter((Image) => Image.id !== id));
     }
   };
@@ -108,63 +118,81 @@ const Canvas = (props) => {
 
   //處理快照
   const handleScreenShot = async () => {
-    setScale(100);
-    const canvas = document.getElementById('canvas');
-    // console.log(node.getBoundingClientRect());
+    // setScale(100);
+    if (currentUser) {
+      const canvas = document.getElementById('canvas');
+      // console.log(node.getBoundingClientRect());
 
-  //   canvas.toBlob(function(blob) {
-  //     saveAs(blob, "pretty image.png");
-  // });
-    domtoimage.toBlob(canvas)
-    .then(function (blob) {
-        window.saveAs(blob, 'my-result.png');
-    });
-    // document.getElementById('ODYFuiXhQC').style.left="90px",
-    // document.getElementById('ODYFuiXhQC').style.top="160px",
-    //讀取會員登入狀態否則跳出登入提示
+      //   canvas.toBlob(function(blob) {
+      //     saveAs(blob, "pretty image.png");
+      // });
+      domtoimage.toBlob(canvas)
+        .then(function (blob) {
+          window.saveAs(blob, 'my-result.png');
+        });
+      // document.getElementById('ODYFuiXhQC').style.left="90px",
+      // document.getElementById('ODYFuiXhQC').style.top="160px",
+      //讀取會員登入狀態否則跳出登入提示
 
-    //將圖片放入storage取得url
-    //html2位移情況很嚴重，可以再試著用absolute定義為至
-    //   html2canvas(node,{useCORS: true,allowTaint:true,}).then(function(canvas) {
-    //     document.body.appendChild(canvas);
-    // });
-    //也許可以試著修剪圖片
-    // domtoimage.toPng(node,
-    //   // { style: { 
-    //   //   height:397,
-    //   //   // width:initialWidth 
-    //   // } }
-    // )
-    //   .then(function (dataUrl) {
-    //     // console.log(dataUrl);
-    //     const img = new Image();
-    //     img.src = dataUrl;
-    //     const storageRef = ref(storage, 'post/project.jpg');
-        
-    //     // img.height =397;
-    //     // console.log(initialHeight);
-    //     // img.width =initialWidth;
-    //     // document.body.appendChild(img);
-    //     const message4 = 'data:text/plain;base64,5b6p5Y+344GX44G+44GX44Gf77yB44GK44KB44Gn44Go44GG77yB';
-    //     uploadString(storageRef, message4, dataUrl).then((snapshot) => {
-    //       console.log('Uploaded a data_url string!');
-    //       // });
-    //     })
-    //       .catch(function (error) {
-    //         console.error('oops, something went wrong!', error);
-    //       })
-    //   })
-    
+      //將圖片放入storage取得url
+      //html2位移情況很嚴重，可以再試著用absolute定義為至
+      //   html2canvas(node,{useCORS: true,allowTaint:true,}).then(function(canvas) {
+      //     document.body.appendChild(canvas);
+      // });
+      //也許可以試著修剪圖片
+      // domtoimage.toPng(node,
+      //   // { style: { 
+      //   //   height:397,
+      //   //   // width:initialWidth 
+      //   // } }
+      // )
+      //   .then(function (dataUrl) {
+      //     // console.log(dataUrl);
+      //     const img = new Image();
+      //     img.src = dataUrl;
+      //     const storageRef = ref(storage, 'post/project.jpg');
 
-    //   // 'file' comes from the Blob or File API
+      //     // img.height =397;
+      //     // console.log(initialHeight);
+      //     // img.width =initialWidth;
+      //     // document.body.appendChild(img);
+      //     const message4 = 'data:text/plain;base64,5b6p5Y+344GX44G+44GX44Gf77yB44GK44KB44Gn44Go44GG77yB';
+      //     uploadString(storageRef, message4, dataUrl).then((snapshot) => {
+      //       console.log('Uploaded a data_url string!');
+      //       // });
+      //     })
+      //       .catch(function (error) {
+      //         console.error('oops, something went wrong!', error);
+      //       })
+      //   })
 
 
+      //   // 'file' comes from the Blob or File API
 
-    //放入firestore並把doc.id放進會員中
+
+
+      //放入firestore並把doc.id放進會員中
+    } else {
+      setShowSignin(true)
+      const handleMask = (event) => {
+        // console.log(event.target);
+        if(event.target === document.querySelector(".mask")){
+          setShowSignin(false)
+        }
+      }
+      addEventListener("click", handleMask)
+    }
   }
 
   return <>
-    <div className="result"></div>
+    {showSignin && <>
+      <div className="mask"></div>
+      <div className="singin">
+        <p className="alert">Login to download your post!</p>
+        <Signin />
+      </div>
+
+    </>}
     <div className="editer-top editer">
       <div className="deploy" onClick={handleScreenShot}><img className="deployimg" src="/images/download.png" /><a></a></div>
     </div>
