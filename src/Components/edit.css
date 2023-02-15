@@ -1,3 +1,4 @@
 .canvas-body{
     background-color: #e6e6e6;
+    user-select: none;
 }

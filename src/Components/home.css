@@ -1,50 +1,103 @@
 * {
     box-sizing: border-box;
-    font-family: 'Noto Sans TC','微軟正黑體';
+    font-family: 'Noto Sans TC', '微軟正黑體';
     margin: 0;
     padding: 0;
     color: #666666;
+    user-select: none;
 }
 
-.body{
-    background-image: linear-gradient(-225deg, #FF719A 0%, #FFA99F 48%, #FFE29F 100%);
+.body {
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.6);
     height: 100vh;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: 0%;
 }
 
-.main{
+.body::after {
+    content: "";
+    background-image: url("/public/images/posters.png");
+    /* https://venngage.com/features/poster-maker */
+    background-repeat: repeat;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 200%;
+    z-index: -1;
+    overflow: hidden;
+    filter: blur(2px);
+    animation: scroll 60s linear infinite;
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(-36.3%);
+    }
+}
+
+
+.main {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 90%;
+    flex-direction: column;
 }
 
-.start{
+
+.description {
+    height: 100px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #FFF;
+    margin: 80px 0;
+    text-align: center;
+    letter-spacing: 25px;
+    line-height: 0em;
+}
+
+.description p {
+    color: #FFF;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.8em;
+}
+
+.start-link {
+    text-decoration: none;
     display: flex;
-    justify-content: center;
     align-items: center;
-    height: 90px;
-    width: 250px;
+    justify-content: center;
+    margin: 0 5px;
     border-radius: 5px;
-    border: none;
+    height: 90px;
+    width: 200px;
     font-size: 23px;
     background-color: #FFF;
     font-weight: 900;
 }
 
-
-.start:hover{
+.start-link:hover {
     transition: .5s ease;
     transform: scale(1.1);
-    
 }
 
-.description{
-    /* word-spacing:20px; */
-    letter-spacing: 50px;
-    font-size: 20px;
-    font-weight: 700;
+.start{
+    height: 40px;
+    width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    background-color:#ECECEC;
 }
 
+.inner-start{
+    font-size: 22px;
+    width: 50px;
+}

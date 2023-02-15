@@ -1,5 +1,5 @@
 import React from "react";
-import CanvasBar from "../Components/CanvasBar";
+import LogoBar from "../Components/LogoBar";
 import "../Components/edit.css";
 import EditZone from "../Components/EditZone";
 import { useState } from "react";
@@ -23,7 +23,7 @@ function EDIT() {
     return <>
         <SizeData.Provider value={size} >
             <CurrentUser.Provider value={currentUser}>
-                <CanvasBar onSizeChange={handleSizeChange} currentUser={checkCurrentUser} />
+                <LogoBar onSizeChange={handleSizeChange} currentUser={checkCurrentUser} />
                 <EditZone />
             </CurrentUser.Provider>
         </SizeData.Provider>

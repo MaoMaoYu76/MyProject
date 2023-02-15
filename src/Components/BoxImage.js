@@ -63,7 +63,7 @@ const BoxImage = (props) => {
       width: "100px",
       height: "100px",
       margin: "20px",
-      zIndex: "1"
+      zIndex: "1",
     }}
     onPointerDown={handleToolDown}
   />

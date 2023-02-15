@@ -52,7 +52,7 @@ const Canvas = (props) => {
   }, [size]);
 
   useEffect(() => {
-    if(currentUser){
+    if (currentUser) {
       setShowSignin(false)
     }
   }, [currentUser]);
@@ -87,14 +87,15 @@ const Canvas = (props) => {
   const handleFrame = () => {
     return {
       className: "frame",
-
+      // id: "canvas",
       style: {
         height: height,
         width: width,
         backgroundColor: "#F2F2F2",
         margin: "auto auto",
         flexShrink: "0",
-        boxShadow: "0 2px 8px rgb(14 19 24 / 7%)"
+        boxShadow: "0 2px 8px rgb(14 19 24 / 7%)",
+        overflow: "hidden",
       }
     }
   }
@@ -103,7 +104,7 @@ const Canvas = (props) => {
   const handleCanvas = () => {
     return {
       className: "canvas",
-      id: "canvas",
+      // id: "canvas",
       style: {
         width: initialWidth,
         height: initialHeight,
@@ -118,18 +119,17 @@ const Canvas = (props) => {
 
   //處理快照
   const handleScreenShot = async () => {
-    // setScale(100);
+    setScale(100);
     if (currentUser) {
       const canvas = document.getElementById('canvas');
-      // console.log(node.getBoundingClientRect());
 
-      //   canvas.toBlob(function(blob) {
-      //     saveAs(blob, "pretty image.png");
-      // });
-      domtoimage.toBlob(canvas)
-        .then(function (blob) {
-          window.saveAs(blob, 'my-result.png');
-        });
+
+      //DEMO使用的存儲
+      // domtoimage.toBlob(canvas)
+      //   .then(function (blob) {
+      //     window.saveAs(blob, 'my-result.png');
+      //   });
+
       // document.getElementById('ODYFuiXhQC').style.left="90px",
       // document.getElementById('ODYFuiXhQC').style.top="160px",
       //讀取會員登入狀態否則跳出登入提示
@@ -139,32 +139,33 @@ const Canvas = (props) => {
       //   html2canvas(node,{useCORS: true,allowTaint:true,}).then(function(canvas) {
       //     document.body.appendChild(canvas);
       // });
-      //也許可以試著修剪圖片
-      // domtoimage.toPng(node,
-      //   // { style: { 
-      //   //   height:397,
-      //   //   // width:initialWidth 
-      //   // } }
-      // )
-      //   .then(function (dataUrl) {
-      //     // console.log(dataUrl);
-      //     const img = new Image();
-      //     img.src = dataUrl;
-      //     const storageRef = ref(storage, 'post/project.jpg');
 
-      //     // img.height =397;
-      //     // console.log(initialHeight);
-      //     // img.width =initialWidth;
-      //     // document.body.appendChild(img);
-      //     const message4 = 'data:text/plain;base64,5b6p5Y+344GX44G+44GX44Gf77yB44GK44KB44Gn44Go44GG77yB';
-      //     uploadString(storageRef, message4, dataUrl).then((snapshot) => {
-      //       console.log('Uploaded a data_url string!');
-      //       // });
-      //     })
-      //       .catch(function (error) {
-      //         console.error('oops, something went wrong!', error);
-      //       })
-      //   })
+      //也許可以試著修剪圖片
+      domtoimage.toPng(canvas,
+        // { style: { 
+        //   height:397,
+        //   // width:initialWidth 
+        // } }
+      )
+        .then(function (dataUrl) {
+          // console.log(dataUrl);
+          const img = new Image();
+          img.src = dataUrl;
+          // const storageRef = ref(storage, 'post/project.jpg');
+
+          // img.height =397;
+          // console.log(initialHeight);
+          // img.width =initialWidth;
+          document.body.appendChild(img);
+          // const message4 = 'data:text/plain;base64,5b6p5Y+344GX44G+44GX44Gf77yB44GK44KB44Gn44Go44GG77yB';
+          // uploadString(storageRef, message4, dataUrl).then((snapshot) => {
+          //   console.log('Uploaded a data_url string!');
+          //   // });
+          // })
+          //   .catch(function (error) {
+          //     console.error('oops, something went wrong!', error);
+          //   })
+        })
 
 
       //   // 'file' comes from the Blob or File API
@@ -176,37 +177,39 @@ const Canvas = (props) => {
       setShowSignin(true)
       const handleMask = (event) => {
         // console.log(event.target);
-        if(event.target === document.querySelector(".mask")){
+        if (event.target === document.querySelector(".mask")) {
           setShowSignin(false)
         }
       }
       addEventListener("click", handleMask)
+      
     }
   }
 
   return <>
-    {showSignin && <>
+    {/* {showSignin && <>
       <div className="mask"></div>
       <div className="singin">
         <p className="alert">Login to download your post!</p>
         <Signin />
       </div>
 
-    </>}
+    </>} */}
     <div className="editer-top editer">
       <div className="deploy" onClick={handleScreenShot}><img className="deployimg" src="/images/download.png" /><a></a></div>
     </div>
     <div className="canvas-container" id="test">
       <div {...handleFrame()}>
-        <div  {...handleCanvas()}>
-          {canvasImages.map((Image, index) => <CanvasImage key={index} src={Image.src} id={Image.id} onKeyDown={handleKeyDown} />)}
+        <div id="canvas">
+          <div  {...handleCanvas()}>
+            {canvasImages.map((Image, index) => <CanvasImage key={index} src={Image.src} id={Image.id} onKeyDown={handleKeyDown} />)}
+          </div>
         </div>
       </div>
     </div>
     <div>
       <div className="editer-bottom editer">
         <input className="transform-controller" onChange={handleChange} value={scale} type="range" min="10" max="500"></input>
-
       </div>
     </div>
   </>

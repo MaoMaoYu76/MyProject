@@ -49,14 +49,15 @@ function Signin() {
             className: "signin-button",
             style: {
                 display: showInput ? 'none' : 'flex',
-                border: '2px solid #cacaca',
+                border: '2px solid #ECECEC',
                 height: '50px',
                 width: '250px',
                 borderRadius: '5px',
-                backgroundColor: '#FFF',
+                backgroundColor: 'rgba(255, 255, 255, 0.3)',
                 margin: '15px 0',
                 alignItems: 'center',
                 paddingLeft: '20px',
+                boxShadow: "0 2px 8px rgb(14 19 24 / 7%)",
             }
         }
     }
@@ -66,7 +67,7 @@ function Signin() {
         setData({ ...data, ...newInput });
     }
 
-    const handleSignin = () => {
+    function handleSignin() {
         createUserWithEmailAndPassword(auth, data.email, data.password)
             .then((userCredential) => {
                 console.log(userCredential.user);
@@ -74,7 +75,7 @@ function Signin() {
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
-                console.log(errorMessage)
+                console.log(errorMessage);
                 if (error.message = "Firebase: Error (auth/email-already-in-use).") {
                     // console.log("汪汪")
                     signInWithEmailAndPassword(auth, data.email, data.password)
@@ -84,36 +85,41 @@ function Signin() {
                         .catch((error) => {
                             const errorCode = error.code;
                             const errorMessage = error.message;
-                            console.log(errorMessage)
-                        })
+                            console.log(errorMessage);
+                        });
                 }
-            })
+            });
 
-    };
+    }
 
-    return (
-
-        <div className="button-container">
-            <Link to={"/"} className="logo"></Link>
-            {showInput && <>
-                <div className="register-input-container">
-                    <p><input className="register-input"
-                        name="email"
-                        placeholder="Email"
-                        onChange={(event) => handleInput(event)}></input></p>
-                    <p><input className="register-input"
-                        name="password"
-                        placeholder="Password"
-                        onChange={(event) => handleInput(event)}></input></p>
-                    <p><button className="email-signin-button" onClick={handleSignin}>繼續</button></p>
-                    <p><button className="email-signin-button" onClick={() => setShowInput(!showInput)}>取消</button></p>
+    return <>
+        <div className="singin">
+            <div className="button-container">
+                <div className="sigin-logo">
+                <Link to={"/"} className="canvas-logo"></Link>
                 </div>
-            </>}
-            <p><button  {...handleDisplay()} onClick={() => setShowInput(!showInput)}><img src="/images/email.png" className="icon" />　以Email繼續</button></p>
-            <p><button  {...handleDisplay()} onClick={handleGoogle}><img src="/images/google.png" className="icon" />　以Google繼續</button></p>
-            <p><button  {...handleDisplay()} onClick={handleFacebook}><img src="/images/facebook.png" className="icon" />　以Facebook繼續</button></p>
+                {showInput && <>
+                    <div className="register-input-container">
+                        <form>
+                        <p><input className="register-input"
+                            name="email"
+                            placeholder="Email"
+                            onChange={(event) => handleInput(event)}></input></p>
+                        <p><input className="register-input"
+                            name="password"
+                            type="password"
+                            placeholder="Password"
+                            onChange={(event) => handleInput(event)}></input></p>
+                        <p><button className="email-signin-button" onClick={handleSignin}>繼續</button></p>
+                        </form>
+                        <p><button className="email-signin-button" onClick={() => setShowInput(!showInput)}>取消</button></p>
+                    </div>
+                </>}
+                <p><div className="sign-method" {...handleDisplay()} onClick={() => setShowInput(!showInput)}><img src="/images/email.png" className="icon" />　以Email繼續</div></p>
+                <p ><div className="sign-method" {...handleDisplay()} onClick={handleGoogle}><img src="/images/google.png" className="icon" />　以Google繼續</div></p>
+                <p ><div className="sign-method" {...handleDisplay()} onClick={handleFacebook}><img src="/images/facebook.png" className="icon" />　以Facebook繼續</div></p>
+            </div>
         </div>
-
-    );
+        </>;
 }
 export default Signin

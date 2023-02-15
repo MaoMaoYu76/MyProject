@@ -61,8 +61,10 @@ const EditZone = () => {
     return <>
         <div style={sideboxStyle}>
             <div className="sidebar">
-                <img src="/images/template.png" className="side-icon" onClick={handleBox} />
-                <div className="icontext">Template</div>
+                <div onClick={handleBox} className="side-icons">
+                <img src="/images/image.png" className="side-icon"  />
+                <div className="icontext">Images</div>
+                </div>
             </div>
             {showBox && <>
                 <div className="side-container">

@@ -65,7 +65,7 @@ const CanvasImage = (props) => {
       style: {
         width: ImageWidth,
         height: ImageHeight,
-        border: `${border} solid pink`,
+        border: `${border} solid #ff719a`,
         position: "relative",
         position: "absolute",
         boxSizing: "content-box",
@@ -160,6 +160,7 @@ const CanvasImage = (props) => {
             zIndex: "1",
             width: "100%",
             height: "100%",
+            // userSelect: "none"
             // margin:`${border}`
             // clipPath: `inset(${border} )`,
           }}
