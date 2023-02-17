@@ -1,6 +1,6 @@
 import React from "react";
 import LogoBar from "../Components/LogoBar";
-import "../Components/edit.css";
+import "../Styles/edit.css";
 import EditZone from "../Components/EditZone";
 import { useState } from "react";
 import { createContext } from "react";

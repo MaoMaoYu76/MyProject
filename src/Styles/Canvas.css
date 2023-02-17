@@ -1,13 +1,3 @@
-
-
-.alert{
-    margin-top: 30px;
-    color: #ff316bd2;
-    font-size: 18px;
-    font-weight: 700;
-    
-}
-
 .transform-controller{
     display: flex;
     position:sticky;

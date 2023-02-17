@@ -19,6 +19,7 @@
     "html2canvas": "^1.4.1",
     "html2canvas-proxy": "^1.0.1",
     "react": "^18.2.0",
+    "react-resizable": "^3.0.4",
     "react-router-dom": "^6.7.0",
     "shortid": "^2.2.16",
     "uuid": "^9.0.0"

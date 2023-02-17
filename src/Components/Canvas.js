@@ -1,5 +1,5 @@
 import React from "react";
-import "../Components/Canvas.css";
+import "../Styles/Canvas.css";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useContext } from "react";
@@ -51,6 +51,7 @@ const Canvas = (props) => {
     setScale(initialScale);
   }, [size]);
 
+  //偵測登入狀態
   useEffect(() => {
     if (currentUser) {
       setShowSignin(false)
@@ -61,7 +62,6 @@ const Canvas = (props) => {
   useEffect(() => {
     setHeight(scale * 0.01 * initialHeight)
     setWidth(scale * 0.01 * initialWidth)
-
   }, [scale]);
 
 
@@ -120,6 +120,7 @@ const Canvas = (props) => {
   //處理快照
   const handleScreenShot = async () => {
     setScale(100);
+    // console.log(currentUser);
     if (currentUser) {
       const canvas = document.getElementById('canvas');
 
@@ -175,26 +176,26 @@ const Canvas = (props) => {
       //放入firestore並把doc.id放進會員中
     } else {
       setShowSignin(true)
+      setAlert(<div className="alert">登入尚可發布作品</div>)
+      
       const handleMask = (event) => {
         // console.log(event.target);
         if (event.target === document.querySelector(".mask")) {
           setShowSignin(false)
+
         }
       }
       addEventListener("click", handleMask)
       
     }
   }
+  const [alert, setAlert] = useState(null);
 
   return <>
-    {/* {showSignin && <>
+    {showSignin && <>
       <div className="mask"></div>
-      <div className="singin">
-        <p className="alert">Login to download your post!</p>
-        <Signin />
-      </div>
-
-    </>} */}
+        <Signin setShowSignin={setShowSignin} alert = {alert}/>
+    </>}
     <div className="editer-top editer">
       <div className="deploy" onClick={handleScreenShot}><img className="deployimg" src="/images/download.png" /><a></a></div>
     </div>
@@ -203,6 +204,7 @@ const Canvas = (props) => {
         <div id="canvas">
           <div  {...handleCanvas()}>
             {canvasImages.map((Image, index) => <CanvasImage key={index} src={Image.src} id={Image.id} onKeyDown={handleKeyDown} />)}
+            <CanvasImage src="https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4392447.png?alt=media&token=a33e8698-b405-427d-b2ed-2a388bd03147" id="ACx123" />
           </div>
         </div>
       </div>

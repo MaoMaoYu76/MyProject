@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import "../Components/EditZone.css";
+import "../Styles/EditZone.css";
 import { useState } from "react";
 import BoxImage from "./BoxImage";
 import Canvas from "./Canvas";
@@ -7,7 +7,7 @@ import shortid from "shortid";
 import { storage } from "../firebase";
 
 
-const EditZone = () => {
+const EditZone = (props) => {
     const [showBox, setShowBox] = useState(false);
 
     //工具列顯示相關

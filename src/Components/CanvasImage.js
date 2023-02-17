@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { useRef } from "react";
 import { useEffect } from "react";
-import "../Components/CanvasImage.css";
+import "../Styles/CanvasImage.css";
 
 
 const CanvasImage = (props) => {
@@ -14,6 +14,7 @@ const CanvasImage = (props) => {
   const [ImageHeight, setImageHeight] = useState()
   const [resizing, setResizing] = useState(false)
   const [selecting, setSelecting] = useState(false)
+
 
 
 
@@ -48,7 +49,7 @@ const CanvasImage = (props) => {
     if (event.target === document.getElementById(`${props.id}`)) {
       setSelecting(true)
       setBorder("5px")
-    }else if(resizeDots.includes(event.target) && event.target.parentElement.children[0] === document.getElementById(`${props.id}`)){
+    } else if (resizeDots.includes(event.target) && event.target.parentElement.children[0] === document.getElementById(`${props.id}`)) {
       //如果陣列內包含事件目標
       console.log("選取點點");
       setSelecting(true)
@@ -78,23 +79,52 @@ const CanvasImage = (props) => {
     }
   }
 
+
   const handleResize = (event) => {
     setResizing(true)
-    // document.removeEventListener("click", handleSelect)
-    // event.preventDefault();
+
+    //cusor position
     const initialX = event.clientX;
     const initialY = event.clientY;
 
+    const id = event.target.id
+
+    //image size
     let currentWidth = ImageWidth;
     let currentHeight = ImageHeight;
 
     const onMouseMove = (event) => {
-      // if (!event.buttons) return;
+
       const deltaX = event.clientX - initialX;
       const deltaY = event.clientY - initialY;
 
-      setImageWidth(currentWidth + deltaX);
-      setImageHeight(currentHeight + deltaY);
+      // 判斷位置
+      if (id === "top-right") {
+        setImageWidth(currentWidth + deltaX);
+        setImageHeight(currentHeight - deltaY);
+
+        positionsRef.current[props.id] = { ...positionsRef.current[props.id], y: position.y + deltaY }
+        setPosition(positionsRef.current[props.id]);
+
+      } else if (id === "bottom-right") {
+        setImageWidth(currentWidth + deltaX);
+        setImageHeight(currentHeight + deltaY);
+
+      } else if (id === "bottom-left") {
+        setImageWidth(currentWidth - deltaX);
+        setImageHeight(currentHeight + deltaY);
+
+        positionsRef.current[props.id] = { ...positionsRef.current[props.id], x: position.x + deltaX }
+        setPosition(positionsRef.current[props.id]);
+
+      } else if (id === "top-left") {
+        setImageWidth(currentWidth - deltaX);
+        setImageHeight(currentHeight - deltaY);
+
+        positionsRef.current[props.id] = { x: position.x + deltaX, y: position.y + deltaY }
+        setPosition(positionsRef.current[props.id]);
+
+      }
     };
 
     document.addEventListener("pointermove", onMouseMove);
@@ -113,10 +143,9 @@ const CanvasImage = (props) => {
 
   const handlePointerDown = (event) => {
 
-    // console.log("位移目標", event.target);
-    // console.log("resizing", resizing);
     if (event.target === document.getElementById(`${props.id}`)) {
-      // console.log("圖片被點到了");
+
+      // if(event.target)
       const initialX = event.clientX;
       const initialY = event.clientY;
       const { x, y } = position;
@@ -157,7 +186,7 @@ const CanvasImage = (props) => {
             position: 'absolute',
             zIndex: 0,
             cursor: 'move',
-            zIndex: "1",
+            // zIndex: "1",
             width: "100%",
             height: "100%",
             // userSelect: "none"
@@ -166,31 +195,35 @@ const CanvasImage = (props) => {
           }}
           onPointerDown={handlePointerDown}
         />
-        {selecting && <><div className="resize-dot" tabIndex={0} onPointerDown={handleResize}
+        {selecting && <><div className="resize-dot" onPointerDown={handleResize}
+          id="bottom-right"
           style={{
             right: "-8px",
             bottom: "-8px",
             cursor: "nwse-resize",
           }} />
-          {/* <div className="resize-dot" onPointerDown={handleResize}
+          <div className="resize-dot" onPointerDown={handleResize}
+            id="top-right"
             style={{
               right: "-8px",
               top: "-8px",
               cursor: "ne-resize",
             }} />
-          <div className="resize-dot"
+          <div className="resize-dot" onPointerDown={handleResize}
+            id="bottom-left"
             style={{
               left: "-8px",
               bottom: "-8px",
               cursor: "ne-resize"
             }}></div>
-          <div className="resize-dot"
+          <div className="resize-dot" onPointerDown={handleResize}
+            id="top-left"
             style={{
               left: "-8px",
               top: "-8px",
               cursor: "nwse-resize"
-            }} /> */}
-            </>}
+            }} />
+        </>}
       </div>
     </div>
   </>

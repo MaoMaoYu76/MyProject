@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
-import "../Components/LogoBar.css";
+import "../Styles/LogoBar.css";
 import { useEffect } from "react";
 import Signin from "./Signin";
 
@@ -50,7 +50,7 @@ const LogoBar = (props) => {
                 }
             }
             return <>
-                <span className="logout-background"><button className="logout-button" onClick={logOut}>登出</button></span>
+                <div className="link" onClick={logOut}>登出</div>
                 <img className="Userphoto" src={profilepic()} />
             </>
         }
@@ -59,18 +59,18 @@ const LogoBar = (props) => {
         }
     }
 
-    const StarSignin =()=>{
+    const StarSignin = () => {
         setShowSignin(true)
         const handleMask = (event) => {
-        
+
             console.log(event.target);
             if (event.target === document.querySelector(".mask")) {
-              setShowSignin(false)
+                setShowSignin(false)
             }
-          }
-          addEventListener("click", handleMask)
+        }
+        addEventListener("click", handleMask)
     }
-    
+
 
 
 
@@ -78,10 +78,7 @@ const LogoBar = (props) => {
         return <>
             {showSignin && <>
                 <div className="mask"></div>
-                <div className="singin">
-                    <p className="alert">Login to download your post!</p>
-                    <Signin setShowSignin={setShowSignin} />
-                </div>
+                <Signin setShowSignin={setShowSignin} />
             </>}
             <div className="canvas-barcontain">
                 <div className="bar">
@@ -95,7 +92,7 @@ const LogoBar = (props) => {
                                     <p className="size" onClick={() => handleSizeChange([529.1, 396.8, 130])}>卡片14*10.5cm</p>
                                 </div>
                             </>}
-                        <img onClick={() => setSizeOptions(!showSizeOptions)} className="bar-icon" src="images/arrow-down.png" />
+                            <img onClick={() => setSizeOptions(!showSizeOptions)} className="bar-icon" src="images/arrow-down.png" />
                         </div>
                     </div>
                     <div className="auth">
@@ -109,10 +106,7 @@ const LogoBar = (props) => {
         return <>
             {showSignin && <>
                 <div className="mask"></div>
-                <div className="singin">
-                    <p className="alert">Login to download your post!</p>
-                    <Signin setShowSignin={setShowSignin} />
-                </div>
+                <Signin setShowSignin={setShowSignin} />
             </>}
             <div className="barcontain">
                 <div className="bar">

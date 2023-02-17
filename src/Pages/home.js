@@ -1,7 +1,7 @@
 import LogoBar from "../Components/LogoBar";
 import Footer from "../Components/Footer";
 import React from "react";
-import "../Components/home.css";
+import "../Styles/home.css";
 import { Link } from "react-router-dom";
 
 function HOME() {

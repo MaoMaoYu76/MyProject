@@ -11,11 +11,6 @@
     box-shadow: 0 2px 8px rgb(14 19 24 / 7%)
 }
 
-.sigin-logo{
-    width: 200px;
-    height: 80px;
-}
-
 button{
     cursor: pointer;
 }
@@ -27,13 +22,37 @@ button{
     justify-content: center;
     margin-top: 10%;
     margin-bottom: 20px;
+    flex-direction: column;
+    
 }
 
-
-
-.sign-method{
-    /* background-color: rgba(255, 255, 255, 0.2); */
+.sigin-logo{
+    width: 200px;
+    height: 80px;
 }
+
+.alert{
+    color: #1c160a;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    width: 200px;
+    
+}
+
+.alert-link{
+    margin-bottom: 5px;
+    border: 2px solid #ECECEC;
+    height: 50px;
+    width: 250px;
+    border-radius: 5px;
+    background-color:rgba(255, 255, 255, 0.3);
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    cursor: pointer;
+}
+
 
 .icon{
     height: 25px;
