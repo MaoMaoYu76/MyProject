@@ -8,7 +8,7 @@
 
 .editer{
     background-color: #FFF;
-    height: 9.9vh;
+    height: 8vh;
 }
 
 .editer-top{
@@ -17,7 +17,7 @@
 
 .canvas-container{
     overflow: auto;
-    height: 73vh;
+    height: 77vh;
     display: flex;
 }
 
@@ -41,6 +41,16 @@
     align-items: center;
 }
 
-.result{
+.frame{
+    background-color: #F2F2F2;
+    margin: auto auto;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgb(14 19 24 / 7%);
+    overflow: hidden;
+}
 
+.canvas{
+    background-color: #FFF;
+    /* 變換canvas的起始位置，讓大小靠齊左上 */
+    transform-origin: 0 0;
 }

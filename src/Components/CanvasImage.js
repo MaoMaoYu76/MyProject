@@ -6,16 +6,18 @@ import "../Styles/CanvasImage.css";
 
 
 const CanvasImage = (props) => {
+  let timeoutID;
   const [border, setBorder] = useState("0")
   const { onKeyDown } = props;
   const positionsRef = useRef({ x: 0, y: 0 });
+  // console.log("positionsRef",positionsRef);
+  
   const [position, setPosition] = useState(positionsRef.current[props.id] || { x: 0, y: 0 })
   const [ImageWidth, setImageWidth] = useState()
   const [ImageHeight, setImageHeight] = useState()
   const [resizing, setResizing] = useState(false)
   const [selecting, setSelecting] = useState(false)
-
-
+  const [ImgData, setImgData] = useState({})
 
 
   useEffect(() => {
@@ -40,6 +42,13 @@ const CanvasImage = (props) => {
     //如果Image不存在就不要一直監聽下去，那我是不是應該上移，只保留一個監聽？
   }, []);
 
+  //計時儲存
+  const startCount = () => {
+    timeoutID = setTimeout(() => {
+      console.log('自动储存');
+      // props.moving(false);
+    }, 5000);
+  }
 
   const handleSelect = (event) => {
     // console.log("選取目標", event.target.parentElement.children[0]);
@@ -81,6 +90,7 @@ const CanvasImage = (props) => {
 
 
   const handleResize = (event) => {
+
     setResizing(true)
 
     //cusor position
@@ -123,7 +133,6 @@ const CanvasImage = (props) => {
 
         positionsRef.current[props.id] = { x: position.x + deltaX, y: position.y + deltaY }
         setPosition(positionsRef.current[props.id]);
-
       }
     };
 
@@ -136,13 +145,13 @@ const CanvasImage = (props) => {
         return false;
       };
 
-      setResizing(false)
+      setResizing(false);
     });
 
   }
 
   const handlePointerDown = (event) => {
-
+    clearTimeout(timeoutID);
     if (event.target === document.getElementById(`${props.id}`)) {
 
       // if(event.target)
@@ -181,17 +190,12 @@ const CanvasImage = (props) => {
         <img
           src={props.src}
           id={props.id}
-          // corssorigin={anonymous}
           style={{
             position: 'absolute',
             zIndex: 0,
             cursor: 'move',
-            // zIndex: "1",
             width: "100%",
             height: "100%",
-            // userSelect: "none"
-            // margin:`${border}`
-            // clipPath: `inset(${border} )`,
           }}
           onPointerDown={handlePointerDown}
         />

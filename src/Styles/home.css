@@ -15,7 +15,7 @@
 
 .body::after {
     content: "";
-    background-image: url("/public/images/posters.png");
+    background-image: url("https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/web%2Fposters.png?alt=media&token=76731c94-f33e-4a97-8a80-0d0ddd7b9392");
     /* https://venngage.com/features/poster-maker */
     background-repeat: repeat;
     position: fixed;

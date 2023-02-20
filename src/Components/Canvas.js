@@ -9,6 +9,7 @@ import { useLayoutEffect } from "react";
 import CanvasImage from "./CanvasImage";
 import domtoimage from 'dom-to-image';
 import Signin from "./Signin"
+import { getDownloadURL } from "firebase/storage";
 import { uploadBytes } from "firebase/storage";
 import { collection, addDoc } from "firebase/firestore";
 import { doc } from "firebase/firestore";
@@ -16,29 +17,51 @@ import { storage } from "../firebase";
 import { ref } from "firebase/storage";
 import { uploadString } from "firebase/storage";
 import { saveAs } from "file-saver";
-
-
-
+import { setDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import { uuidv4 } from "@firebase/util";
 
 
 const Canvas = (props) => {
-  const size = useContext(SizeData)
-  const currentUser = useContext(CurrentUser)
+  const size = useContext(SizeData);
+  const currentUser = useContext(CurrentUser);
+  const canvasID = uuidv4()
   const [initialWidth, initialHeight, initialScale] = size;
-  const [scale, setScale] = useState(initialScale)
-  const [height, setHeight] = useState(initialHeight)
-  const [width, setWidth] = useState(initialWidth)
-  // var proxy = require('html2canvas-proxy');
+  const [scale, setScale] = useState(initialScale);
+  const [height, setHeight] = useState(initialHeight);
+  const [width, setWidth] = useState(initialWidth);
+  const [canvasData, setCanvasData] = useState({});
 
-  const [canvasImages, setCanvasImages] = useState([])
-  const [showSignin, setShowSignin] = useState(false)
+  const [canvasImages, setCanvasImages] = useState([]);
+  // console.log("canvasImages",canvasImages);
+  const [showSignin, setShowSignin] = useState(false);
+  const [alert, setAlert] = useState(null);
 
 
   const handleChange = (event) => {
     setScale(event.target.value)
   }
+  //自動儲存偵測
+  //   useEffect(() => {},[])
+  // {
+  //   canvasID:{
 
-  useLayoutEffect(() => {
+  //   }
+  // }
+  useEffect(() => {
+    if(Moving === false){
+      setTimeout(() => {
+        canvasImages.forEach(element => {
+          const canvasElement = document.getElementById(element.id);
+        console.log("canvas element:", canvasElement.getBoundingClientRect());
+        })
+      },5000)
+    }
+  }, [scale])
+
+
+  //偵測新的圖像加入畫布
+  useEffect(() => {
     if (props.newCanvasImage) {
       const newSrc = props.newCanvasImage
       const id = props.id
@@ -87,15 +110,9 @@ const Canvas = (props) => {
   const handleFrame = () => {
     return {
       className: "frame",
-      // id: "canvas",
       style: {
         height: height,
         width: width,
-        backgroundColor: "#F2F2F2",
-        margin: "auto auto",
-        flexShrink: "0",
-        boxShadow: "0 2px 8px rgb(14 19 24 / 7%)",
-        overflow: "hidden",
       }
     }
   }
@@ -104,107 +121,93 @@ const Canvas = (props) => {
   const handleCanvas = () => {
     return {
       className: "canvas",
-      // id: "canvas",
       style: {
         width: initialWidth,
         height: initialHeight,
-        backgroundColor: "#FFF",
         transform: `scale(${scale * 0.01})`,
-        transformOrigin: "0 0",
-        overflow: "hidden",
-        // boxShadow: "0 2px 8px rgb(14 19 24 / 7%)"
       }
     }
   }
 
+  // console.log(window.location);
   //處理快照
   const handleScreenShot = async () => {
-    setScale(100);
-    // console.log(currentUser);
-    if (currentUser) {
-      const canvas = document.getElementById('canvas');
 
+    //讀取會員登入狀態否則跳出登入提示
+    if (currentUser) {
+      // console.log(currentUser);
+      const canvas = document.getElementById('canvas');
+      setScale(100);
 
       //DEMO使用的存儲
-      // domtoimage.toBlob(canvas)
-      //   .then(function (blob) {
-      //     window.saveAs(blob, 'my-result.png');
-      //   });
+      domtoimage.toBlob(canvas)
+        .then(function (blob) {
+          const storageRef = ref(storage, `${canvas.children[0].id}.jpg`);
+          測試圖片生成是否正常
+          window.saveAs(blob, 'my-result.png');
 
-      // document.getElementById('ODYFuiXhQC').style.left="90px",
-      // document.getElementById('ODYFuiXhQC').style.top="160px",
-      //讀取會員登入狀態否則跳出登入提示
+          //將圖片放入storage
+          // uploadBytes(storageRef, blob).then((snapshot) => {
+          //   console.log(window.location.host+"/poster/"+canvas.children[0].id);
 
-      //將圖片放入storage取得url
-      //html2位移情況很嚴重，可以再試著用absolute定義為至
-      //   html2canvas(node,{useCORS: true,allowTaint:true,}).then(function(canvas) {
-      //     document.body.appendChild(canvas);
-      // });
 
-      //也許可以試著修剪圖片
-      domtoimage.toPng(canvas,
-        // { style: { 
-        //   height:397,
-        //   // width:initialWidth 
-        // } }
-      )
-        .then(function (dataUrl) {
-          // console.log(dataUrl);
-          const img = new Image();
-          img.src = dataUrl;
-          // const storageRef = ref(storage, 'post/project.jpg');
+          //   //取得圖片url
+          //   // getDownloadURL(ref(storage, `${currentUser.uid}/${canvas.children[0].id}.jpg`)).then((url) => {
+          //   //   console.log(url);
 
-          // img.height =397;
-          // console.log(initialHeight);
-          // img.width =initialWidth;
-          document.body.appendChild(img);
-          // const message4 = 'data:text/plain;base64,5b6p5Y+344GX44G+44GX44Gf77yB44GK44KB44Gn44Go44GG77yB';
-          // uploadString(storageRef, message4, dataUrl).then((snapshot) => {
-          //   console.log('Uploaded a data_url string!');
+          //   // }).then(() => {
+          //   //   console.log('已寫入 Firestore');
+          //   // }).catch((error) => {
+          //   //   console.error(error);
           //   // });
-          // })
-          //   .catch(function (error) {
-          //     console.error('oops, something went wrong!', error);
-          //   })
+          // });
+
+          // //放入firestore中
+          // setDoc(doc(db, `${currentUser.uid}`, "images"), {
+          //   name: canvas.children[0].id,
+          //   url: url,
+          // }).then(() => {
+          //   console.log("Document successfully written!");
+          // }).catch((error) => {
+          //   console.error("Error writing document: ", error);
+          // });
+
         })
+      //     window.saveAs(blob, 'my-result.png');
 
-
-      //   // 'file' comes from the Blob or File API
-
-
-
-      //放入firestore並把doc.id放進會員中
     } else {
       setShowSignin(true)
-      setAlert(<div className="alert">登入尚可發布作品</div>)
-      
+      setAlert(<div className="alert" > 登入尚可發布作品</div>)
+
       const handleMask = (event) => {
         // console.log(event.target);
+
         if (event.target === document.querySelector(".mask")) {
           setShowSignin(false)
-
         }
       }
       addEventListener("click", handleMask)
-      
+
     }
   }
-  const [alert, setAlert] = useState(null);
+
+
+
 
   return <>
     {showSignin && <>
       <div className="mask"></div>
-        <Signin setShowSignin={setShowSignin} alert = {alert}/>
+      <Signin setShowSignin={setShowSignin} alert={alert} />
     </>}
     <div className="editer-top editer">
-      <div className="deploy" onClick={handleScreenShot}><img className="deployimg" src="/images/download.png" /><a></a></div>
+      <div className="deploy" onClick={handleScreenShot}><img className="deployimg" src="/images/share.png" /></div>
     </div>
-    <div className="canvas-container" id="test">
+    <div className="canvas-container">
       <div {...handleFrame()}>
         <div id="canvas">
-          <div  {...handleCanvas()}>
+          <div  {...handleCanvas()} id={canvasID}>
             {canvasImages.map((Image, index) => <CanvasImage key={index} src={Image.src} id={Image.id} onKeyDown={handleKeyDown} />)}
-            <CanvasImage src="https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4392447.png?alt=media&token=a33e8698-b405-427d-b2ed-2a388bd03147" id="ACx123" />
+            {/* <CanvasImage src="https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4392447.png?alt=media&token=a33e8698-b405-427d-b2ed-2a388bd03147" id="ACx123" /> */}
           </div>
         </div>
       </div>

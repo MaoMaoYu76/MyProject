@@ -1,34 +1,63 @@
 .sidebar {
     width: 90px;
-    height: 93vh;
+    height: calc(100vh - 60px);
     background-color: #1c160a;
 }
 
 .side-icons{
     cursor: pointer;
-    margin-top: 10px;
+    border-radius: 5px 0 0 5px;
+    margin: 9px 0 0 5px ;
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .side-icon {
     width: 45px;
     height: 45px;
-    margin: 10px 20px 0;
+    
 }
 
 
 .icontext {
     font-weight: 900;
     text-align: center;
-    color: #90CCF4;
+    color: #EAE1CC;
 }
-
 .side-container {
     width: 400px;
+    background-color: #1c160a;
+    display: flex;
+    align-items: center;
+}
+
+.side-boxes {
+    width: 400px;
     background-color: #2e2e2e;
-    display: grid;
+    display: none;
+    border-radius: 5px;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: repeat(6,1fr);
-    /* height: 100%; */
+    height: 98%;
+    position: relative;
+}
+
+.close-boxes{
+    display: flex;
+    width: 10px;
+    align-items: center;
+    position: relative;
+    justify-content: center;
+}
+
+.close-icon{
+    width: 20px;
+    height: 40px;
+    background-color: #1c160a;
+    border-radius: 5px;
+    padding: 5px;
 }
 
 .edit-zone {

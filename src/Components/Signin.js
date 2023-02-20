@@ -130,7 +130,7 @@ function Signin(props) {
         setShowInput(!showInput)
         setAlert(null)
     }
-    
+
     return <>
         <div className="singin">
             <div className="button-container">
@@ -155,9 +155,9 @@ function Signin(props) {
                         <p><button className="email-signin-button" onClick={handleCancell}>取消</button></p>
                     </div>
                 </>}
-                <p><div {...handleDisplay()} onClick={() => setShowInput(!showInput)}><img src="/images/email.png" className="icon" />　以Email繼續</div></p>
-                <p><div {...handleDisplay()} onClick={handleGoogle}><img src="/images/google.png" className="icon" />　以Google繼續</div></p>
-                <p><div {...handleDisplay()} onClick={handleFacebook}><img src="/images/facebook.png" className="icon" />　以Facebook繼續</div></p>
+                <div {...handleDisplay()} onClick={() => setShowInput(!showInput)}><img src="/images/email.png" className="icon" />　以Email繼續</div>
+                <div {...handleDisplay()} onClick={handleGoogle}><img src="/images/google.png" className="icon" />　以Google繼續</div>
+                <div {...handleDisplay()} onClick={handleFacebook}><img src="/images/facebook.png" className="icon" />　以Facebook繼續</div>
             </div>
         </div>
     </>;

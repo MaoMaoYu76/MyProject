@@ -10,9 +10,11 @@ function APP() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/poster" element={<POSTER />} />
-                <Route path="/canvas" element={<EDIT />} />
-                <Route path="*" element={<HOME />} />
+                    {/* <Route path="/poster/:id" element={<POSTER />} /> */}
+                    <Route path="/poster" element={<POSTER />} />
+                    <Route path="/poster/:id" element={<POSTER />} />
+                    <Route path="/canvas" element={<EDIT />} />
+                    <Route path="/" element={<HOME />} />
             </Routes>
         </BrowserRouter>
     );

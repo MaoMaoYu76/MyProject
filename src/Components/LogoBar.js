@@ -9,6 +9,7 @@ import Signin from "./Signin";
 
 const LogoBar = (props) => {
 
+    console.log("LogoBar");
     const [currentUser, setCurrentUser] = useState(null);
     const [showSizeOptions, setSizeOptions] = useState(false);
     const [showSignin, setShowSignin] = useState(false)
@@ -32,14 +33,18 @@ const LogoBar = (props) => {
     useEffect(() => {
         onAuthStateChanged(auth, (currentUser) => {
             if (currentUser) {
+                // console.log("currentUser",currentUser);
                 setCurrentUser(currentUser);
-                props.currentUser(currentUser);
+                if (window.location.pathname === "/canvas") {
+                    props.currentUser(currentUser);
+                }
             };
         });
     }, [])
 
     //登入資訊顯示
     const Barcontent = () => {
+        // console.log(currentUser);
         if (currentUser != null) {
             const profilepic = () => {
                 if (currentUser.photoURL != null) {
@@ -59,6 +64,22 @@ const LogoBar = (props) => {
         }
     }
 
+    const Settings = () => {
+
+        if (window.location.pathname === "/canvas") {
+            return <><div onClick={() => setSizeOptions(!showSizeOptions)} className="canvas-console">調整尺寸
+                {showSizeOptions && <>
+                    <div className="size-options">
+                        <p className="size" onClick={() => handleSizeChange([1587.4, 2245, 25])}>直立式海報42*59.4cm</p>
+                        <p className="size" onClick={() => handleSizeChange([529.1, 396.8, 130])}>卡片14*10.5cm</p>
+                    </div>
+                </>}
+                <img onClick={() => setSizeOptions(!showSizeOptions)} className="bar-icon" src="images/arrow-down.png" />
+            </div>
+            </>
+        }
+    }
+
     const StarSignin = () => {
         setShowSignin(true)
         const handleMask = (event) => {
@@ -73,27 +94,16 @@ const LogoBar = (props) => {
 
 
 
-
-    if (window.location.pathname === "/canvas") {
+    if (window.location.pathname === "/") {
         return <>
             {showSignin && <>
                 <div className="mask"></div>
                 <Signin setShowSignin={setShowSignin} />
             </>}
-            <div className="canvas-barcontain">
+            <div className="barcontain">
                 <div className="bar">
-                    <div className="edit-function">
-                        <div className="logo-container">
-                            <Link to={"/"} className="canvas-logo"></Link></div>
-                        <div onClick={() => setSizeOptions(!showSizeOptions)} className="canvas-console">調整尺寸
-                            {showSizeOptions && <>
-                                <div className="size-options">
-                                    <p className="size" onClick={() => handleSizeChange([1587.4, 2245, 25])}>直立式海報42*59.4cm</p>
-                                    <p className="size" onClick={() => handleSizeChange([529.1, 396.8, 130])}>卡片14*10.5cm</p>
-                                </div>
-                            </>}
-                            <img onClick={() => setSizeOptions(!showSizeOptions)} className="bar-icon" src="images/arrow-down.png" />
-                        </div>
+                    <div className="logo-container">
+                        <Link to={"/"} className="logo"></Link>
                     </div>
                     <div className="auth">
                         <Barcontent />
@@ -108,10 +118,13 @@ const LogoBar = (props) => {
                 <div className="mask"></div>
                 <Signin setShowSignin={setShowSignin} />
             </>}
-            <div className="barcontain">
+            <div className="canvas-barcontain">
                 <div className="bar">
-                    <div className="logo-container">
-                        <Link to={"/home"} className="logo"></Link>
+                    <div className="edit-function">
+                        <div className="logo-container">
+                            <Link to={"/"} className="canvas-logo"></Link>
+                        </div>
+                        <Settings />
                     </div>
                     <div className="auth">
                         <Barcontent />
@@ -119,6 +132,7 @@ const LogoBar = (props) => {
                 </div>
             </div>
         </>
+
     }
 
 }
