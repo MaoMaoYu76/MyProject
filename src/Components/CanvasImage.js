@@ -6,18 +6,21 @@ import "../Styles/CanvasImage.css";
 
 
 const CanvasImage = (props) => {
-  let timeoutID;
+
   const [border, setBorder] = useState("0")
   const { onKeyDown } = props;
   const positionsRef = useRef({ x: 0, y: 0 });
   // console.log("positionsRef",positionsRef);
-  
+
   const [position, setPosition] = useState(positionsRef.current[props.id] || { x: 0, y: 0 })
   const [ImageWidth, setImageWidth] = useState()
   const [ImageHeight, setImageHeight] = useState()
   const [resizing, setResizing] = useState(false)
   const [selecting, setSelecting] = useState(false)
   const [ImgData, setImgData] = useState({})
+
+  //test
+  const [count, setCount] = useState(0);
 
 
   useEffect(() => {
@@ -42,13 +45,7 @@ const CanvasImage = (props) => {
     //如果Image不存在就不要一直監聽下去，那我是不是應該上移，只保留一個監聽？
   }, []);
 
-  //計時儲存
-  const startCount = () => {
-    timeoutID = setTimeout(() => {
-      console.log('自动储存');
-      // props.moving(false);
-    }, 5000);
-  }
+
 
   const handleSelect = (event) => {
     // console.log("選取目標", event.target.parentElement.children[0]);
@@ -60,7 +57,6 @@ const CanvasImage = (props) => {
       setBorder("5px")
     } else if (resizeDots.includes(event.target) && event.target.parentElement.children[0] === document.getElementById(`${props.id}`)) {
       //如果陣列內包含事件目標
-      console.log("選取點點");
       setSelecting(true)
       setBorder("5px")
     }
@@ -87,10 +83,10 @@ const CanvasImage = (props) => {
       }
     }
   }
+  
 
-
+  //控制大小拖曳
   const handleResize = (event) => {
-
     setResizing(true)
 
     //cusor position
@@ -141,17 +137,18 @@ const CanvasImage = (props) => {
     document.addEventListener("pointerup", () => {
       document.removeEventListener("pointermove", onMouseMove);
 
-      ondragstart = function () {
-        return false;
-      };
-
       setResizing(false);
+      setCount(count+1)
+      props.count(count)
     });
+
+    ondragstart = function () {
+      return false;
+    };
 
   }
 
   const handlePointerDown = (event) => {
-    clearTimeout(timeoutID);
     if (event.target === document.getElementById(`${props.id}`)) {
 
       // if(event.target)
@@ -169,20 +166,24 @@ const CanvasImage = (props) => {
         }
       };
 
+
+
       const handlePointerUp = () => {
         document.removeEventListener("pointermove", handlePointerMove);
-      };
+        setCount(count+1)
+        props.count(count)
+        };
 
-      if (resizing === false) {
-        document.addEventListener("pointermove", handlePointerMove);
-        document.addEventListener("pointerup", handlePointerUp);
-      }
-      ondragstart = function () {
-        return false;
+        if (resizing === false) {
+          document.addEventListener("pointermove", handlePointerMove);
+          document.addEventListener("pointerup", handlePointerUp);
+        }
+        ondragstart = function () {
+          return false;
+        };
       };
-    };
-  }
-
+    }
+  
 
   return <>
     <div tabIndex={0} onKeyDown={onKeyDown} >

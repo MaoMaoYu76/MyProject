@@ -22,6 +22,7 @@ import { db } from "../firebase";
 import { uuidv4 } from "@firebase/util";
 
 
+
 const Canvas = (props) => {
   const size = useContext(SizeData);
   const currentUser = useContext(CurrentUser);
@@ -30,34 +31,20 @@ const Canvas = (props) => {
   const [scale, setScale] = useState(initialScale);
   const [height, setHeight] = useState(initialHeight);
   const [width, setWidth] = useState(initialWidth);
-  const [canvasData, setCanvasData] = useState({});
+
 
   const [canvasImages, setCanvasImages] = useState([]);
   // console.log("canvasImages",canvasImages);
   const [showSignin, setShowSignin] = useState(false);
   const [alert, setAlert] = useState(null);
 
+  //test
+  const [count, setCount] = useState(0);
+  const [snapshots, setSnapshots] = useState([])
 
   const handleChange = (event) => {
     setScale(event.target.value)
   }
-  //自動儲存偵測
-  //   useEffect(() => {},[])
-  // {
-  //   canvasID:{
-
-  //   }
-  // }
-  useEffect(() => {
-    if(Moving === false){
-      setTimeout(() => {
-        canvasImages.forEach(element => {
-          const canvasElement = document.getElementById(element.id);
-        console.log("canvas element:", canvasElement.getBoundingClientRect());
-        })
-      },5000)
-    }
-  }, [scale])
 
 
   //偵測新的圖像加入畫布
@@ -66,6 +53,7 @@ const Canvas = (props) => {
       const newSrc = props.newCanvasImage
       const id = props.id
       setCanvasImages([...canvasImages, { id: id, src: newSrc }]);
+      setCount(count + 1)
     }
   }, [props.id]);
 
@@ -143,7 +131,7 @@ const Canvas = (props) => {
       domtoimage.toBlob(canvas)
         .then(function (blob) {
           const storageRef = ref(storage, `${canvas.children[0].id}.jpg`);
-          測試圖片生成是否正常
+          // 測試圖片生成是否正常
           window.saveAs(blob, 'my-result.png');
 
           //將圖片放入storage
@@ -191,7 +179,46 @@ const Canvas = (props) => {
     }
   }
 
+  useEffect(() => {
+    const newObj = {};
+    const timer = setTimeout(() => {
+      const canvas = document.getElementById('canvas');
+      if (currentUser != undefined) {
+      // domtoimage.toBlob(canvas)
+      //   .then(function (blob) {
+      //     const storageRef = ref(storage, `${currentUser.uid}/Snapshot/${canvasID}.jpg`);
+      //     uploadBytes(storageRef, blob).then((snapshot) => {
 
+      //     }).catch((error)=>{
+      //       console.log(error);
+      //     })
+      //   })
+      }
+      canvasImages.forEach(element => {
+        const canvasElement = document.getElementById(element.id);
+        console.log("canvas element:", canvasElement.getBoundingClientRect());
+        newObj[element.id] = {
+          "src": element.src,
+          "x": canvasElement.getBoundingClientRect().x,
+          "y": canvasElement.getBoundingClientRect().y,
+          "height": canvasElement.getBoundingClientRect().height,
+          "width": canvasElement.getBoundingClientRect().width
+        }
+        // setDoc(doc(db, `${currentUser.uid}`, canvasID), newObj)
+
+      })
+    }, 5000);
+
+    // 在组件重新渲染或被卸载时，清除计时器
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [count,currentUser]);
+  //count,currentUser
+
+  const handlecount = (count) => {
+    setCount(count)
+  }
 
 
   return <>
@@ -206,7 +233,7 @@ const Canvas = (props) => {
       <div {...handleFrame()}>
         <div id="canvas">
           <div  {...handleCanvas()} id={canvasID}>
-            {canvasImages.map((Image, index) => <CanvasImage key={index} src={Image.src} id={Image.id} onKeyDown={handleKeyDown} />)}
+            {canvasImages.map((Image, index) => <CanvasImage key={index} src={Image.src} id={Image.id} onKeyDown={handleKeyDown} count={handlecount} />)}
             {/* <CanvasImage src="https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4392447.png?alt=media&token=a33e8698-b405-427d-b2ed-2a388bd03147" id="ACx123" /> */}
           </div>
         </div>

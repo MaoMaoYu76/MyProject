@@ -53,4 +53,6 @@
     background-color: #FFF;
     /* 變換canvas的起始位置，讓大小靠齊左上 */
     transform-origin: 0 0;
+    /* 沒有這行快照會裂開 */
+    overflow: hidden;
 }

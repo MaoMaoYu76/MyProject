@@ -7,7 +7,7 @@
 .side-icons{
     cursor: pointer;
     border-radius: 5px 0 0 5px;
-    margin: 9px 0 0 5px ;
+    margin: 9px 0 20px 5px ;
     padding: 10px 0;
     display: flex;
     flex-direction: column;
@@ -42,6 +42,8 @@
     grid-template-rows: repeat(6,1fr);
     height: 98%;
     position: relative;
+    /* align-items: center;
+    justify-items: center; */
 }
 
 .close-boxes{
@@ -74,3 +76,7 @@
     position: relative;
 }
 
+.project-item img{
+    width: 120px;
+    cursor: pointer;
+}

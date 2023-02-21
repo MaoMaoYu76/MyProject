@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import "../Styles/EditZone.css";
 import { useState } from "react";
 import BoxImage from "./BoxImage";
+// import AuthProject from "./AuthProject";
 import Canvas from "./Canvas";
 import shortid from "shortid";
 import { debounce } from "lodash";
@@ -13,6 +14,9 @@ import { useContext } from "react";
 import { CurrentUser } from "../Pages/edit";
 import { getDownloadURL } from "firebase/storage";
 import { listAll } from "firebase/storage";
+import { db } from "../firebase";
+import { getDocs } from "firebase/firestore";
+import { collection } from "firebase/firestore";
 
 
 const EditZone = (props) => {
@@ -30,6 +34,7 @@ const EditZone = (props) => {
     const [showBox, setShowBox] = useState(false);
     const [selectedBox, setSelectedBox] = useState("");
     const [uploadImages, setUploadImages] = useState([])
+    const [snapshots, setSnapshots] = useState([])
     const toolImages = ["https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4193312.png?alt=media&token=c0d409c1-affa-4d4c-97f9-522f99b142ed",
         "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/bear.png?alt=media&token=f6c73a80-0315-47e3-a0cf-2884986403e9",
         "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/5463321.png?alt=media&token=e3ab2628-0ca5-4e40-9fe9-bc59a73368df",
@@ -81,7 +86,13 @@ const EditZone = (props) => {
             setShowBox(true);
             setSideboxStyle({ display: "grid", gridTemplateColumns: `90px 400px ${threeArea}px` });
         }
-        setSelectedBox(event.target.id);
+        if (selectedBox === event.target.id && showBox) {
+            handleBoxOff()
+        }
+        else {
+            setSelectedBox(event.target.id);
+        }
+
     }
 
     const handleBoxOff = () => {
@@ -108,7 +119,7 @@ const EditZone = (props) => {
                     //給予一個ID
                     const imgId = shortid.generate()
                     //存入 Firebase Storage
-                    const storageRef = ref(storage, `${currentUser.uid}/${imgId}.jpg`);
+                    const storageRef = ref(storage, `${currentUser.uid}/Upload/${imgId}.jpg`);
                     uploadBytes(storageRef, file).then((snapshot) => {
                         getDownloadURL(storageRef).then((url) => {
                             //拿到 url 後加入畫布
@@ -122,7 +133,7 @@ const EditZone = (props) => {
         //使用 useEffect 控制事件偵測只執行一次
         document.addEventListener("paste", handlePaste);
         if (currentUser != undefined) {
-            const storageRef = ref(storage, `${currentUser.uid}`);
+            const storageRef = ref(storage, `${currentUser.uid}/Upload/`);
             const urls = []
             listAll(storageRef).then(function (result) {
                 result.items.forEach(function (imageRef) {
@@ -139,7 +150,44 @@ const EditZone = (props) => {
     }, [currentUser]);
     //在currentUser改變後重新執行
 
+    useEffect(() => {
+        if (currentUser != undefined) {
+            // const canvas = document.getElementById('canvas');
+            const storageRef = ref(storage, `${currentUser.uid}/Snapshot/`);
+            listAll(storageRef).then(function (result) {
+                result.items.forEach(function (imageRef) {
+                    getDownloadURL(ref(storage, imageRef.fullPath)).then((url) => {
+                        setSnapshots(prevState => [...prevState, { id: imageRef.name.split(".")[0], src: url }])
+                        //prevState可以避免覆蓋，否則snapshots只有最後一個內容
+                    }).catch((error) => {
+                        console.log(error);
+                    })
+                })
+            })
+        }
+    }, [currentUser]);
 
+    const AuthProject = (props) => {
+        return <div className="project-item" onClick={handleLoad}>
+            <img
+                src={props.src}
+                id={props.id}
+            />
+        </div>
+    };
+
+    const handleLoad = (event) => {
+        // e.target.id
+        console.log(event);
+        getDocs(collection(db, `${currentUser.uid}`)).then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                if(doc.id === event.target.id){
+                    console.log('Document data:', doc.data());
+                }
+                
+            });
+        })
+    }
 
     return <>
         <div style={sideboxStyle}>
@@ -151,6 +199,10 @@ const EditZone = (props) => {
                 <div onClick={handleBoxOn} className="side-icons" style={{ backgroundColor: selectedBox === "Upload" ? "#2e2e2e" : "#1c160a" }} id="Upload">
                     <img src="/images/upload.png" className="side-icon" id="Upload" />
                     <div className="icontext" id="Upload">Upload</div>
+                </div>
+                <div onClick={handleBoxOn} className="side-icons" style={{ backgroundColor: selectedBox === "Project" ? "#2e2e2e" : "#1c160a" }} id="Project">
+                    <img src="/images/folder.png" className="side-icon" id="Project" />
+                    <div className="icontext" id="Project">Projects</div>
                 </div>
             </div>
             {showBox && <>
@@ -174,6 +226,9 @@ const EditZone = (props) => {
                                     setId(shortid.generate())
                                 }
                             }} />)}
+                    </div>
+                    <div className="side-boxes" id="Project" style={{ display: selectedBox === "Project" ? "grid" : "none" }}>
+                        {snapshots.map((snapshot, index) => <AuthProject key={index} src={snapshot.src} id={snapshot.id}  />)}
                     </div>
                     <div className="close-boxes" onClick={handleBoxOff} ><img src="/images/arrow-left.png" className="close-icon" /></div>
                 </div>
