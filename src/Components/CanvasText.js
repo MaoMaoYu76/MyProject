@@ -2,83 +2,53 @@ import React from "react";
 import { useState } from "react";
 import { useRef } from "react";
 import { useEffect } from "react";
-import "../Styles/CanvasImage.css";
-import { useLayoutEffect } from "react";
+import "../Styles/CanvasText.css";
 
-const CanvasImage = (props) => {
+const CanvasText = (props) => {
+  const [ImageWidth, setImageWidth] = useState(300);
+  const [ImageHeight, setImageHeight] = useState(40);
   const [border, setBorder] = useState("0");
   const { onKeyDown } = props;
   const positionsRef = useRef({ x: 0, y: 0 });
-  const rest = props.rest;
-  const defaluet = rest ? { x: rest.x, y: rest.y } : { x: 0, y: 0 };
-
   const [position, setPosition] = useState(
-    positionsRef.current[props.id] || defaluet
+    positionsRef.current[props.id] || { x: 0, y: 0 }
   );
-
-  const [ImageWidth, setImageWidth] = useState();
-  const [ImageHeight, setImageHeight] = useState();
   const [resizing, setResizing] = useState(false);
+  //   const [moving, setMoving] = useState(false);
   const [selecting, setSelecting] = useState(false);
-  const [ImgData, setImgData] = useState({});
-
-  //test
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      let imageData = {};
-      imageData = {
-        id: props.id,
-        src: props.src,
-        x: position.x,
-        y: position.y,
-        height: ImageHeight,
-        width: ImageWidth,
-      };
-      props.imageData(imageData);
-    }, 5000);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [count]);
-
-  useEffect(() => {
-    if (rest) {
-      setImageWidth(rest.width);
-      setImageHeight(rest.height);
-    } else {
-      const image = new Image();
-      image.src = props.src;
-      //先創一個圖象，然後丟進去看看寬高
-      //我能不能直接讀取我的CanvasImage ？
-      image.onload = () => {
-        setImageWidth(image.width);
-        setImageHeight(image.height);
-      };
-    }
-  }, [props.src]);
+  const selectingRef = useRef(selecting);
+  const movingRef = useRef(false);
+  const [newText, setNewText] = useState("");
+  const [fontSize, setFontSize] = useState(16);
+  const [textAlign, setTextAlign] = useState("center");
 
   useEffect(() => {
     document.addEventListener("pointerdown", handleSelect);
-    // console.log("監聽啟用");
     return () => {
       document.removeEventListener("pointerdown", handleSelect);
-      // console.log("監聽關閉");
     };
-    //如果Image不存在就不要一直監聽下去，那我是不是應該上移，只保留一個監聽？
   }, []);
 
+  useEffect(() => {
+    if (selecting) {
+      props.handleTextTool(true);
+    }
+  }, [selecting]);
+
   const handleSelect = (event) => {
-    // console.log("選取目標", event.target.parentElement.children[0]);
+    console.log("movingRef", movingRef.current);
+    if (!selectingRef.current || movingRef.current) {
+      event.preventDefault();
+    }
+    // event.preventDefault();
     const resizeDots = Array.from(
       document.getElementsByClassName("resize-dot")
     );
     //getElementsByClassName沒辦法被檢查，因為他們是HTMLCollection，所以要換成真正的陣列
-    // console.log(resizeDots);
     if (event.target === document.getElementById(`${props.id}`)) {
       setSelecting(true);
-      setBorder("3px");
+      selectingRef.current = true;
+      setBorder("5px");
     } else if (
       resizeDots.includes(event.target) &&
       event.target.parentElement.children[0] ===
@@ -86,9 +56,11 @@ const CanvasImage = (props) => {
     ) {
       //如果陣列內包含事件目標
       setSelecting(true);
-      setBorder("5px");
+      selectingRef.current = true;
+      setBorder("3px");
     } else {
       setSelecting(false);
+      selectingRef.current = false;
       setBorder("0px");
     }
   };
@@ -151,7 +123,7 @@ const CanvasImage = (props) => {
       document.removeEventListener("pointermove", onMouseMove);
 
       setResizing(false);
-      setCount(count + 1);
+      //   setCount(count + 1);
     });
 
     ondragstart = function () {
@@ -167,6 +139,7 @@ const CanvasImage = (props) => {
       const { x, y } = position;
 
       const handlePointerMove = (event) => {
+        movingRef.current = true;
         const newX = x + event.clientX - initialX;
         const newY = y + event.clientY - initialY;
         if (resizing === false) {
@@ -177,7 +150,8 @@ const CanvasImage = (props) => {
 
       const handlePointerUp = () => {
         document.removeEventListener("pointermove", handlePointerMove);
-        setCount(count + 1);
+        movingRef.current = false;
+        // setCount(count + 1);
       };
 
       if (resizing === false) {
@@ -189,10 +163,17 @@ const CanvasImage = (props) => {
       };
     }
   };
+  const handleChange = (event) => {
+    setNewText(event.target.value);
+  };
+
+  const handleFocus = (event) => {
+    event.target.select();
+  };
 
   return (
     <>
-      <div tabIndex={0} id={props.id} onKeyDown={onKeyDown}>
+      <div tabIndex={0} onKeyDown={onKeyDown}>
         <div
           style={{
             width: ImageWidth,
@@ -209,18 +190,25 @@ const CanvasImage = (props) => {
           }}
           onPointerDown={handlePointerDown}
         >
-          <img
-            src={props.src}
+          <input
             id={props.id}
+            className="canvas-input"
+            onPointerDown={handlePointerDown}
+            onChange={handleChange}
+            onFocus={selecting ? handleFocus : undefined}
+            placeholder="輸入文字"
             style={{
               position: "absolute",
               zIndex: 0,
-              cursor: "move",
               width: "100%",
               height: "100%",
+              border: 0,
+              textAlign: textAlign,
+              backgroundColor: "transparent",
+              fontSize: ImageHeight * 0.63,
+              fontWeight: props.fontWeight,
             }}
-            onPointerDown={handlePointerDown}
-          />
+          ></input>
           {selecting && (
             <>
               <div
@@ -271,4 +259,4 @@ const CanvasImage = (props) => {
   );
 };
 
-export default CanvasImage;
+export default CanvasText;

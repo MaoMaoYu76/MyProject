@@ -22,15 +22,14 @@
 }
 
 .deploy{
-    margin: 20px 5px;
     display: flex;
-    align-items: center;
     /* background-image:linear-gradient(-225deg, #fff2d3 0%, #ffd5d0 48%, #ffadc5 100%); */
     padding: 0 15px;
-    height: 45px;
+    height: 100%;
     border-radius: 5px;
     cursor: pointer;
-    float: right;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .deployimg{
@@ -55,4 +54,19 @@
     transform-origin: 0 0;
     /* 沒有這行快照會裂開 */
     overflow: hidden;
+}
+
+.config-box{
+    display: flex;
+    align-items: center;
+
+}
+
+.config-button{
+    width: 16px;
+    height: 16px;
+}
+
+.config-button:hover{
+    background-color: #F2F2F2;
 }

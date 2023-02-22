@@ -5,26 +5,24 @@ import { useEffect } from "react";
 import { useContext } from "react";
 import { SizeData } from "../Pages/edit";
 import { CurrentUser } from "../Pages/edit";
-import { useLayoutEffect } from "react";
 import CanvasImage from "./CanvasImage";
+import CanvasText from "./CanvasText";
 import domtoimage from "dom-to-image";
 import Signin from "./Signin";
-import { getDownloadURL } from "firebase/storage";
-import { uploadBytes } from "firebase/storage";
-import { collection, addDoc } from "firebase/firestore";
-import { doc } from "firebase/firestore";
 import { storage } from "../firebase";
 import { ref } from "firebase/storage";
-import { uploadString } from "firebase/storage";
+import { uuidv4 } from "@firebase/util";
+import { getDownloadURL } from "firebase/storage";
+import { uploadBytes } from "firebase/storage";
+import { collection } from "firebase/firestore";
+import { doc } from "firebase/firestore";
 import { saveAs } from "file-saver";
 import { setDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { uuidv4 } from "@firebase/util";
 
 const Canvas = (props) => {
   const size = useContext(SizeData);
   const currentUser = useContext(CurrentUser);
-  // const canvasID = uuidv4()
   const [initialWidth, initialHeight, initialScale] = size;
   const [scale, setScale] = useState(initialScale);
   const [height, setHeight] = useState(initialHeight);
@@ -33,13 +31,16 @@ const Canvas = (props) => {
   const canvasData = props.canvasData;
 
   const [canvasImages, setCanvasImages] = useState([]);
+  const [canvasTexts, setCanvasTexts] = useState([]);
   // console.log("canvasImages",canvasImages);
   const [showSignin, setShowSignin] = useState(false);
+  const [showTextTool, setShowTextTool] = useState(false);
   const [alert, setAlert] = useState(null);
+  const [imagesData, setImagesData] = useState([]);
 
   //test
-  const [count, setCount] = useState(0);
-  const [imagesData, setImagesData] = useState([]);
+  const [addInput, setAddInput] = useState(false);
+  const [fontWeight, setFontWeight] = useState(16);
 
   const handleChange = (event) => {
     setScale(event.target.value);
@@ -48,7 +49,6 @@ const Canvas = (props) => {
   useEffect(() => {
     if (canvasData != undefined) {
       setCanvasID(Object.keys(canvasData)[0]);
-      // console.log(canvasData[Object.keys(canvasData)[0]]["images"][0].id);
       const images = canvasData[Object.keys(canvasData)[0]]["images"];
       for (let i = 0; i < images.length; i++) {
         setCanvasImages((prevState) => [
@@ -65,13 +65,19 @@ const Canvas = (props) => {
 
   //偵測新的圖像加入畫布
   useEffect(() => {
-    if (props.newCanvasImage) {
-      const newSrc = props.newCanvasImage;
-      const id = props.id;
+    if (props.newCanvasImageSrc) {
+      const newSrc = props.newCanvasImageSrc;
+      const id = props.Imgid;
       setCanvasImages([...canvasImages, { id: id, src: newSrc }]);
-      setCount(count + 1);
     }
-  }, [props.id]);
+  }, [props.Imgid]);
+
+  useEffect(() => {
+    if (props.Textid) {
+      const id = props.Textid;
+      setCanvasTexts([...canvasTexts, { id: id }]);
+    }
+  }, [props.Textid]);
 
   //選擇畫布尺寸
   useEffect(() => {
@@ -107,10 +113,11 @@ const Canvas = (props) => {
 
   //按鍵刪除功能
   const handleKeyDown = (event) => {
+    console.log(event.target);
     if (event.key === "Backspace") {
-      const id = event.target.children[0].children[0].getAttribute("id");
-      // console.log(id);
+      const id = event.target.getAttribute("id");
       setCanvasImages(canvasImages.filter((Image) => Image.id !== id));
+      setCanvasTexts(canvasTexts.filter((Text) => Text.id !== id));
     }
   };
 
@@ -155,29 +162,7 @@ const Canvas = (props) => {
         //將圖片放入storage
         // uploadBytes(storageRef, blob).then((snapshot) => {
         //   console.log(window.location.host+"/poster/"+canvas.children[0].id);
-
-        //   //取得圖片url
-        //   // getDownloadURL(ref(storage, `${currentUser.uid}/${canvas.children[0].id}.jpg`)).then((url) => {
-        //   //   console.log(url);
-
-        //   // }).then(() => {
-        //   //   console.log('已寫入 Firestore');
-        //   // }).catch((error) => {
-        //   //   console.error(error);
-        //   // });
-        // });
-
-        // //放入firestore中
-        // setDoc(doc(db, `${currentUser.uid}`, "images"), {
-        //   name: canvas.children[0].id,
-        //   url: url,
-        // }).then(() => {
-        //   console.log("Document successfully written!");
-        // }).catch((error) => {
-        //   console.error("Error writing document: ", error);
-        // });
       });
-      //     window.saveAs(blob, 'my-result.png');
     } else {
       setShowSignin(true);
       setAlert(<div className="alert"> 登入尚可發布作品</div>);
@@ -210,24 +195,18 @@ const Canvas = (props) => {
         //       console.log(error);
         //     });
         // });
-      }
 
-      // console.log("canvas element:", canvasElement.getBoundingClientRect());
-      newObj["images"] = imagesData;
-      console.log(newObj);
-      // setDoc(doc(db, `${currentUser.uid}`, canvasID), newObj);
-    }, 5000);
+        newObj["images"] = imagesData;
+        console.log(newObj);
+        // setDoc(doc(db, `${currentUser.uid}`, canvasID), newObj);
+      }
+    }, 10000);
 
     // 在组件重新渲染或被卸载时，清除计时器
     return () => {
       clearTimeout(timer);
     };
   }, [currentUser, imagesData]);
-  //count,currentUser
-
-  const handlecount = (count) => {
-    setCount(count);
-  };
 
   const handleimageData = (imageData) => {
     // console.log("imageData", imageData);
@@ -247,6 +226,10 @@ const Canvas = (props) => {
     });
   };
 
+  const handleTextTool = (value) => {
+    setShowTextTool(value);
+  };
+
   return (
     <>
       {showSignin && (
@@ -256,8 +239,25 @@ const Canvas = (props) => {
         </>
       )}
       <div className="editer-top editer">
-        <div className="deploy" onClick={handleScreenShot}>
-          <img className="deployimg" src="/images/share.png" />
+        <div className="deploy">
+          {/* {showTextTool && ( */}
+          <>
+            <div className="config-box">
+              <img
+                className="config-button"
+                onClick={() => {
+                  setFontWeight(900);
+                }}
+                src="/images/b.png"
+              />
+            </div>
+          </>
+          {/* )} */}
+          <img
+            className="deployimg"
+            onClick={handleScreenShot}
+            src="/images/share.png"
+          />
         </div>
       </div>
       <div className="canvas-container">
@@ -270,9 +270,18 @@ const Canvas = (props) => {
                   src={Image.src}
                   id={Image.id}
                   onKeyDown={handleKeyDown}
-                  count={handlecount}
                   rest={Image.rest}
                   imageData={handleimageData}
+                />
+              ))}
+              {canvasTexts.map((Text, index) => (
+                <CanvasText
+                  key={index}
+                  id={Text.id}
+                  onKeyDown={handleKeyDown}
+                  handleTextTool={handleTextTool}
+                  fontWeight={fontWeight}
+                  // imageData={handleimageData}
                 />
               ))}
               {/* <CanvasImage src="https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4392447.png?alt=media&token=a33e8698-b405-427d-b2ed-2a388bd03147" id="ACx123" /> */}

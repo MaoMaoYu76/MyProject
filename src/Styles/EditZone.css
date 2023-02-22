@@ -60,6 +60,7 @@
     background-color: #1c160a;
     border-radius: 5px;
     padding: 5px;
+    cursor: pointer;
 }
 
 .edit-zone {
@@ -78,5 +79,13 @@
 
 .project-item img{
     width: 120px;
+    cursor: pointer;
+}
+
+.add-text{
+    color: #FFF;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 20px;
     cursor: pointer;
 }

@@ -28,7 +28,7 @@ const EditZone = (props) => {
     gridTemplateColumns: "90px 1fr",
   });
   const [innerWidth, setInnerWidth] = useState(window.innerWidth);
-  const [newCanvasImage, setNewCanvasImage] = useState();
+  const [newCanvasImageSrc, setNewCanvasImageSrc] = useState();
   const threeArea = innerWidth - 490;
   const twoArea = innerWidth - 90;
 
@@ -53,8 +53,11 @@ const EditZone = (props) => {
   ];
 
   const [boundaries, setBoundaries] = useState();
-  const [id, setId] = useState();
+  const [Imgid, setImgId] = useState();
+  const [Textid, setTextId] = useState();
   const [canvasData, setCanvasData] = useState();
+
+  //test
 
   const handleBoundaries = (boundaries) => {
     setBoundaries(boundaries);
@@ -135,8 +138,8 @@ const EditZone = (props) => {
           uploadBytes(storageRef, file).then((snapshot) => {
             getDownloadURL(storageRef).then((url) => {
               //拿到 url 後加入畫布
-              setNewCanvasImage(url);
-              setId(imgId);
+              setNewCanvasImageSrc(url);
+              setImgId(imgId);
             });
           });
         }
@@ -251,6 +254,19 @@ const EditZone = (props) => {
               Projects
             </div>
           </div>
+          <div
+            onClick={handleBoxOn}
+            className="side-icons"
+            style={{
+              backgroundColor: selectedBox === "Text" ? "#2e2e2e" : "#1c160a",
+            }}
+            id="Text"
+          >
+            <img src="/images/text.png" className="side-icon" id="Text" />
+            <div className="icontext" id="Text">
+              Text
+            </div>
+          </div>
         </div>
         {showBox && (
           <>
@@ -272,8 +288,8 @@ const EditZone = (props) => {
                     oncopystate={(src) => {
                       // console.log("src",src);
                       if (src != undefined) {
-                        setNewCanvasImage(src);
-                        setId(shortid.generate());
+                        setNewCanvasImageSrc(src);
+                        setImgId(shortid.generate());
                       }
                     }}
                   />
@@ -293,8 +309,8 @@ const EditZone = (props) => {
                     oncopystate={(src) => {
                       // console.log("src",src);
                       if (src != undefined) {
-                        setNewCanvasImage(src);
-                        setId(shortid.generate());
+                        setNewCanvasImageSrc(src);
+                        setImgId(shortid.generate());
                       }
                     }}
                   />
@@ -313,6 +329,20 @@ const EditZone = (props) => {
                   />
                 ))}
               </div>
+              <div
+                className="side-boxes"
+                id="Text"
+                style={{ display: selectedBox === "Text" ? "grid" : "none" }}
+              >
+                <div
+                  className="add-text"
+                  onClick={() => {
+                    setTextId(shortid.generate());
+                  }}
+                >
+                  新增文字區塊
+                </div>
+              </div>
               <div className="close-boxes" onClick={handleBoxOff}>
                 <img src="/images/arrow-left.png" className="close-icon" />
               </div>
@@ -324,9 +354,10 @@ const EditZone = (props) => {
           <Canvas
             boundaries={handleBoundaries}
             showBox={showBox}
-            newCanvasImage={newCanvasImage}
-            id={id}
+            newCanvasImageSrc={newCanvasImageSrc}
+            Imgid={Imgid}
             canvasData={canvasData}
+            Textid={Textid}
           />
         </div>
       </div>
