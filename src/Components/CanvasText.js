@@ -21,6 +21,7 @@ const CanvasText = (props) => {
   const [newText, setNewText] = useState("");
   const [fontSize, setFontSize] = useState(16);
   const [textAlign, setTextAlign] = useState("center");
+  const [cursor, setCursor] = useState("pointer");
 
   useEffect(() => {
     document.addEventListener("pointerdown", handleSelect);
@@ -36,7 +37,8 @@ const CanvasText = (props) => {
   }, [selecting]);
 
   const handleSelect = (event) => {
-    console.log("movingRef", movingRef.current);
+    console.log("handleSelect", event.target);
+
     if (!selectingRef.current || movingRef.current) {
       event.preventDefault();
     }
@@ -49,8 +51,10 @@ const CanvasText = (props) => {
       setSelecting(true);
       selectingRef.current = true;
       setBorder("5px");
+      setCursor("text");
     } else if (
       resizeDots.includes(event.target) &&
+      //inputID
       event.target.parentElement.children[0] ===
         document.getElementById(`${props.id}`)
     ) {
@@ -58,10 +62,19 @@ const CanvasText = (props) => {
       setSelecting(true);
       selectingRef.current = true;
       setBorder("3px");
+      setCursor("text");
+    } else if (
+      event.target === document.getElementsByClassName("config-button")[0]
+    ) {
+      setSelecting(true);
+      selectingRef.current = true;
+      setBorder("3px");
+      setCursor("text");
     } else {
       setSelecting(false);
       selectingRef.current = false;
       setBorder("0px");
+      setCursor("pointer");
     }
   };
 
@@ -175,18 +188,15 @@ const CanvasText = (props) => {
     <>
       <div tabIndex={0} onKeyDown={onKeyDown}>
         <div
+          className="text-container"
           style={{
             width: ImageWidth,
             height: ImageHeight,
             border: `${border} solid #ff719a`,
-            position: "relative",
-            position: "absolute",
-            boxSizing: "content-box",
             zIndex: 1,
             left: position.x,
             top: position.y,
             margin: `-${border}`,
-            userSelect: "none",
           }}
           onPointerDown={handlePointerDown}
         >
@@ -195,18 +205,14 @@ const CanvasText = (props) => {
             className="canvas-input"
             onPointerDown={handlePointerDown}
             onChange={handleChange}
-            onFocus={selecting ? handleFocus : undefined}
+            onFocus={handleFocus}
             placeholder="輸入文字"
             style={{
-              position: "absolute",
               zIndex: 0,
-              width: "100%",
-              height: "100%",
-              border: 0,
               textAlign: textAlign,
-              backgroundColor: "transparent",
               fontSize: ImageHeight * 0.63,
               fontWeight: props.fontWeight,
+              cursor: cursor,
             }}
           ></input>
           {selecting && (

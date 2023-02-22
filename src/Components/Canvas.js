@@ -246,7 +246,8 @@ const Canvas = (props) => {
               <img
                 className="config-button"
                 onClick={() => {
-                  setFontWeight(900);
+                  setFontWeight(fontWeight === 900 ? 500 : 900);
+                  console.log(fontWeight);
                 }}
                 src="/images/b.png"
               />
