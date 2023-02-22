@@ -39,6 +39,7 @@ const Canvas = (props) => {
 
   //test
   const [count, setCount] = useState(0);
+  const [imagesData, setImagesData] = useState([]);
 
   const handleChange = (event) => {
     setScale(event.target.value);
@@ -191,50 +192,59 @@ const Canvas = (props) => {
       addEventListener("click", handleMask);
     }
   };
-
+  // console.log("imagesData", imagesData);
   useEffect(() => {
+    // console.log("imagesData", imagesData);
     const newObj = { images: [] };
     const timer = setTimeout(() => {
       const canvas = document.getElementById("canvas");
       if (currentUser != undefined) {
-        // domtoimage.toBlob(canvas)
-        //   .then(function (blob) {
-        //     const storageRef = ref(storage, `${currentUser.uid}/Snapshot/${canvasID}.jpg`);
-        //     uploadBytes(storageRef, blob).then((snapshot) => {
-        //     }).catch((error)=>{
+        // domtoimage.toBlob(canvas).then(function (blob) {
+        //   const storageRef = ref(
+        //     storage,
+        //     `${currentUser.uid}/Snapshot/${canvasID}.jpg`
+        //   );
+        //   uploadBytes(storageRef, blob)
+        //     .then((snapshot) => {})
+        //     .catch((error) => {
         //       console.log(error);
-        //     })
-        //   })
+        //     });
+        // });
       }
-      canvasImages.forEach((element) => {
-        const canvasElement = document.getElementById(element.id);
-        console.log("canvas element:", canvasElement.getBoundingClientRect());
-        newObj["images"].push({
-          id: element.id,
-          src: element.src,
-          x: canvasElement.getBoundingClientRect().x,
-          y: canvasElement.getBoundingClientRect().y,
-          height: canvasElement.getBoundingClientRect().height,
-          width: canvasElement.getBoundingClientRect().width,
-        });
-        // console.log(newObj);
-        // setDoc(doc(db, `${currentUser.uid}`, canvasID), newObj)
-      });
+
+      // console.log("canvas element:", canvasElement.getBoundingClientRect());
+      newObj["images"] = imagesData;
+      console.log(newObj);
+      // setDoc(doc(db, `${currentUser.uid}`, canvasID), newObj);
     }, 5000);
 
     // 在组件重新渲染或被卸载时，清除计时器
     return () => {
       clearTimeout(timer);
     };
-  }, [count, currentUser]);
+  }, [currentUser, imagesData]);
   //count,currentUser
 
   const handlecount = (count) => {
     setCount(count);
   };
-  const images = [];
-  const handleimagesData = (imagesData) => {
-    console.log("imagesData", imagesData);
+
+  const handleimageData = (imageData) => {
+    // console.log("imageData", imageData);
+    setImagesData((prevImagesData) => {
+      const imageIndex = prevImagesData.findIndex(
+        (image) => image.id === imageData.id
+      );
+      if (imageIndex !== -1) {
+        // 如果找到相同的 id，就更新對應的資料
+        const newImagesData = [...prevImagesData];
+        newImagesData[imageIndex] = imageData;
+        return newImagesData;
+      } else {
+        // 如果沒有找到相同的 id，就新增資料
+        return [...prevImagesData, imageData];
+      }
+    });
   };
 
   return (
@@ -262,7 +272,7 @@ const Canvas = (props) => {
                   onKeyDown={handleKeyDown}
                   count={handlecount}
                   rest={Image.rest}
-                  imagesData={handleimagesData}
+                  imageData={handleimageData}
                 />
               ))}
               {/* <CanvasImage src="https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4392447.png?alt=media&token=a33e8698-b405-427d-b2ed-2a388bd03147" id="ACx123" /> */}

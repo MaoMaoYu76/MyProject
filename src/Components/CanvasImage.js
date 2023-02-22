@@ -12,11 +12,11 @@ const CanvasImage = (props) => {
   const rest = props.rest;
   // console.log("rest", { x: rest.x, y: rest.y });
   const [position, setPosition] = useState(
-    positionsRef.current[props.id] || { x: 0, y: 0 }
+    positionsRef.current[props.id] || { x: rest.x, y: rest.y } || { x: 0, y: 0 }
   );
 
-  const [ImageWidth, setImageWidth] = useState();
-  const [ImageHeight, setImageHeight] = useState();
+  const [ImageWidth, setImageWidth] = useState(rest.height);
+  const [ImageHeight, setImageHeight] = useState(rest.width);
   const [resizing, setResizing] = useState(false);
   const [selecting, setSelecting] = useState(false);
   const [ImgData, setImgData] = useState({});
@@ -25,9 +25,9 @@ const CanvasImage = (props) => {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    let imagesData = {};
+    let imageData = {};
 
-    imagesData = {
+    imageData = {
       id: props.id,
       src: props.src,
       x: position.x,
@@ -35,18 +35,23 @@ const CanvasImage = (props) => {
       height: ImageHeight,
       width: ImageWidth,
     };
-    props.imagesData(imagesData);
+    props.imageData(imageData);
   }, [count]);
 
   useEffect(() => {
-    const image = new Image();
-    image.src = props.src;
-    //先創一個圖象，然後丟進去看看寬高
-    //我能不能直接讀取我的CanvasImage ？
-    image.onload = () => {
-      setImageWidth(image.width);
-      setImageHeight(image.height);
-    };
+    if (rest) {
+      setImageWidth(rest.width);
+      setImageHeight(rest.height);
+    } else {
+      const image = new Image();
+      image.src = props.src;
+      //先創一個圖象，然後丟進去看看寬高
+      //我能不能直接讀取我的CanvasImage ？
+      image.onload = () => {
+        setImageWidth(image.width);
+        setImageHeight(image.height);
+      };
+    }
   }, [props.src]);
 
   useEffect(() => {
