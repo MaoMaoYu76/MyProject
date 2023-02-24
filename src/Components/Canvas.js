@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import "../Styles/Canvas.css";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -11,6 +11,7 @@ import domtoimage from "dom-to-image";
 import Signin from "./Signin";
 import { storage } from "../firebase";
 import { ref } from "firebase/storage";
+
 import { uuidv4 } from "@firebase/util";
 import { getDownloadURL } from "firebase/storage";
 import { uploadBytes } from "firebase/storage";
@@ -30,6 +31,7 @@ const Canvas = (props) => {
   const [canvasID, setCanvasID] = useState(uuidv4());
   const canvasData = props.canvasData;
 
+  // const { canvasImages } = props.canvasImage;
   const [canvasImages, setCanvasImages] = useState([]);
   const [canvasTexts, setCanvasTexts] = useState([]);
   // console.log("canvasImages",canvasImages);
@@ -40,10 +42,21 @@ const Canvas = (props) => {
 
   //test
   const [addInput, setAddInput] = useState(false);
-  const [fontWeight, setFontWeight] = useState(16);
+  const [fontWeight, setFontWeight] = useState(false);
+  const [fontSizes, setFontSizes] = useState({});
+  const [IsSelected, setIsSelected] = useState();
+  const selectedTextIdRef = useRef("");
+  const InFocusRef = useRef(false);
 
-  const handleChange = (event) => {
+  const handleScaleChange = (event) => {
     setScale(event.target.value);
+  };
+
+  const handleSizeChange = (event) => {
+    setFontSizes((prevFontSizes) => ({
+      ...prevFontSizes,
+      [selectedTextIdRef.current]: event.target.value,
+    }));
   };
 
   useEffect(() => {
@@ -64,21 +77,32 @@ const Canvas = (props) => {
   }, [canvasData]);
 
   //偵測新的圖像加入畫布
-  useEffect(() => {
-    if (props.newCanvasImageSrc) {
-      const newSrc = props.newCanvasImageSrc;
-      const id = props.Imgid;
-      setCanvasImages([...canvasImages, { id: id, src: newSrc }]);
-    }
-  }, [props.Imgid]);
+  // useEffect(() => {
+  //   if (props.newCanvasImageSrc) {
+  //     const newSrc = props.newCanvasImageSrc;
+  //     const id = props.Imgid;
+  //     setCanvasImages([...canvasImages, { id: id, src: newSrc }]);
+  //   }
+  // }, [props.Imgid]);
+
+  // useEffect(() => {
+  //   if (props.Textid) {
+  //     const id = props.Textid;
+  //     setCanvasTexts([...canvasTexts, { id: id }]);
+  //   }
+  // }, [props.Textid]);
 
   useEffect(() => {
-    if (props.Textid) {
-      const id = props.Textid;
-      setCanvasTexts([...canvasTexts, { id: id }]);
+    if (props.canvasImages) {
+      setCanvasImages(props.canvasImages);
     }
-  }, [props.Textid]);
+  }, [props.canvasImages]);
 
+  useEffect(() => {
+    if (props.canvasTexts) {
+      setCanvasTexts(props.canvasTexts);
+    }
+  }, [props.canvasTexts]);
   //選擇畫布尺寸
   useEffect(() => {
     setScale(initialScale);
@@ -111,13 +135,58 @@ const Canvas = (props) => {
     }
   }, [window.innerWidth, props.showBox]);
 
+  useEffect(() => {
+    document.addEventListener("pointerdown", handleSelect);
+    return () => {
+      document.removeEventListener("pointerdown", handleSelect);
+    };
+  }, [canvasImages, canvasTexts]);
+
+  const handleSelect = (event) => {
+    const isTargetInCanvas =
+      canvasImages.some((img) => img.id === event.target.id) ||
+      canvasTexts.some((text) => text.id === event.target.id);
+    if (isTargetInCanvas) {
+      setIsSelected(event.target.id);
+    } else {
+      // 如果目标不在画布上，执行相关逻辑
+      // ...
+    }
+  };
+  // console.log("canvasTexts2", canvasTexts);
+  // console.log("props.Textid2", props.Textid);
+
+  useEffect(() => {
+    // 在整个文档上添加事件监听器以处理键盘按键
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      // 在组件卸载时，移除事件监听器
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [canvasTexts]);
+  // const [selectedTextId, setSelectedTextId] = useState(null);
+
+  // const [InFocus, setInFocus] = useState(false);
   //按鍵刪除功能
   const handleKeyDown = (event) => {
-    console.log(event.target);
+    if (event.key === "Backspace" && !InFocusRef.current) {
+      // console.log(selectedTextIdRef.current);
+      // const id = event.target.getAttribute("id");
+      // console.log("targetID", deleteID);
+      setCanvasTexts(
+        canvasTexts.filter((Text) => Text.id !== selectedTextIdRef.current)
+      );
+      // setSelectedTextId(null);
+      selectedTextIdRef.current = ""; // 取消選中的 CanvasText
+      // setCanvasImages(canvasImages.filter((Image) => Image.id !== id));
+      // setCanvasTexts(canvasTexts.filter((Text) => Text.id !== deleteID));
+    }
+  };
+  const handleImgDelete = (event) => {
     if (event.key === "Backspace") {
-      const id = event.target.getAttribute("id");
+      const id = event.target.children[0].children[0].getAttribute("id");
       setCanvasImages(canvasImages.filter((Image) => Image.id !== id));
-      setCanvasTexts(canvasTexts.filter((Text) => Text.id !== id));
     }
   };
 
@@ -226,10 +295,36 @@ const Canvas = (props) => {
     });
   };
 
-  const handleTextTool = (value) => {
+  const handleTextTool = (id, value) => {
     setShowTextTool(value);
   };
 
+  // const handleTextClick = (id) => {
+  //   selectedTextIdRef.current = id;
+  //   // setIsSelected(selectedTextIdRef.current);
+  // };
+  const handleInFocus = (value) => {
+    InFocusRef.current = value;
+  };
+
+  const handleFontSize = (id, value) => {
+    setFontSizes((prevFontSizes) => ({
+      ...prevFontSizes,
+      [id]: value,
+    }));
+    // console.log(fontSizes);
+  };
+
+  const handleSubmit = (event) => {
+    if (event.keyCode === 13) {
+      event.target.blur();
+    }
+  };
+
+  const handleClick = (event) => {
+    event.target.select();
+  };
+  // console.log(selectedTextIdRef.current);
   return (
     <>
       {showSignin && (
@@ -243,11 +338,25 @@ const Canvas = (props) => {
           {/* {showTextTool && ( */}
           <>
             <div className="config-box">
+              <div className="font-size-container">
+                <button className="minus size-config">
+                  <img className="config-img config" src="/images/minus.png" />
+                </button>
+                <input
+                  className="font-size config"
+                  onChange={handleSizeChange}
+                  onKeyDown={handleSubmit}
+                  onClick={handleClick}
+                  value={fontSizes[selectedTextIdRef.current]}
+                ></input>
+                <button className="add size-config config">
+                  <img className="config-img config" src="/images/add.png" />
+                </button>
+              </div>
               <img
-                className="config-button"
+                className="config-button config"
                 onClick={() => {
-                  setFontWeight(fontWeight === 900 ? 500 : 900);
-                  console.log(fontWeight);
+                  setFontWeight(!fontWeight);
                 }}
                 src="/images/b.png"
               />
@@ -270,7 +379,7 @@ const Canvas = (props) => {
                   key={index}
                   src={Image.src}
                   id={Image.id}
-                  onKeyDown={handleKeyDown}
+                  onKeyDown={handleImgDelete}
                   rest={Image.rest}
                   imageData={handleimageData}
                 />
@@ -279,10 +388,15 @@ const Canvas = (props) => {
                 <CanvasText
                   key={index}
                   id={Text.id}
-                  onKeyDown={handleKeyDown}
                   handleTextTool={handleTextTool}
                   fontWeight={fontWeight}
+                  // onClick={handleTextClick(Text.id)}
+                  onKeyDown={handleKeyDown}
                   // imageData={handleimageData}
+                  handleInFocus={handleInFocus}
+                  handleFontSize={handleFontSize}
+                  fontSize={fontSizes[Text.id] || 25}
+                  selected={IsSelected}
                 />
               ))}
               {/* <CanvasImage src="https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4392447.png?alt=media&token=a33e8698-b405-427d-b2ed-2a388bd03147" id="ACx123" /> */}
@@ -294,7 +408,7 @@ const Canvas = (props) => {
         <div className="editer-bottom editer">
           <input
             className="transform-controller"
-            onChange={handleChange}
+            onChange={handleScaleChange}
             value={scale}
             type="range"
             min="10"

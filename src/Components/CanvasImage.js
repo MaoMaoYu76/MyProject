@@ -86,14 +86,14 @@ const CanvasImage = (props) => {
     ) {
       //如果陣列內包含事件目標
       setSelecting(true);
-      setBorder("5px");
+      setBorder("3px");
     } else {
       setSelecting(false);
       setBorder("0px");
     }
   };
 
-  //控制大小拖曳
+  //控制大小
   const handleResize = (event) => {
     setResizing(true);
 
@@ -160,7 +160,10 @@ const CanvasImage = (props) => {
   };
 
   const handlePointerDown = (event) => {
+    // console.log("event.target", event.target.id);
+    // console.log("getElementById", document.getElementById(`${props.id}`));
     if (event.target === document.getElementById(`${props.id}`)) {
+      // if (event.target.id === props.id) {
       // if(event.target)
       const initialX = event.clientX;
       const initialY = event.clientY;
@@ -192,7 +195,7 @@ const CanvasImage = (props) => {
 
   return (
     <>
-      <div tabIndex={0} id={props.id} onKeyDown={onKeyDown}>
+      <div tabIndex={0} onKeyDown={onKeyDown}>
         <div
           style={{
             width: ImageWidth,

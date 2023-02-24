@@ -1,72 +1,104 @@
-.transform-controller{
-    display: flex;
-    position:sticky;
-    bottom: 0;
-    left: 50%;
-    
+.transform-controller {
+  display: flex;
+  position: sticky;
+  bottom: 0;
+  left: 50%;
 }
 
-.editer{
-    background-color: #FFF;
-    height: 8vh;
+.editer {
+  background-color: #fff;
+  height: 8vh;
 }
 
-.editer-top{
-    top: 0;
+.editer-top {
+  top: 0;
 }
 
-.canvas-container{
-    overflow: auto;
-    height: 77vh;
-    display: flex;
+.canvas-container {
+  overflow: auto;
+  height: 77vh;
+  display: flex;
 }
 
-.deploy{
-    display: flex;
-    /* background-image:linear-gradient(-225deg, #fff2d3 0%, #ffd5d0 48%, #ffadc5 100%); */
-    padding: 0 15px;
-    height: 100%;
-    border-radius: 5px;
-    cursor: pointer;
-    justify-content: space-between;
-    align-items: center;
+.deploy {
+  display: flex;
+  /* background-image:linear-gradient(-225deg, #fff2d3 0%, #ffd5d0 48%, #ffadc5 100%); */
+  padding: 0 15px;
+  height: 100%;
+  border-radius: 5px;
+  cursor: pointer;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.deployimg{
-    width: 50px;
-    height: 50px;
-    border-radius:5px;
-    display: flex;
-    align-items: center;
+.deployimg {
+  width: 50px;
+  height: 50px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
 }
 
-.frame{
-    background-color: #F2F2F2;
-    margin: auto auto;
-    flex-shrink: 0;
-    box-shadow: 0 2px 8px rgb(14 19 24 / 7%);
-    overflow: hidden;
+.frame {
+  background-color: #f2f2f2;
+  margin: auto auto;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgb(14 19 24 / 7%);
+  overflow: hidden;
 }
 
-.canvas{
-    background-color: #FFF;
-    /* 變換canvas的起始位置，讓大小靠齊左上 */
-    transform-origin: 0 0;
-    /* 沒有這行快照會裂開 */
-    overflow: hidden;
+.canvas {
+  background-color: #fff;
+  /* 變換canvas的起始位置，讓大小靠齊左上 */
+  transform-origin: 0 0;
+  /* 沒有這行快照會裂開 */
+  overflow: hidden;
 }
 
-.config-box{
-    display: flex;
-    align-items: center;
-
+.config-box {
+  display: flex;
+  align-items: center;
 }
 
-.config-button{
-    width: 16px;
-    height: 16px;
+.config-button {
+  width: 16px;
+  height: 16px;
+  margin: 0 25px;
 }
 
-.config-button:hover{
-    background-color: #F2F2F2;
+.config-button:hover {
+  background-color: #f2f2f2;
+}
+
+.font-size-container {
+  padding: 3px;
+  display: flex;
+}
+
+.minus {
+  border-radius: 5px 0 0 5px;
+}
+
+.add {
+  border-radius: 0 5px 5px 0;
+}
+
+.size-config {
+  background-color: #fff;
+  padding: 10px;
+  border: #b8b8b8 solid 1px;
+}
+
+.font-size {
+  border: none;
+  border-top: #b8b8b8 solid 1px;
+  border-bottom: #b8b8b8 solid 1px;
+  width: 50px;
+  padding: 5px;
+  text-align: center;
+  color: #000;
+}
+
+.config-img {
+  width: 10px;
 }

@@ -16,67 +16,123 @@ const CanvasText = (props) => {
   const [resizing, setResizing] = useState(false);
   //   const [moving, setMoving] = useState(false);
   const [selecting, setSelecting] = useState(false);
+  const [InFocus, setInFocus] = useState(false);
   const selectingRef = useRef(selecting);
   const movingRef = useRef(false);
   const [newText, setNewText] = useState("");
-  const [fontSize, setFontSize] = useState(16);
+  const [fontSize, setFontSize] = useState(25);
   const [textAlign, setTextAlign] = useState("center");
   const [cursor, setCursor] = useState("pointer");
+  const [fontWeight, setFontWeight] = useState(500);
+  //   const [pointerEvent, setPointerEvent] = useState("none");
 
-  useEffect(() => {
-    document.addEventListener("pointerdown", handleSelect);
-    return () => {
-      document.removeEventListener("pointerdown", handleSelect);
-    };
-  }, []);
+  //   useEffect(() => {
+  //     document.addEventListener("pointerdown", handleSelect);
+  //     return () => {
+  //       document.removeEventListener("pointerdown", handleSelect);
+  //     };
+  //   }, []);
 
   useEffect(() => {
     if (selecting) {
-      props.handleTextTool(true);
+      props.handleTextTool(props.id, true);
     }
   }, [selecting]);
 
-  const handleSelect = (event) => {
-    console.log("handleSelect", event.target);
-
-    if (!selectingRef.current || movingRef.current) {
-      event.preventDefault();
+  useEffect(() => {
+    if (props.fontSize != ImageHeight * 0.63) {
+      setFontSize(props.fontSize);
+    } else {
+      setFontSize(ImageHeight * 0.63);
     }
-    // event.preventDefault();
-    const resizeDots = Array.from(
-      document.getElementsByClassName("resize-dot")
-    );
-    //getElementsByClassName沒辦法被檢查，因為他們是HTMLCollection，所以要換成真正的陣列
-    if (event.target === document.getElementById(`${props.id}`)) {
+  }, [props.fontSize]);
+
+  useEffect(() => {
+    setFontSize(ImageHeight * 0.63);
+    props.handleFontSize(props.id, fontSize);
+  }, [ImageHeight]);
+
+  useEffect(() => {
+    if (props.selected === props.id) {
       setSelecting(true);
-      selectingRef.current = true;
-      setBorder("5px");
-      setCursor("text");
-    } else if (
-      resizeDots.includes(event.target) &&
-      //inputID
-      event.target.parentElement.children[0] ===
-        document.getElementById(`${props.id}`)
-    ) {
-      //如果陣列內包含事件目標
-      setSelecting(true);
-      selectingRef.current = true;
       setBorder("3px");
-      setCursor("text");
-    } else if (
-      event.target === document.getElementsByClassName("config-button")[0]
-    ) {
-      setSelecting(true);
-      selectingRef.current = true;
-      setBorder("3px");
-      setCursor("text");
+      if (props.fontWeight === true) {
+        console.log("truetrue");
+        setFontWeight(900);
+      } else {
+        setFontWeight(500);
+      }
     } else {
       setSelecting(false);
       selectingRef.current = false;
       setBorder("0px");
       setCursor("pointer");
+      setInFocus(false);
+      props.handleInFocus(false);
     }
-  };
+  }, [props.selected, props.fontWeight]);
+
+  const lastTargetRef = useRef(null);
+  //   const [lastTarget, setLastTarget] = useState(lastTargetRef.current);
+  //   console.log("222222222222222222", props.selected);
+
+  //   const handleSelect = (event) => {
+  //     // console.log("handleSelect", document.getElementById(props.id));
+  //     // const configs = document.querySelectorAll(".config");
+  //     // setLastTarget(lastTargetRef.current);
+  //     // console.log(lastTarget);
+  //     const resizeDots = Array.from(
+  //       document.getElementsByClassName("resize-dot")
+  //     );
+
+  //     if (event.target === document.getElementById(props.id)) {
+  //       console.log("wongwong");
+  //       //   lastTargetRef.current = event.target;
+
+  //       setSelecting(true);
+  //       setBorder("3px");
+  //       setCursor("text");
+  //     } else if (
+  //       resizeDots.includes(event.target) &&
+  //       event.target.parentElement.children[0] ===
+  //         document.getElementById(props.id)
+  //       //       ) ||
+  //       //   (event.target === document.querySelectorAll(".font-size")[0] &&
+  //       //     lastTargetRef.current === document.getElementById(props.id)) ||
+  //       //   (event.target === document.querySelectorAll(".config")[4] &&
+  //       //     lastTargetRef.current === document.getElementById(props.id))
+  //     ) {
+  //       console.log("1111111111111");
+  //       setSelecting(true);
+  //       setBorder("3px");
+  //       setCursor("text");
+  //     } else if (
+  //       event.target === document.querySelectorAll(".font-size")[0] &&
+  //       props.selected === props.id
+  //     ) {
+  //       console.log("2222222222222");
+  //       console.log("lastTargetRef", lastTargetRef.current);
+  //       setSelecting(true);
+  //       setBorder("3px");
+  //       setCursor("text");
+  //     } else if (
+  //       event.target === document.querySelectorAll(".config")[4] &&
+  //       props.selected === props.id
+  //     ) {
+  //       console.log("3333333333333333");
+  //       console.log("lastTargetRef", props.id, lastTargetRef.current);
+  //       setSelecting(true);
+  //       setBorder("3px");
+  //       setCursor("text");
+  //     } else {
+  //       setSelecting(false);
+  //       selectingRef.current = false;
+  //       setBorder("0px");
+  //       setCursor("pointer");
+  //       setInFocus(false);
+  //       props.handleInFocus(false);
+  //     }
+  //   };
 
   //控制大小拖曳
   const handleResize = (event) => {
@@ -145,7 +201,7 @@ const CanvasText = (props) => {
   };
 
   const handlePointerDown = (event) => {
-    if (event.target === document.getElementById(`${props.id}`)) {
+    if (event.target === document.getElementById(`${props.id}`) && !InFocus) {
       // if(event.target)
       const initialX = event.clientX;
       const initialY = event.clientY;
@@ -181,12 +237,19 @@ const CanvasText = (props) => {
   };
 
   const handleFocus = (event) => {
-    event.target.select();
+    if (!selectingRef.current || movingRef.current) {
+      document.getElementById(`${props.id}`).blur();
+    } else {
+      event.target.select();
+      setInFocus(true);
+      props.handleInFocus(true);
+    }
+    selectingRef.current = true;
   };
 
   return (
     <>
-      <div tabIndex={0} onKeyDown={onKeyDown}>
+      <div tabIndex={0} onKeyDown={onKeyDown(props.id)}>
         <div
           className="text-container"
           style={{
@@ -206,13 +269,20 @@ const CanvasText = (props) => {
             onPointerDown={handlePointerDown}
             onChange={handleChange}
             onFocus={handleFocus}
-            placeholder="輸入文字"
+            value="請輸入你的文字"
             style={{
               zIndex: 0,
               textAlign: textAlign,
-              fontSize: ImageHeight * 0.63,
-              fontWeight: props.fontWeight,
+              fontSize: fontSize,
+              fontWeight: fontWeight,
               cursor: cursor,
+              //   border: `${border} solid #ff719a`,
+              //   height: ImageHeight,
+              //   width: ImageWidth,
+              //   left: position.x,
+              //   top: position.y,
+              //   margin: `-${border}`,
+              //   pointerEvent: pointerEvent,
             }}
           ></input>
           {selecting && (
