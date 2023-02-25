@@ -63,7 +63,7 @@
 .config-button {
   width: 16px;
   height: 16px;
-  margin: 0 25px;
+  margin: 0 15px;
 }
 
 .config-button:hover {
@@ -101,4 +101,33 @@
 
 .config-img {
   width: 10px;
+}
+
+.textcolor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.textColor-preview {
+  width: 30px;
+  height: 7px;
+  margin-top: 3px;
+  border-radius: 5px;
+}
+
+.picker {
+  position: absolute;
+  top: 35px;
+  left: 25px;
+  z-index: 1;
+}
+
+.fontselect {
+  margin: 0 15px;
+  height: 38px;
+  border-radius: 5px;
+  border: #b8b8b8 solid 1px;
+  width: 150px;
 }

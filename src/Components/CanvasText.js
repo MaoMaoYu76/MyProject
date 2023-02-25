@@ -3,35 +3,31 @@ import { useState } from "react";
 import { useRef } from "react";
 import { useEffect } from "react";
 import "../Styles/CanvasText.css";
+import { useLayoutEffect } from "react";
 
 const CanvasText = (props) => {
+  const { onKeyDown } = props;
   const [ImageWidth, setImageWidth] = useState(300);
   const [ImageHeight, setImageHeight] = useState(40);
   const [border, setBorder] = useState("0");
-  const { onKeyDown } = props;
   const positionsRef = useRef({ x: 0, y: 0 });
   const [position, setPosition] = useState(
     positionsRef.current[props.id] || { x: 0, y: 0 }
   );
   const [resizing, setResizing] = useState(false);
-  //   const [moving, setMoving] = useState(false);
   const [selecting, setSelecting] = useState(false);
+  //避免選取中位移
   const [InFocus, setInFocus] = useState(false);
-  const selectingRef = useRef(selecting);
+  const firstpickRef = useRef(false);
   const movingRef = useRef(false);
-  const [newText, setNewText] = useState("");
+  const [newText, setNewText] = useState("請輸入你的文字");
   const [fontSize, setFontSize] = useState(25);
   const [textAlign, setTextAlign] = useState("center");
   const [cursor, setCursor] = useState("pointer");
   const [fontWeight, setFontWeight] = useState(500);
-  //   const [pointerEvent, setPointerEvent] = useState("none");
 
-  //   useEffect(() => {
-  //     document.addEventListener("pointerdown", handleSelect);
-  //     return () => {
-  //       document.removeEventListener("pointerdown", handleSelect);
-  //     };
-  //   }, []);
+  //test
+  const [zIndex, setzIndex] = useState(3);
 
   useEffect(() => {
     if (selecting) {
@@ -40,10 +36,10 @@ const CanvasText = (props) => {
   }, [selecting]);
 
   useEffect(() => {
-    if (props.fontSize != ImageHeight * 0.63) {
+    // console.log("props", props.fontSize, "fontSize", fontSize);
+    if (props.fontSize) {
       setFontSize(props.fontSize);
-    } else {
-      setFontSize(ImageHeight * 0.63);
+      setImageHeight(Math.floor(props.fontSize / 0.63));
     }
   }, [props.fontSize]);
 
@@ -53,86 +49,25 @@ const CanvasText = (props) => {
   }, [ImageHeight]);
 
   useEffect(() => {
-    if (props.selected === props.id) {
+    if (props.selected === props.id && props.cancel === false) {
       setSelecting(true);
       setBorder("3px");
       if (props.fontWeight === true) {
-        console.log("truetrue");
         setFontWeight(900);
       } else {
         setFontWeight(500);
       }
     } else {
       setSelecting(false);
-      selectingRef.current = false;
       setBorder("0px");
-      setCursor("pointer");
+      setCursor("default");
       setInFocus(false);
       props.handleInFocus(false);
+      firstpickRef.current = false;
     }
-  }, [props.selected, props.fontWeight]);
+  }, [props.selected, props.fontWeight, props.cancel]);
 
   const lastTargetRef = useRef(null);
-  //   const [lastTarget, setLastTarget] = useState(lastTargetRef.current);
-  //   console.log("222222222222222222", props.selected);
-
-  //   const handleSelect = (event) => {
-  //     // console.log("handleSelect", document.getElementById(props.id));
-  //     // const configs = document.querySelectorAll(".config");
-  //     // setLastTarget(lastTargetRef.current);
-  //     // console.log(lastTarget);
-  //     const resizeDots = Array.from(
-  //       document.getElementsByClassName("resize-dot")
-  //     );
-
-  //     if (event.target === document.getElementById(props.id)) {
-  //       console.log("wongwong");
-  //       //   lastTargetRef.current = event.target;
-
-  //       setSelecting(true);
-  //       setBorder("3px");
-  //       setCursor("text");
-  //     } else if (
-  //       resizeDots.includes(event.target) &&
-  //       event.target.parentElement.children[0] ===
-  //         document.getElementById(props.id)
-  //       //       ) ||
-  //       //   (event.target === document.querySelectorAll(".font-size")[0] &&
-  //       //     lastTargetRef.current === document.getElementById(props.id)) ||
-  //       //   (event.target === document.querySelectorAll(".config")[4] &&
-  //       //     lastTargetRef.current === document.getElementById(props.id))
-  //     ) {
-  //       console.log("1111111111111");
-  //       setSelecting(true);
-  //       setBorder("3px");
-  //       setCursor("text");
-  //     } else if (
-  //       event.target === document.querySelectorAll(".font-size")[0] &&
-  //       props.selected === props.id
-  //     ) {
-  //       console.log("2222222222222");
-  //       console.log("lastTargetRef", lastTargetRef.current);
-  //       setSelecting(true);
-  //       setBorder("3px");
-  //       setCursor("text");
-  //     } else if (
-  //       event.target === document.querySelectorAll(".config")[4] &&
-  //       props.selected === props.id
-  //     ) {
-  //       console.log("3333333333333333");
-  //       console.log("lastTargetRef", props.id, lastTargetRef.current);
-  //       setSelecting(true);
-  //       setBorder("3px");
-  //       setCursor("text");
-  //     } else {
-  //       setSelecting(false);
-  //       selectingRef.current = false;
-  //       setBorder("0px");
-  //       setCursor("pointer");
-  //       setInFocus(false);
-  //       props.handleInFocus(false);
-  //     }
-  //   };
 
   //控制大小拖曳
   const handleResize = (event) => {
@@ -190,7 +125,6 @@ const CanvasText = (props) => {
 
     document.addEventListener("pointerup", () => {
       document.removeEventListener("pointermove", onMouseMove);
-
       setResizing(false);
       //   setCount(count + 1);
     });
@@ -237,15 +171,34 @@ const CanvasText = (props) => {
   };
 
   const handleFocus = (event) => {
-    if (!selectingRef.current || movingRef.current) {
+    firstpickRef.current = !firstpickRef.current;
+    if (firstpickRef.current || movingRef.current) {
       document.getElementById(`${props.id}`).blur();
-    } else {
-      event.target.select();
+    }
+  };
+
+  const handlePointerUp = (event) => {
+    if (!firstpickRef.current) {
+      setCursor("text");
       setInFocus(true);
       props.handleInFocus(true);
+      event.target.select();
     }
-    selectingRef.current = true;
   };
+
+  const handleForward = () => {
+    if (0 < zIndex < props.maxLayer) {
+      setzIndex(zIndex + 1);
+    }
+  };
+
+  const handleBackward = () => {
+    if (0 < zIndex < props.maxLayer) {
+      setzIndex(zIndex - 1);
+      console.log(zIndex);
+    }
+  };
+  // console.log(zIndex, props.maxLayer);
 
   return (
     <>
@@ -256,7 +209,7 @@ const CanvasText = (props) => {
             width: ImageWidth,
             height: ImageHeight,
             border: `${border} solid #ff719a`,
-            zIndex: 1,
+            zIndex: zIndex,
             left: position.x,
             top: position.y,
             margin: `-${border}`,
@@ -267,26 +220,21 @@ const CanvasText = (props) => {
             id={props.id}
             className="canvas-input"
             onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
             onChange={handleChange}
             onFocus={handleFocus}
-            value="請輸入你的文字"
+            value={newText}
             style={{
-              zIndex: 0,
               textAlign: textAlign,
               fontSize: fontSize,
               fontWeight: fontWeight,
               cursor: cursor,
-              //   border: `${border} solid #ff719a`,
-              //   height: ImageHeight,
-              //   width: ImageWidth,
-              //   left: position.x,
-              //   top: position.y,
-              //   margin: `-${border}`,
-              //   pointerEvent: pointerEvent,
+              color: props.color,
+              fontFamily: props.fontFamily,
             }}
           ></input>
           {selecting && (
-            <>
+            <div>
               <div
                 className="resize-dot"
                 onPointerDown={handleResize}
@@ -327,7 +275,21 @@ const CanvasText = (props) => {
                   cursor: "nwse-resize",
                 }}
               />
-            </>
+              <div className="config-detail">
+                <img
+                  className="tool"
+                  src="/images/forward.png"
+                  onClick={handleForward}
+                />
+                <img className="delete tool" src="/images/delete.png" />
+                <img
+                  className="tool"
+                  src="/images/backward.png"
+                  onClick={handleBackward}
+                />
+              </div>
+              <img className="trun" src="/images/refresh.png" />
+            </div>
           )}
         </div>
       </div>

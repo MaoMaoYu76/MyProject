@@ -20,10 +20,12 @@
     "html2canvas-proxy": "^1.0.1",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
+    "react-color": "^2.19.3",
     "react-resizable": "^3.0.4",
     "react-router-dom": "^6.7.0",
     "shortid": "^2.2.16",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "webfontloader": "^1.6.28"
   },
   "name": "myproject",
   "version": "1.0.0",

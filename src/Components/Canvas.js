@@ -13,6 +13,7 @@ import { storage } from "../firebase";
 import { ref } from "firebase/storage";
 
 import { uuidv4 } from "@firebase/util";
+import { SketchPicker } from "react-color";
 import { getDownloadURL } from "firebase/storage";
 import { uploadBytes } from "firebase/storage";
 import { collection } from "firebase/firestore";
@@ -33,30 +34,44 @@ const Canvas = (props) => {
 
   // const { canvasImages } = props.canvasImage;
   const [canvasImages, setCanvasImages] = useState([]);
-  const [canvasTexts, setCanvasTexts] = useState([]);
+  const [canvasTexts, setCanvasTexts] = useState([{ id: "Axo153" }]);
   // console.log("canvasImages",canvasImages);
   const [showSignin, setShowSignin] = useState(false);
   const [showTextTool, setShowTextTool] = useState(false);
+  const [IsSetting, setIsSetting] = useState(false);
   const [alert, setAlert] = useState(null);
   const [imagesData, setImagesData] = useState([]);
-
-  //test
-  const [addInput, setAddInput] = useState(false);
+  const [cancel, setCancel] = useState(false);
   const [fontWeight, setFontWeight] = useState(false);
   const [fontSizes, setFontSizes] = useState({});
+  const [fontSizesText, setFontSizesText] = useState();
   const [IsSelected, setIsSelected] = useState();
-  const selectedTextIdRef = useRef("");
+  const selectedIdRef = useRef("");
   const InFocusRef = useRef(false);
+  const IsSettingRef = useRef(false);
+  const [TextColor, setTextColor] = useState({});
+  const [ShowTextPicker, setShowTextPicker] = useState(false);
+  const [fontList, setFontList] = useState([]);
+  const [selectedFont, setSelectedFont] = useState({});
+  //test
+  const [maxLayer, setMaxlayer] = useState(0);
 
   const handleScaleChange = (event) => {
     setScale(event.target.value);
   };
-
   const handleSizeChange = (event) => {
-    setFontSizes((prevFontSizes) => ({
-      ...prevFontSizes,
-      [selectedTextIdRef.current]: event.target.value,
-    }));
+    setIsSetting(true);
+    setFontSizesText(event.target.value);
+  };
+  const handleSubmit = (event) => {
+    if (event.keyCode === 13) {
+      setFontSizes((prevFontSizes) => ({
+        ...prevFontSizes,
+        [selectedIdRef.current]: fontSizesText,
+      }));
+      event.target.blur();
+      setIsSetting(false);
+    }
   };
 
   useEffect(() => {
@@ -76,33 +91,27 @@ const Canvas = (props) => {
     }
   }, [canvasData]);
 
-  //偵測新的圖像加入畫布
-  // useEffect(() => {
-  //   if (props.newCanvasImageSrc) {
-  //     const newSrc = props.newCanvasImageSrc;
-  //     const id = props.Imgid;
-  //     setCanvasImages([...canvasImages, { id: id, src: newSrc }]);
-  //   }
-  // }, [props.Imgid]);
-
-  // useEffect(() => {
-  //   if (props.Textid) {
-  //     const id = props.Textid;
-  //     setCanvasTexts([...canvasTexts, { id: id }]);
-  //   }
-  // }, [props.Textid]);
+  useEffect(() => {
+    if (props.newCanvasImageSrc) {
+      const newSrc = props.newCanvasImageSrc;
+      const id = props.Imgid;
+      setCanvasImages([...canvasImages, { id: id, src: newSrc }]);
+      setCancel(false);
+      setIsSelected(props.Imgid);
+      selectedIdRef.current = props.Imgid;
+    }
+  }, [props.Imgid]);
 
   useEffect(() => {
-    if (props.canvasImages) {
-      setCanvasImages(props.canvasImages);
+    if (props.Textid) {
+      const id = props.Textid;
+      setCanvasTexts([...canvasTexts, { id: id }]);
+      setCancel(false);
+      setIsSelected(props.Textid);
+      selectedIdRef.current = props.Textid;
     }
-  }, [props.canvasImages]);
-
-  useEffect(() => {
-    if (props.canvasTexts) {
-      setCanvasTexts(props.canvasTexts);
-    }
-  }, [props.canvasTexts]);
+  }, [props.Textid]);
+  // console.log(IsSelected);
   //選擇畫布尺寸
   useEffect(() => {
     setScale(initialScale);
@@ -135,57 +144,64 @@ const Canvas = (props) => {
     }
   }, [window.innerWidth, props.showBox]);
 
+  //物件選取
   useEffect(() => {
     document.addEventListener("pointerdown", handleSelect);
+    setMaxlayer(canvasImages.length + canvasTexts.length + 1);
     return () => {
       document.removeEventListener("pointerdown", handleSelect);
     };
-  }, [canvasImages, canvasTexts]);
+  }, [canvasImages, canvasTexts, ShowTextPicker]);
 
   const handleSelect = (event) => {
+    const picker = document.querySelector(".picker");
+    // console.log("event.target", event.target);
+
     const isTargetInCanvas =
       canvasImages.some((img) => img.id === event.target.id) ||
       canvasTexts.some((text) => text.id === event.target.id);
     if (isTargetInCanvas) {
+      setCancel(false);
       setIsSelected(event.target.id);
+      selectedIdRef.current = event.target.id;
+    } else if (
+      event.target.closest(".config-box") != null ||
+      event.target.className === "resize-dot" ||
+      event.target.closest(".config-detail") != null
+    ) {
+      setCancel(false);
+    } else if (ShowTextPicker && event.target.closest(".picker") === null) {
+      setCancel(false);
+      setShowTextPicker(false);
     } else {
-      // 如果目标不在画布上，执行相关逻辑
-      // ...
+      setCancel(true);
     }
   };
-  // console.log("canvasTexts2", canvasTexts);
-  // console.log("props.Textid2", props.Textid);
+  // console.log(IsSelected, selectedIdRef.current, cancel);
 
+  //Backspace刪除
   useEffect(() => {
-    // 在整个文档上添加事件监听器以处理键盘按键
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      // 在组件卸载时，移除事件监听器
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [canvasTexts]);
-  // const [selectedTextId, setSelectedTextId] = useState(null);
 
-  // const [InFocus, setInFocus] = useState(false);
-  //按鍵刪除功能
   const handleKeyDown = (event) => {
     if (event.key === "Backspace" && !InFocusRef.current) {
-      // console.log(selectedTextIdRef.current);
-      // const id = event.target.getAttribute("id");
-      // console.log("targetID", deleteID);
+      // console.log(canvasTexts);
       setCanvasTexts(
-        canvasTexts.filter((Text) => Text.id !== selectedTextIdRef.current)
+        canvasTexts.filter((Text) => Text.id !== selectedIdRef.current)
       );
-      // setSelectedTextId(null);
-      selectedTextIdRef.current = ""; // 取消選中的 CanvasText
-      // setCanvasImages(canvasImages.filter((Image) => Image.id !== id));
-      // setCanvasTexts(canvasTexts.filter((Text) => Text.id !== deleteID));
+      selectedIdRef.current = ""; // 取消選中的 CanvasText
     }
   };
+
   const handleImgDelete = (event) => {
     if (event.key === "Backspace") {
-      const id = event.target.children[0].children[0].getAttribute("id");
+      const id = selectedIdRef.current;
+      // const id = event.target.children[0].children[0].getAttribute("id");
       setCanvasImages(canvasImages.filter((Image) => Image.id !== id));
     }
   };
@@ -246,7 +262,8 @@ const Canvas = (props) => {
       addEventListener("click", handleMask);
     }
   };
-  // console.log("imagesData", imagesData);
+
+  //即時存儲
   useEffect(() => {
     // console.log("imagesData", imagesData);
     const newObj = { images: [] };
@@ -266,7 +283,7 @@ const Canvas = (props) => {
         // });
 
         newObj["images"] = imagesData;
-        console.log(newObj);
+        // console.log(newObj);
         // setDoc(doc(db, `${currentUser.uid}`, canvasID), newObj);
       }
     }, 10000);
@@ -299,32 +316,63 @@ const Canvas = (props) => {
     setShowTextTool(value);
   };
 
-  // const handleTextClick = (id) => {
-  //   selectedTextIdRef.current = id;
-  //   // setIsSelected(selectedTextIdRef.current);
-  // };
+  //文字編輯才不會觸發刪除
   const handleInFocus = (value) => {
     InFocusRef.current = value;
   };
 
+  useEffect(() => {
+    IsSettingRef.current = IsSetting;
+  }, [IsSetting]);
   const handleFontSize = (id, value) => {
-    setFontSizes((prevFontSizes) => ({
-      ...prevFontSizes,
-      [id]: value,
-    }));
-    // console.log(fontSizes);
-  };
-
-  const handleSubmit = (event) => {
-    if (event.keyCode === 13) {
-      event.target.blur();
+    // console.log("IsSetting", IsSettingRef.current, "FontSizes", fontSizes);
+    if (!IsSettingRef.current) {
+      setFontSizes((prevFontSizes) => ({
+        ...prevFontSizes,
+        [id]: value,
+      }));
+      setFontSizesText(fontSizes[selectedIdRef.current]);
     }
   };
 
   const handleClick = (event) => {
     event.target.select();
   };
-  // console.log(selectedTextIdRef.current);
+
+  const handleTextColorChange = (newColor) => {
+    setTextColor((prevTextColor) => ({
+      ...prevTextColor,
+      [selectedIdRef.current]: newColor.hex,
+    }));
+  };
+
+  useEffect(() => {
+    const fetchFonts = async () => {
+      const response = await fetch(
+        "https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyBWCWoHellq7xHFlfc5YiziHIBOjok9PP4"
+      );
+      const json = await response.json();
+      setFontList(json.items);
+    };
+    fetchFonts();
+  }, []);
+
+  const handleFontChange = (event) => {
+    setSelectedFont((prevSelect) => ({
+      ...prevSelect,
+      [selectedIdRef.current]: event.target.value,
+    }));
+    const font = event.target.value;
+    WebFont.load({
+      google: {
+        families: [font],
+      },
+    });
+  };
+
+  // const fontNames = fontList.map((font) => font.family);
+  // console.log(selectedFont);
+
   return (
     <>
       {showSignin && (
@@ -335,34 +383,78 @@ const Canvas = (props) => {
       )}
       <div className="editer-top editer">
         <div className="deploy">
-          {/* {showTextTool && ( */}
-          <>
-            <div className="config-box">
-              <div className="font-size-container">
-                <button className="minus size-config">
-                  <img className="config-img config" src="/images/minus.png" />
-                </button>
-                <input
-                  className="font-size config"
-                  onChange={handleSizeChange}
-                  onKeyDown={handleSubmit}
-                  onClick={handleClick}
-                  value={fontSizes[selectedTextIdRef.current]}
-                ></input>
-                <button className="add size-config config">
-                  <img className="config-img config" src="/images/add.png" />
-                </button>
+          {showTextTool && (
+            <>
+              <div className="config-box">
+                <select
+                  className="fontselect"
+                  onChange={handleFontChange}
+                  value={selectedFont[selectedIdRef.current]}
+                >
+                  {fontList.map((font) => (
+                    <option
+                      key={font.family}
+                      value={font.family}
+                      style={{
+                        fontFamily: font.family,
+                        fontWeight: "normal",
+                        fontStyle: "normal",
+                      }}
+                    >
+                      {font.family}
+                    </option>
+                  ))}
+                </select>
+                <div className="font-size-container">
+                  <button className="minus size-config">
+                    <img className="config-img" src="/images/minus.png" />
+                  </button>
+                  <input
+                    className="font-size"
+                    onChange={handleSizeChange}
+                    onKeyDown={handleSubmit}
+                    onClick={handleClick}
+                    value={fontSizesText}
+                  ></input>
+                  <button className="add size-config">
+                    <img className="config-img" src="/images/add.png" />
+                  </button>
+                </div>
+                <img
+                  className="config-button"
+                  onClick={() => {
+                    setFontWeight(!fontWeight);
+                  }}
+                  src="/images/b.png"
+                />
+                <div className="textcolor">
+                  <img
+                    className="config-button"
+                    onClick={() => {
+                      setShowTextPicker(true);
+                    }}
+                    src="/images/a.png"
+                  />
+                  <div
+                    className="textColor-preview"
+                    style={{
+                      backgroundColor:
+                        TextColor[selectedIdRef.current] || "#000000",
+                    }}
+                  ></div>
+                  {ShowTextPicker && (
+                    <>
+                      <SketchPicker
+                        className="picker"
+                        color={TextColor[selectedIdRef.current]}
+                        onChange={handleTextColorChange}
+                      />
+                    </>
+                  )}
+                </div>
               </div>
-              <img
-                className="config-button config"
-                onClick={() => {
-                  setFontWeight(!fontWeight);
-                }}
-                src="/images/b.png"
-              />
-            </div>
-          </>
-          {/* )} */}
+            </>
+          )}
           <img
             className="deployimg"
             onClick={handleScreenShot}
@@ -382,6 +474,8 @@ const Canvas = (props) => {
                   onKeyDown={handleImgDelete}
                   rest={Image.rest}
                   imageData={handleimageData}
+                  selected={IsSelected}
+                  maxLayer={maxLayer}
                 />
               ))}
               {canvasTexts.map((Text, index) => (
@@ -397,9 +491,12 @@ const Canvas = (props) => {
                   handleFontSize={handleFontSize}
                   fontSize={fontSizes[Text.id] || 25}
                   selected={IsSelected}
+                  cancel={cancel}
+                  fontFamily={selectedFont[Text.id]}
+                  color={TextColor[Text.id] || "#000000"}
+                  maxLayer={maxLayer}
                 />
               ))}
-              {/* <CanvasImage src="https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4392447.png?alt=media&token=a33e8698-b405-427d-b2ed-2a388bd03147" id="ACx123" /> */}
             </div>
           </div>
         </div>

@@ -53,14 +53,12 @@ const EditZone = (props) => {
   ];
 
   const [boundaries, setBoundaries] = useState();
-  // const [Imgid, setImgId] = useState();
-  // const [Textid, setTextId] = useState();
+  const [Imgid, setImgId] = useState();
+  const [Textid, setTextId] = useState();
   const [canvasData, setCanvasData] = useState();
 
   //test
-  const [canvasImages, setCanvasImages] = useState([]);
-  const [canvasTexts, setCanvasTexts] = useState([]);
-  // console.log("canvasImages", canvasImages, "canvasTexts", canvasTexts);
+
   const handleBoundaries = (boundaries) => {
     setBoundaries(boundaries);
   };
@@ -123,10 +121,10 @@ const EditZone = (props) => {
     const handlePaste = (event) => {
       //呼叫剪貼板內的數據
       const items = event.clipboardData.items;
-      // console.log(items);
+      console.log(items);
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
-        // console.log(item);
+        console.log(item);
         //遍歷後確認是否包含圖像且只取最後一個
         if (item.type.indexOf("image") !== -1) {
           const file = item.getAsFile();
@@ -140,9 +138,8 @@ const EditZone = (props) => {
           uploadBytes(storageRef, file).then((snapshot) => {
             getDownloadURL(storageRef).then((url) => {
               //拿到 url 後加入畫布
-              setCanvasImages([...canvasImages, { id: imgId, src: url }]);
-              // setNewCanvasImageSrc(url);
-              // setImgId(imgId);
+              setNewCanvasImageSrc(url);
+              setImgId(imgId);
             });
           });
         }
@@ -291,12 +288,8 @@ const EditZone = (props) => {
                     oncopystate={(src) => {
                       // console.log("src",src);
                       if (src != undefined) {
-                        setCanvasImages([
-                          ...canvasImages,
-                          { id: shortid.generate(), src: src },
-                        ]);
-                        // setNewCanvasImageSrc(src);
-                        // setImgId(shortid.generate());
+                        setNewCanvasImageSrc(src);
+                        setImgId(shortid.generate());
                       }
                     }}
                   />
@@ -316,12 +309,8 @@ const EditZone = (props) => {
                     oncopystate={(src) => {
                       // console.log("src",src);
                       if (src != undefined) {
-                        setCanvasImages([
-                          ...canvasImages,
-                          { id: shortid.generate(), src: src },
-                        ]);
-                        // setNewCanvasImageSrc(src);
-                        // setImgId(shortid.generate());
+                        setNewCanvasImageSrc(src);
+                        setImgId(shortid.generate());
                       }
                     }}
                   />
@@ -348,11 +337,7 @@ const EditZone = (props) => {
                 <div
                   className="add-text"
                   onClick={() => {
-                    setCanvasTexts([
-                      ...canvasTexts,
-                      { id: shortid.generate() },
-                    ]);
-                    // setTextId(shortid.generate());
+                    setTextId(shortid.generate());
                   }}
                 >
                   新增文字區塊
@@ -369,12 +354,10 @@ const EditZone = (props) => {
           <Canvas
             boundaries={handleBoundaries}
             showBox={showBox}
-            // newCanvasImageSrc={newCanvasImageSrc}
-            // Imgid={Imgid}
-            canvasImages={canvasImages}
-            canvasTexts={canvasTexts}
+            newCanvasImageSrc={newCanvasImageSrc}
+            Imgid={Imgid}
             canvasData={canvasData}
-            // Textid={Textid}
+            Textid={Textid}
           />
         </div>
       </div>

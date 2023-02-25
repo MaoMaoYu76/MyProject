@@ -21,9 +21,10 @@ const CanvasImage = (props) => {
   const [resizing, setResizing] = useState(false);
   const [selecting, setSelecting] = useState(false);
   const [ImgData, setImgData] = useState({});
+  const [count, setCount] = useState(0);
 
   //test
-  const [count, setCount] = useState(0);
+  const [zIndex, setzIndex] = useState(1);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -58,40 +59,16 @@ const CanvasImage = (props) => {
       };
     }
   }, [props.src]);
-
+  console.log();
   useEffect(() => {
-    document.addEventListener("pointerdown", handleSelect);
-    // console.log("監聽啟用");
-    return () => {
-      document.removeEventListener("pointerdown", handleSelect);
-      // console.log("監聽關閉");
-    };
-    //如果Image不存在就不要一直監聽下去，那我是不是應該上移，只保留一個監聽？
-  }, []);
-
-  const handleSelect = (event) => {
-    // console.log("選取目標", event.target.parentElement.children[0]);
-    const resizeDots = Array.from(
-      document.getElementsByClassName("resize-dot")
-    );
-    //getElementsByClassName沒辦法被檢查，因為他們是HTMLCollection，所以要換成真正的陣列
-    // console.log(resizeDots);
-    if (event.target === document.getElementById(`${props.id}`)) {
-      setSelecting(true);
-      setBorder("3px");
-    } else if (
-      resizeDots.includes(event.target) &&
-      event.target.parentElement.children[0] ===
-        document.getElementById(`${props.id}`)
-    ) {
-      //如果陣列內包含事件目標
+    if (props.selected === props.id) {
       setSelecting(true);
       setBorder("3px");
     } else {
       setSelecting(false);
       setBorder("0px");
     }
-  };
+  }, [props.selected, props.fontWeight]);
 
   //控制大小
   const handleResize = (event) => {
@@ -193,6 +170,51 @@ const CanvasImage = (props) => {
     }
   };
 
+  const handleForward = () => {
+    console.log("向前", zIndex, props.maxLayer);
+    if (zIndex > 0 && zIndex < props.maxLayer) {
+      setzIndex(zIndex + 1);
+      console.log(zIndex);
+    }
+  };
+
+  const handleBackward = () => {
+    console.log("向後", zIndex, props.maxLayer);
+    if (zIndex > 0 && zIndex < props.maxLayer) {
+      setzIndex(zIndex - 1);
+      console.log(zIndex);
+    }
+  };
+  const [startX, setStartX] = useState(0);
+  const [startY, setStartY] = useState(0);
+  const [rotation, setRotation] = useState(0);
+
+  console.log("startX", startX, "rotation", rotation);
+  const handleturn = (event) => {
+    setStartX(event.clientX);
+    setStartY(event.clientY);
+
+    const handlePointerMove = (event) => {
+      const diffX = startX - event.clientX;
+      const diffY = startY - event.clientY;
+      const angle = Math.atan2(diffY, diffX) * (180 / Math.PI);
+      const newRotation = angle + 90;
+      setRotation(newRotation);
+      // const diffX = startX - (event.clientX - event.clientY) / 5;
+      // const newRotation = rotation + diffX;
+      // const limitedRotation = Math.max(Math.min(newRotation, 180), -180);
+      // setRotation(limitedRotation);
+
+      setStartX(event.clientX);
+    };
+    const handlePointerUp = () => {
+      document.removeEventListener("pointermove", handlePointerMove);
+      // setCount(count + 1);
+    };
+    document.addEventListener("pointermove", handlePointerMove);
+    document.addEventListener("pointerup", handlePointerUp);
+  };
+
   return (
     <>
       <div tabIndex={0} onKeyDown={onKeyDown}>
@@ -204,11 +226,12 @@ const CanvasImage = (props) => {
             position: "relative",
             position: "absolute",
             boxSizing: "content-box",
-            zIndex: 1,
+            zIndex: zIndex,
             left: position.x,
             top: position.y,
             margin: `-${border}`,
             userSelect: "none",
+            transform: `rotate(${rotation}deg)`,
           }}
           onPointerDown={handlePointerDown}
         >
@@ -217,7 +240,7 @@ const CanvasImage = (props) => {
             id={props.id}
             style={{
               position: "absolute",
-              zIndex: 0,
+
               cursor: "move",
               width: "100%",
               height: "100%",
@@ -265,6 +288,24 @@ const CanvasImage = (props) => {
                   top: "-8px",
                   cursor: "nwse-resize",
                 }}
+              />
+              <div className="config-detail">
+                <img
+                  className="tool"
+                  src="/images/forward.png"
+                  onClick={handleForward}
+                />
+                <img className="delete tool" src="/images/delete.png" />
+                <img
+                  className="tool"
+                  src="/images/backward.png"
+                  onClick={handleBackward}
+                />
+              </div>
+              <img
+                className="trun"
+                onPointerDown={handleturn}
+                src="/images/refresh.png"
               />
             </>
           )}
