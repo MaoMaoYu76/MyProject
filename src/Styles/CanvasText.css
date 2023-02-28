@@ -11,6 +11,8 @@
   white-space: normal;
   word-wrap: break-word;
   user-select: none;
+  top: 0;
+  left: 0;
 }
 
 .text-container {
@@ -20,7 +22,7 @@
   user-select: none;
 }
 
-.config-detail {
+/* .config-detail {
   position: absolute;
   top: -60px;
   left: 50%;
@@ -28,18 +30,18 @@
   border: #b8b8b8 solid 1px;
   border-radius: 5px;
   display: flex;
-}
+} */
 
-.delete {
+/* .delete {
   border-left: #b8b8b8 solid 1px;
   border-right: #b8b8b8 solid 1px;
-}
+} */
 
-.tool {
+/* .tool {
   padding: 6px;
   width: 30px;
   cursor: pointer;
-}
+} */
 
 .trun {
   position: absolute;

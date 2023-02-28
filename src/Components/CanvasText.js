@@ -3,40 +3,40 @@ import { useState } from "react";
 import { useRef } from "react";
 import { useEffect } from "react";
 import "../Styles/CanvasText.css";
-import { useLayoutEffect } from "react";
+import Border from "./border";
+import FrameTools from "./FrameTools";
 
 const CanvasText = (props) => {
+  const dotSize = Border(props).dotSize;
+  const border = Border(props).border;
+  const showFrameTools = Border(props).showFrameTools;
   const { onKeyDown } = props;
   const [ImageWidth, setImageWidth] = useState(300);
   const [ImageHeight, setImageHeight] = useState(40);
-  const [border, setBorder] = useState("0");
+
   const positionsRef = useRef({ x: 0, y: 0 });
+  const rest = props.rest;
+  const defaluet = rest ? { x: rest.x, y: rest.y } : { x: 0, y: 0 };
+
   const [position, setPosition] = useState(
-    positionsRef.current[props.id] || { x: 0, y: 0 }
+    positionsRef.current[props.id] || defaluet
   );
+
   const [resizing, setResizing] = useState(false);
-  const [selecting, setSelecting] = useState(false);
   //避免選取中位移
   const [InFocus, setInFocus] = useState(false);
   const firstpickRef = useRef(false);
   const movingRef = useRef(false);
-  const [newText, setNewText] = useState("請輸入你的文字");
+  const [newText, setNewText] = useState("Please enter text");
   const [fontSize, setFontSize] = useState(25);
   const [textAlign, setTextAlign] = useState("center");
   const [cursor, setCursor] = useState("pointer");
   const [fontWeight, setFontWeight] = useState(500);
 
-  //test
-  const [zIndex, setzIndex] = useState(3);
+  const rotationRef = useRef({});
+  const [rotation, setRotation] = useState(rotationRef.current[props.id] || 0);
 
   useEffect(() => {
-    if (selecting) {
-      props.handleTextTool(props.id, true);
-    }
-  }, [selecting]);
-
-  useEffect(() => {
-    // console.log("props", props.fontSize, "fontSize", fontSize);
     if (props.fontSize) {
       setFontSize(props.fontSize);
       setImageHeight(Math.floor(props.fontSize / 0.63));
@@ -50,24 +50,18 @@ const CanvasText = (props) => {
 
   useEffect(() => {
     if (props.selected === props.id && props.cancel === false) {
-      setSelecting(true);
-      setBorder("3px");
       if (props.fontWeight === true) {
         setFontWeight(900);
       } else {
         setFontWeight(500);
       }
     } else {
-      setSelecting(false);
-      setBorder("0px");
       setCursor("default");
       setInFocus(false);
       props.handleInFocus(false);
       firstpickRef.current = false;
     }
   }, [props.selected, props.fontWeight, props.cancel]);
-
-  const lastTargetRef = useRef(null);
 
   //控制大小拖曳
   const handleResize = (event) => {
@@ -84,8 +78,8 @@ const CanvasText = (props) => {
     let currentHeight = ImageHeight;
 
     const onMouseMove = (event) => {
-      const deltaX = event.clientX - initialX;
-      const deltaY = event.clientY - initialY;
+      const deltaX = (event.clientX - initialX) / (props.scale * 0.01);
+      const deltaY = (event.clientY - initialY) / (props.scale * 0.01);
 
       // 判斷位置
       if (id === "top-right") {
@@ -134,6 +128,7 @@ const CanvasText = (props) => {
     };
   };
 
+  //控制位移
   const handlePointerDown = (event) => {
     if (event.target === document.getElementById(`${props.id}`) && !InFocus) {
       // if(event.target)
@@ -143,8 +138,8 @@ const CanvasText = (props) => {
 
       const handlePointerMove = (event) => {
         movingRef.current = true;
-        const newX = x + event.clientX - initialX;
-        const newY = y + event.clientY - initialY;
+        const newX = x + (event.clientX - initialX) / (props.scale * 0.01);
+        const newY = y + (event.clientY - initialY) / (props.scale * 0.01);
         if (resizing === false) {
           positionsRef.current[props.id] = { x: newX, y: newY };
           setPosition(positionsRef.current[props.id]);
@@ -166,11 +161,12 @@ const CanvasText = (props) => {
       };
     }
   };
+
   const handleChange = (event) => {
     setNewText(event.target.value);
   };
 
-  const handleFocus = (event) => {
+  const handleFocus = () => {
     firstpickRef.current = !firstpickRef.current;
     if (firstpickRef.current || movingRef.current) {
       document.getElementById(`${props.id}`).blur();
@@ -186,20 +182,27 @@ const CanvasText = (props) => {
     }
   };
 
-  const handleForward = () => {
-    if (0 < zIndex < props.maxLayer) {
-      setzIndex(zIndex + 1);
-    }
-  };
+  //控制元素旋轉
+  const handleturn = () => {
+    const target = document.getElementById(props.id).getBoundingClientRect();
+    const centerX = target.x + target.width / 2;
+    const centerY = target.y + target.height / 2;
+    const handlePointerMove = (event) => {
+      const angle =
+        (Math.atan2(event.clientY - centerY, event.clientX - centerX) * 180) /
+        Math.PI;
 
-  const handleBackward = () => {
-    if (0 < zIndex < props.maxLayer) {
-      setzIndex(zIndex - 1);
-      console.log(zIndex);
-    }
-  };
-  // console.log(zIndex, props.maxLayer);
+      rotationRef.current[props.id] = angle - 90;
+      setRotation(rotationRef.current[props.id]);
+    };
 
+    const handlePointerUp = () => {
+      document.removeEventListener("pointermove", handlePointerMove);
+      // setCount(count + 1);
+    };
+    document.addEventListener("pointermove", handlePointerMove);
+    document.addEventListener("pointerup", handlePointerUp);
+  };
   return (
     <>
       <div tabIndex={0} onKeyDown={onKeyDown(props.id)}>
@@ -209,10 +212,11 @@ const CanvasText = (props) => {
             width: ImageWidth,
             height: ImageHeight,
             border: `${border} solid #ff719a`,
-            zIndex: zIndex,
+            zIndex: props.zIndex,
             left: position.x,
             top: position.y,
             margin: `-${border}`,
+            transform: `rotate(${rotation}deg)`,
           }}
           onPointerDown={handlePointerDown}
         >
@@ -233,63 +237,14 @@ const CanvasText = (props) => {
               fontFamily: props.fontFamily,
             }}
           ></input>
-          {selecting && (
-            <div>
-              <div
-                className="resize-dot"
-                onPointerDown={handleResize}
-                id="bottom-right"
-                style={{
-                  right: "-8px",
-                  bottom: "-8px",
-                  cursor: "nwse-resize",
-                }}
+          {showFrameTools && (
+            <>
+              <FrameTools
+                handleResize={handleResize}
+                dotSize={dotSize}
+                handleturn={handleturn}
               />
-              <div
-                className="resize-dot"
-                onPointerDown={handleResize}
-                id="top-right"
-                style={{
-                  right: "-8px",
-                  top: "-8px",
-                  cursor: "ne-resize",
-                }}
-              />
-              <div
-                className="resize-dot"
-                onPointerDown={handleResize}
-                id="bottom-left"
-                style={{
-                  left: "-8px",
-                  bottom: "-8px",
-                  cursor: "ne-resize",
-                }}
-              ></div>
-              <div
-                className="resize-dot"
-                onPointerDown={handleResize}
-                id="top-left"
-                style={{
-                  left: "-8px",
-                  top: "-8px",
-                  cursor: "nwse-resize",
-                }}
-              />
-              <div className="config-detail">
-                <img
-                  className="tool"
-                  src="/images/forward.png"
-                  onClick={handleForward}
-                />
-                <img className="delete tool" src="/images/delete.png" />
-                <img
-                  className="tool"
-                  src="/images/backward.png"
-                  onClick={handleBackward}
-                />
-              </div>
-              <img className="trun" src="/images/refresh.png" />
-            </div>
+            </>
           )}
         </div>
       </div>

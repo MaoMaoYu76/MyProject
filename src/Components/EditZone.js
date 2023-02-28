@@ -51,7 +51,11 @@ const EditZone = (props) => {
     "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4392505.png?alt=media&token=833ecae9-43d7-474e-adc1-d4cb8d15b6c4",
     "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4481010.png?alt=media&token=6ece33ec-0f1b-417d-84ef-0eb1127d5139",
   ];
-
+  const shapes = [
+    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/circle.png?alt=media&token=39b39960-4510-4f09-bea3-2b9c58e4633b",
+    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/square.png?alt=media&token=857156c4-c97b-42eb-b992-23af0ec98c27",
+    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/triangle.png?alt=media&token=55bc391c-ce8d-4757-9919-c9f4617db15c",
+  ];
   const [boundaries, setBoundaries] = useState();
   const [Imgid, setImgId] = useState();
   const [Textid, setTextId] = useState();
@@ -231,6 +235,19 @@ const EditZone = (props) => {
             onClick={handleBoxOn}
             className="side-icons"
             style={{
+              backgroundColor: selectedBox === "Text" ? "#2e2e2e" : "#1c160a",
+            }}
+            id="Text"
+          >
+            <img src="/images/text.png" className="side-icon" id="Text" />
+            <div className="icontext" id="Text">
+              Text
+            </div>
+          </div>
+          <div
+            onClick={handleBoxOn}
+            className="side-icons"
+            style={{
               backgroundColor: selectedBox === "Upload" ? "#2e2e2e" : "#1c160a",
             }}
             id="Upload"
@@ -252,19 +269,6 @@ const EditZone = (props) => {
             <img src="/images/folder.png" className="side-icon" id="Project" />
             <div className="icontext" id="Project">
               Projects
-            </div>
-          </div>
-          <div
-            onClick={handleBoxOn}
-            className="side-icons"
-            style={{
-              backgroundColor: selectedBox === "Text" ? "#2e2e2e" : "#1c160a",
-            }}
-            id="Text"
-          >
-            <img src="/images/text.png" className="side-icon" id="Text" />
-            <div className="icontext" id="Text">
-              Text
             </div>
           </div>
         </div>
@@ -343,13 +347,13 @@ const EditZone = (props) => {
                   新增文字區塊
                 </div>
               </div>
+
               <div className="close-boxes" onClick={handleBoxOff}>
                 <img src="/images/arrow-left.png" className="close-icon" />
               </div>
             </div>
           </>
         )}
-
         <div className="edit-zone">
           <Canvas
             boundaries={handleBoundaries}

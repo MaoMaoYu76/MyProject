@@ -31,13 +31,15 @@ const Canvas = (props) => {
   const [width, setWidth] = useState(initialWidth);
   const [canvasID, setCanvasID] = useState(uuidv4());
   const canvasData = props.canvasData;
-
   // const { canvasImages } = props.canvasImage;
   const [canvasImages, setCanvasImages] = useState([]);
-  const [canvasTexts, setCanvasTexts] = useState([{ id: "Axo153" }]);
+  const [canvasTexts, setCanvasTexts] = useState([]);
+  const [canvasShapes, setCanvasShapes] = useState([]);
   // console.log("canvasImages",canvasImages);
   const [showSignin, setShowSignin] = useState(false);
+  const [showImageTool, setShowImageTool] = useState(false);
   const [showTextTool, setShowTextTool] = useState(false);
+  const [showCanvasTool, setShowCanvasTool] = useState(false);
   const [IsSetting, setIsSetting] = useState(false);
   const [alert, setAlert] = useState(null);
   const [imagesData, setImagesData] = useState([]);
@@ -50,16 +52,20 @@ const Canvas = (props) => {
   const InFocusRef = useRef(false);
   const IsSettingRef = useRef(false);
   const [TextColor, setTextColor] = useState({});
+  const [CanvasColor, setCanvasColor] = useState("#FFFFFF");
   const [ShowTextPicker, setShowTextPicker] = useState(false);
+  const [ShowCanvasPicker, setShowCanvasPicker] = useState(false);
   const [fontList, setFontList] = useState([]);
   const [selectedFont, setSelectedFont] = useState({});
   //test
   const [maxLayer, setMaxlayer] = useState(0);
+  const [zIndex, setzIndex] = useState({});
 
   const handleScaleChange = (event) => {
     setScale(event.target.value);
   };
   const handleSizeChange = (event) => {
+    // console.log("event.target.value", event.target.value);
     setIsSetting(true);
     setFontSizesText(event.target.value);
   };
@@ -99,18 +105,34 @@ const Canvas = (props) => {
       setCancel(false);
       setIsSelected(props.Imgid);
       selectedIdRef.current = props.Imgid;
+      setzIndex((prevzIndex) => ({
+        ...prevzIndex,
+        [props.Imgid]: 1,
+      }));
     }
   }, [props.Imgid]);
 
   useEffect(() => {
     if (props.Textid) {
-      const id = props.Textid;
-      setCanvasTexts([...canvasTexts, { id: id }]);
+      setCanvasTexts([...canvasTexts, { id: props.Textid }]);
       setCancel(false);
       setIsSelected(props.Textid);
       selectedIdRef.current = props.Textid;
+      setzIndex((prevzIndex) => ({
+        ...prevzIndex,
+        [props.Textid]: 1,
+      }));
     }
   }, [props.Textid]);
+
+  useEffect(() => {
+    if (props.Shapesid) {
+      setCanvasTexts([...canvasShapes, { id: props.Shapesid }]);
+      setCancel(false);
+      setIsSelected(props.Shapesid);
+      selectedIdRef.current = props.Textid;
+    }
+  }, [props.Shapesid]);
   // console.log(IsSelected);
   //選擇畫布尺寸
   useEffect(() => {
@@ -154,16 +176,26 @@ const Canvas = (props) => {
   }, [canvasImages, canvasTexts, ShowTextPicker]);
 
   const handleSelect = (event) => {
-    const picker = document.querySelector(".picker");
     // console.log("event.target", event.target);
 
-    const isTargetInCanvas =
-      canvasImages.some((img) => img.id === event.target.id) ||
-      canvasTexts.some((text) => text.id === event.target.id);
-    if (isTargetInCanvas) {
+    const isImageInCanvas = canvasImages.some(
+      (img) => img.id === event.target.id
+    );
+    const isTextInCanvas = canvasTexts.some(
+      (text) => text.id === event.target.id
+    );
+    if (isImageInCanvas || isTextInCanvas) {
+      setShowCanvasTool(false);
       setCancel(false);
       setIsSelected(event.target.id);
       selectedIdRef.current = event.target.id;
+      if (isImageInCanvas) {
+        setShowImageTool(true);
+        setShowTextTool(false);
+      } else {
+        setShowTextTool(true);
+        setShowImageTool(false);
+      }
     } else if (
       event.target.closest(".config-box") != null ||
       event.target.className === "resize-dot" ||
@@ -175,6 +207,8 @@ const Canvas = (props) => {
       setShowTextPicker(false);
     } else {
       setCancel(true);
+      setShowTextTool(false);
+      setShowImageTool(false);
     }
   };
   // console.log(IsSelected, selectedIdRef.current, cancel);
@@ -199,6 +233,7 @@ const Canvas = (props) => {
   };
 
   const handleImgDelete = (event) => {
+    console.log("wong");
     if (event.key === "Backspace") {
       const id = selectedIdRef.current;
       // const id = event.target.children[0].children[0].getAttribute("id");
@@ -218,16 +253,17 @@ const Canvas = (props) => {
   };
 
   //畫布
-  const handleCanvas = () => {
-    return {
-      className: "canvas",
-      style: {
-        width: initialWidth,
-        height: initialHeight,
-        transform: `scale(${scale * 0.01})`,
-      },
-    };
-  };
+  // const handleCanvas = () => {
+  //   return {
+  //     className: "canvas",
+  //     style: {
+  //       width: initialWidth,
+  //       height: initialHeight,
+  //       transform: `scale(${scale * 0.01})`,
+  //       backgroundColor: CanvasColor,
+  //     },
+  //   };
+  // };
 
   // console.log(window.location);
   //處理快照
@@ -312,8 +348,14 @@ const Canvas = (props) => {
     });
   };
 
-  const handleTextTool = (id, value) => {
-    setShowTextTool(value);
+  // const handleTextTool = (value) => {
+  //   setShowTextTool(value);
+  // };
+
+  const handleCanvasTool = () => {
+    if (cancel) {
+      setShowCanvasTool(true);
+    }
   };
 
   //文字編輯才不會觸發刪除
@@ -346,6 +388,10 @@ const Canvas = (props) => {
     }));
   };
 
+  const handleCanvasColorChange = (newColor) => {
+    setCanvasColor(newColor.hex);
+  };
+
   useEffect(() => {
     const fetchFonts = async () => {
       const response = await fetch(
@@ -369,7 +415,33 @@ const Canvas = (props) => {
       },
     });
   };
+  const handleForward = () => {
+    console.log("向前", zIndex[selectedIdRef.current], maxLayer, zIndex);
+    if (
+      zIndex[selectedIdRef.current] >= 0 &&
+      zIndex[selectedIdRef.current] < maxLayer
+    ) {
+      setzIndex((prevzIndex) => ({
+        ...prevzIndex,
+        [selectedIdRef.current]: zIndex[selectedIdRef.current] + 1,
+      }));
+      console.log(zIndex);
+    }
+  };
 
+  const handleBackward = () => {
+    console.log("向後", zIndex[selectedIdRef.current], maxLayer, zIndex);
+    if (
+      zIndex[selectedIdRef.current] > 0 &&
+      zIndex[selectedIdRef.current] <= maxLayer
+    ) {
+      setzIndex((prevzIndex) => ({
+        ...prevzIndex,
+        [selectedIdRef.current]: zIndex[selectedIdRef.current] - 1,
+      }));
+      console.log(zIndex);
+    }
+  };
   // const fontNames = fontList.map((font) => font.family);
   // console.log(selectedFont);
 
@@ -383,6 +455,44 @@ const Canvas = (props) => {
       )}
       <div className="editer-top editer">
         <div className="deploy">
+          {showCanvasTool && (
+            <>
+              <div
+                className="canvasColor-preview"
+                onClick={() => {
+                  setShowCanvasPicker(!ShowCanvasPicker);
+                }}
+                style={{
+                  backgroundColor: CanvasColor || "#FFFFFF",
+                }}
+              ></div>
+              {ShowCanvasPicker && (
+                <>
+                  <SketchPicker
+                    className="canvas-picker"
+                    color={CanvasColor}
+                    onChange={handleCanvasColorChange}
+                  />
+                </>
+              )}
+            </>
+          )}
+          {showImageTool && (
+            <div className="config-box">
+              <img
+                className="config-button2"
+                src="/images/forward.png"
+                onClick={handleForward}
+              />
+              <img className="config-button2" src="/images/delete.png" />
+              <img
+                className="config-button2"
+                src="/images/backward.png"
+                onClick={handleBackward}
+              />
+            </div>
+          )}
+
           {showTextTool && (
             <>
               <div className="config-box">
@@ -414,7 +524,7 @@ const Canvas = (props) => {
                     onChange={handleSizeChange}
                     onKeyDown={handleSubmit}
                     onClick={handleClick}
-                    value={fontSizesText}
+                    value={fontSizesText || 25}
                   ></input>
                   <button className="add size-config">
                     <img className="config-img" src="/images/add.png" />
@@ -427,9 +537,9 @@ const Canvas = (props) => {
                   }}
                   src="/images/b.png"
                 />
-                <div className="textcolor">
+                <div className="textcolor ">
                   <img
-                    className="config-button"
+                    className=""
                     onClick={() => {
                       setShowTextPicker(true);
                     }}
@@ -452,6 +562,17 @@ const Canvas = (props) => {
                     </>
                   )}
                 </div>
+                <img
+                  className="config-button2"
+                  src="/images/forward.png"
+                  onClick={handleForward}
+                />
+                <img className="config-button2" src="/images/delete.png" />
+                <img
+                  className="config-button2"
+                  src="/images/backward.png"
+                  onClick={handleBackward}
+                />
               </div>
             </>
           )}
@@ -465,7 +586,17 @@ const Canvas = (props) => {
       <div className="canvas-container">
         <div {...handleFrame()}>
           <div id="canvas">
-            <div {...handleCanvas()} id={canvasID}>
+            <div
+              className="outer-canvas"
+              style={{
+                width: initialWidth,
+                height: initialHeight,
+                transform: `scale(${scale * 0.01})`,
+                backgroundColor: CanvasColor,
+              }}
+              onClick={handleCanvasTool}
+              id={canvasID}
+            >
               {canvasImages.map((Image, index) => (
                 <CanvasImage
                   key={index}
@@ -475,14 +606,16 @@ const Canvas = (props) => {
                   rest={Image.rest}
                   imageData={handleimageData}
                   selected={IsSelected}
-                  maxLayer={maxLayer}
+                  zIndex={zIndex[Image.id] || 1}
+                  scale={scale}
+                  // maxLayer={maxLayer}
                 />
               ))}
               {canvasTexts.map((Text, index) => (
                 <CanvasText
                   key={index}
                   id={Text.id}
-                  handleTextTool={handleTextTool}
+                  // handleTextTool={handleTextTool}
                   fontWeight={fontWeight}
                   // onClick={handleTextClick(Text.id)}
                   onKeyDown={handleKeyDown}
@@ -494,7 +627,9 @@ const Canvas = (props) => {
                   cancel={cancel}
                   fontFamily={selectedFont[Text.id]}
                   color={TextColor[Text.id] || "#000000"}
-                  maxLayer={maxLayer}
+                  // maxLayer={maxLayer}
+                  zIndex={zIndex[Text.id] || 1}
+                  scale={scale}
                 />
               ))}
             </div>
@@ -512,6 +647,7 @@ const Canvas = (props) => {
             max="500"
           ></input>
         </div>
+        {scale}
       </div>
     </>
   );

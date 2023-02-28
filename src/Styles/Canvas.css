@@ -26,7 +26,7 @@
   padding: 0 15px;
   height: 100%;
   border-radius: 5px;
-  cursor: pointer;
+
   justify-content: space-between;
   align-items: center;
 }
@@ -44,15 +44,25 @@
   margin: auto auto;
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgb(14 19 24 / 7%);
-  overflow: hidden;
 }
 
-.canvas {
-  background-color: #fff;
+.outer-canvas {
   /* 變換canvas的起始位置，讓大小靠齊左上 */
   transform-origin: 0 0;
   /* 沒有這行快照會裂開 */
   overflow: hidden;
+}
+.canvasColor-preview {
+  border: #b8b8b8 solid 1px;
+  border-radius: 5px;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+}
+
+.canvas-picker {
+  position: absolute;
+  top: 120px;
 }
 
 .config-box {
@@ -64,6 +74,25 @@
   width: 16px;
   height: 16px;
   margin: 0 15px;
+  cursor: pointer;
+}
+
+.textcolor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  border-right: #b8b8b8 solid 1px;
+  padding-right: 15px;
+  margin: 0 10px;
+  cursor: pointer;
+}
+
+.config-button2 {
+  width: 24px;
+  height: 24px;
+  margin: 0 10px;
+  cursor: pointer;
 }
 
 .config-button:hover {
@@ -101,13 +130,6 @@
 
 .config-img {
   width: 10px;
-}
-
-.textcolor {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
 }
 
 .textColor-preview {
