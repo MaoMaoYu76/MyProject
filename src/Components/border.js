@@ -7,7 +7,7 @@ const Border = (props) => {
   const [dotSize, setDotSize] = useState(15);
   const [showFrameTools, setShowFrameTools] = useState(false);
   useEffect(() => {
-    if (props.selected === props.id) {
+    if (props.selected === props.id && props.cancel === false) {
       if (props.scale < 40) {
         setBorder("15px");
         setDotSize(60);
@@ -26,7 +26,7 @@ const Border = (props) => {
       setShowFrameTools(false);
       setBorder("0px");
     }
-  }, [props.selected, props.fontWeight, props.scale]);
+  }, [props.selected, props.fontWeight, props.scale, props.cancel]);
   return { border, dotSize, showFrameTools };
 };
 

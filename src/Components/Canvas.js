@@ -199,7 +199,8 @@ const Canvas = (props) => {
     } else if (
       event.target.closest(".config-box") != null ||
       event.target.className === "resize-dot" ||
-      event.target.closest(".config-detail") != null
+      event.target.closest(".config-detail") != null ||
+      event.target.className === "turn"
     ) {
       setCancel(false);
     } else if (ShowTextPicker && event.target.closest(".picker") === null) {
@@ -211,7 +212,6 @@ const Canvas = (props) => {
       setShowImageTool(false);
     }
   };
-  // console.log(IsSelected, selectedIdRef.current, cancel);
 
   //Backspace刪除
   useEffect(() => {
@@ -240,30 +240,6 @@ const Canvas = (props) => {
       setCanvasImages(canvasImages.filter((Image) => Image.id !== id));
     }
   };
-
-  //畫框
-  const handleFrame = () => {
-    return {
-      className: "frame",
-      style: {
-        height: height,
-        width: width,
-      },
-    };
-  };
-
-  //畫布
-  // const handleCanvas = () => {
-  //   return {
-  //     className: "canvas",
-  //     style: {
-  //       width: initialWidth,
-  //       height: initialHeight,
-  //       transform: `scale(${scale * 0.01})`,
-  //       backgroundColor: CanvasColor,
-  //     },
-  //   };
-  // };
 
   // console.log(window.location);
   //處理快照
@@ -584,7 +560,13 @@ const Canvas = (props) => {
         </div>
       </div>
       <div className="canvas-container">
-        <div {...handleFrame()}>
+        <div
+          className="frame"
+          style={{
+            height: height,
+            width: width,
+          }}
+        >
           <div id="canvas">
             <div
               className="outer-canvas"
@@ -608,6 +590,7 @@ const Canvas = (props) => {
                   selected={IsSelected}
                   zIndex={zIndex[Image.id] || 1}
                   scale={scale}
+                  cancel={cancel}
                   // maxLayer={maxLayer}
                 />
               ))}

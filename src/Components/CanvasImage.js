@@ -19,12 +19,23 @@ const CanvasImage = (props) => {
     positionsRef.current[props.id] || defaluet
   );
 
+  const [FrameWidth, setFrameWidth] = useState();
+  const [FrameHeight, setFrameHeight] = useState();
   const [ImageWidth, setImageWidth] = useState();
   const [ImageHeight, setImageHeight] = useState();
+  const [angle, setAngle] = useState(0);
   const [resizing, setResizing] = useState(false);
   const [count, setCount] = useState(0);
   const rotationRef = useRef({});
   const [rotation, setRotation] = useState(rotationRef.current[props.id] || 0);
+
+  useEffect(() => {
+    if (rotation === 0) {
+      setImageWidth(FrameWidth);
+      setImageHeight(FrameHeight);
+    } else {
+    }
+  }, [rotation, FrameWidth, FrameHeight]);
 
   //封裝資料
   useEffect(() => {
@@ -35,8 +46,8 @@ const CanvasImage = (props) => {
         src: props.src,
         x: position.x,
         y: position.y,
-        height: ImageHeight,
-        width: ImageWidth,
+        height: FrameHeight,
+        width: FrameWidth,
         transform: `rotate(${rotation}deg)`,
       };
       props.imageData(imageData);
@@ -49,15 +60,15 @@ const CanvasImage = (props) => {
   //讀取預設寬高
   useEffect(() => {
     if (rest) {
-      setImageWidth(rest.width);
-      setImageHeight(rest.height);
+      setFrameWidth(rest.width);
+      setFrameHeight(rest.height);
     } else {
       const image = new Image();
       image.src = props.src;
       //先創一個圖象，然後丟進去看看寬高
       image.onload = () => {
-        setImageWidth(image.width);
-        setImageHeight(image.height);
+        setFrameWidth(image.width);
+        setFrameHeight(image.height);
       };
     }
   }, [props.src, props.rest]);
@@ -73,38 +84,92 @@ const CanvasImage = (props) => {
     const id = event.target.id;
 
     //image size
-    let currentWidth = ImageWidth;
-    let currentHeight = ImageHeight;
 
+    let currentWidth = FrameWidth;
+    let currentHeight = FrameHeight;
     const onMouseMove = (event) => {
+      const angle = ((rotation - 180) * Math.PI) / 180;
+      // console.log("resize", angle);
+
       const deltaX = (event.clientX - initialX) / (props.scale * 0.01);
       const deltaY = (event.clientY - initialY) / (props.scale * 0.01);
+      // console.log("deltaY", deltaY, "deltaX", deltaX);
+      // const newX = deltaX / Math.cos(angle);
+      // const newY = deltaY / Math.cos(angle);
+      // console.log("newX", newX, "newY", newY);
 
       // 判斷位置
       if (id === "top-right") {
-        setImageWidth(currentWidth + deltaX);
-        setImageHeight(currentHeight - deltaY);
+        // console.log(rotation);
+
+        setFrameWidth(currentWidth + deltaX);
+        setFrameHeight(currentHeight - deltaY);
 
         positionsRef.current[props.id] = {
           ...positionsRef.current[props.id],
+          x: position.x,
           y: position.y + deltaY,
         };
+
         setPosition(positionsRef.current[props.id]);
       } else if (id === "bottom-right") {
-        setImageWidth(currentWidth + deltaX);
-        setImageHeight(currentHeight + deltaY);
+        if (
+          (rotation >= 67.5 && rotation < 112.5) ||
+          (rotation >= 247.5 && rotation < 292.5)
+        ) {
+          setImageWidth(ImageWidth + deltaY);
+          setImageHeight(ImageHeight + deltaX);
+          setFrameWidth(currentWidth + deltaX);
+          setFrameHeight(currentHeight + deltaY);
+        } else if (
+          (rotation >= 112.5 && rotation < 157.5) ||
+          (rotation >= 292.5 && rotation < 337.5)
+        ) {
+          setImageWidth(ImageWidth + deltaX);
+          setImageHeight(ImageHeight + deltaY);
+
+          setFrameHeight(
+            Math.abs((ImageHeight + deltaY) * Math.cos(angle)) +
+              Math.abs((ImageWidth + deltaX) * Math.sin(angle))
+          );
+          setFrameWidth(
+            Math.abs((ImageHeight + deltaY) * Math.sin(angle)) +
+              Math.abs((ImageWidth + deltaX) * Math.cos(angle))
+          );
+        } else if (
+          (rotation >= 202.5 && rotation < 247.5) ||
+          (rotation >= 22.5 && rotation < 67.5)
+        ) {
+          setImageWidth(ImageWidth + deltaY);
+          setImageHeight(ImageHeight + deltaX);
+
+          setFrameHeight(
+            Math.abs((ImageHeight + deltaX) * Math.cos(angle)) +
+              Math.abs((ImageWidth + deltaY) * Math.sin(angle))
+          );
+          setFrameWidth(
+            Math.abs((ImageHeight + deltaX) * Math.sin(angle)) +
+              Math.abs((ImageWidth + deltaY) * Math.cos(angle))
+          );
+        } else {
+          setImageWidth(ImageWidth + deltaX);
+          setImageHeight(ImageHeight + deltaY);
+          setFrameWidth(currentWidth + deltaX);
+          setFrameHeight(currentHeight + deltaY);
+        }
       } else if (id === "bottom-left") {
-        setImageWidth(currentWidth - deltaX);
-        setImageHeight(currentHeight + deltaY);
+        setFrameWidth(currentWidth - deltaX);
+        setFrameHeight(currentHeight + deltaY);
 
         positionsRef.current[props.id] = {
           ...positionsRef.current[props.id],
           x: position.x + deltaX,
+          y: position.y,
         };
         setPosition(positionsRef.current[props.id]);
       } else if (id === "top-left") {
-        setImageWidth(currentWidth - deltaX);
-        setImageHeight(currentHeight - deltaY);
+        setFrameWidth(currentWidth - deltaX);
+        setFrameHeight(currentHeight - deltaY);
 
         positionsRef.current[props.id] = {
           x: position.x + deltaX,
@@ -163,12 +228,22 @@ const CanvasImage = (props) => {
     const centerX = target.x + target.width / 2;
     const centerY = target.y + target.height / 2;
     const handlePointerMove = (event) => {
-      const angle =
-        (Math.atan2(event.clientY - centerY, event.clientX - centerX) * 180) /
-        Math.PI;
-
-      rotationRef.current[props.id] = angle - 90;
+      const angle = Math.atan2(
+        event.clientX - centerX,
+        centerY - event.clientY
+      );
+      // console.log("turn", angle);
+      rotationRef.current[props.id] = (angle * 180) / Math.PI + 180;
       setRotation(rotationRef.current[props.id]);
+
+      setFrameHeight(
+        Math.abs(ImageHeight * Math.cos(angle)) +
+          Math.abs(ImageWidth * Math.sin(angle))
+      );
+      setFrameWidth(
+        Math.abs(ImageHeight * Math.sin(angle)) +
+          Math.abs(ImageWidth * Math.cos(angle))
+      );
     };
 
     const handlePointerUp = () => {
@@ -178,14 +253,15 @@ const CanvasImage = (props) => {
     document.addEventListener("pointermove", handlePointerMove);
     document.addEventListener("pointerup", handlePointerUp);
   };
+  // console.log(rotation);
 
   return (
     <>
       <div
         tabIndex={0}
         style={{
-          width: ImageWidth,
-          height: ImageHeight,
+          width: FrameWidth,
+          height: FrameHeight,
           border: `${border} solid #ff719a`,
           position: "relative",
           position: "absolute",
@@ -195,35 +271,45 @@ const CanvasImage = (props) => {
           top: position.y,
           margin: `-${border}`,
           userSelect: "none",
-          transform: `rotate(${rotation}deg)`,
+          // transform: `rotate(${rotation}deg)`,
           overflow: "visible",
         }}
         onPointerDown={handlePointerDown}
         onKeyDown={onKeyDown}
       >
-        <div>
+        <div
+          className="canvas-image-container"
+          style={{
+            transform: `rotate(${rotation}deg)`,
+          }}
+        >
           <img
             src={props.src}
             id={props.id}
-            style={{
-              position: "absolute",
-
-              cursor: "move",
-              width: "100%",
-              height: "100%",
-            }}
+            className="canvas-image"
             onPointerDown={handlePointerDown}
+            style={{
+              width: ImageWidth,
+              height: ImageHeight,
+            }}
           />
           {showFrameTools && (
-            <>
-              <FrameTools
-                handleResize={handleResize}
-                dotSize={dotSize}
-                handleturn={handleturn}
-              />
-            </>
+            <img
+              className="turn"
+              onPointerDown={handleturn}
+              src="/images/refresh.png"
+            />
           )}
         </div>
+        {showFrameTools && (
+          <>
+            <FrameTools
+              handleResize={handleResize}
+              dotSize={dotSize}
+              handleturn={handleturn}
+            />
+          </>
+        )}
       </div>
     </>
   );

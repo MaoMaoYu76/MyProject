@@ -3,7 +3,7 @@ import React from "react";
 const FrameTools = (props) => {
   const dotSize = props.dotSize;
   const { handleResize } = props;
-  const { handleturn } = props;
+  // const { handleturn } = props;
 
   return (
     <>
@@ -55,11 +55,11 @@ const FrameTools = (props) => {
           height: dotSize,
         }}
       />
-      <img
-        className="trun"
+      {/* <img
+        className="turn"
         onPointerDown={handleturn}
         src="/images/refresh.png"
-      />
+      /> */}
     </>
   );
 };
