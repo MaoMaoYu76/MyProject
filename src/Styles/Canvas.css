@@ -37,6 +37,7 @@
   border-radius: 5px;
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 
 .frame {
@@ -58,11 +59,21 @@
   width: 35px;
   height: 35px;
   cursor: pointer;
+  position: relative;
 }
 
 .canvas-picker {
   position: absolute;
   top: 120px;
+  z-index: 1;
+}
+#picker-position {
+  position: relative;
+}
+.background-picker {
+  position: absolute;
+  top: 40px;
+  z-index: 1;
 }
 
 .config-box {
@@ -71,10 +82,12 @@
 }
 
 .config-button {
-  width: 16px;
-  height: 16px;
-  margin: 0 15px;
+  width: 25px;
+  height: 25px;
+  margin: 0 8px;
   cursor: pointer;
+  padding: 4px;
+  border-radius: 5px;
 }
 
 .textcolor {
@@ -152,4 +165,15 @@
   border-radius: 5px;
   border: #b8b8b8 solid 1px;
   width: 150px;
+}
+
+.url {
+  -moz-user-select: all;
+  -webkit-user-select: all;
+  -ms-user-select: all;
+  user-select: all;
+}
+
+.message {
+  margin: 15px;
 }

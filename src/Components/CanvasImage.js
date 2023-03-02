@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { useRef } from "react";
 import { useEffect } from "react";
-import "../Styles/CanvasImage.css";
+import "../Styles/CanvasElements.css";
 import Border from "./border";
 import FrameTools from "./FrameTools";
 
@@ -23,7 +23,6 @@ const CanvasImage = (props) => {
   const [FrameHeight, setFrameHeight] = useState();
   const [ImageWidth, setImageWidth] = useState();
   const [ImageHeight, setImageHeight] = useState();
-  const [angle, setAngle] = useState(0);
   const [resizing, setResizing] = useState(false);
   const [count, setCount] = useState(0);
   const rotationRef = useRef({});
@@ -89,22 +88,71 @@ const CanvasImage = (props) => {
     let currentHeight = FrameHeight;
     const onMouseMove = (event) => {
       const angle = ((rotation - 180) * Math.PI) / 180;
-      // console.log("resize", angle);
+      const angle2 = (1.5708 - angle) / 2 + angle;
 
       const deltaX = (event.clientX - initialX) / (props.scale * 0.01);
       const deltaY = (event.clientY - initialY) / (props.scale * 0.01);
-      // console.log("deltaY", deltaY, "deltaX", deltaX);
-      // const newX = deltaX / Math.cos(angle);
-      // const newY = deltaY / Math.cos(angle);
-      // console.log("newX", newX, "newY", newY);
+      // const hypotenuse = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+
+      // let newdeltaX;
+      // let newdeltaY;
+      // if (deltaY < 0) {
+      //   newdeltaY = -(hypotenuse * Math.cos(angle2));
+      // } else {
+      //   newdeltaY = hypotenuse * Math.cos(angle2);
+      // }
+      // if (deltaX < 0) {
+      //   newdeltaX = -(hypotenuse * Math.sin(angle2));
+      // } else {
+      //   newdeltaX = hypotenuse * Math.sin(angle2);
+      // }
 
       // 判斷位置
       if (id === "top-right") {
-        // console.log(rotation);
+        if (
+          (rotation >= 67.5 && rotation < 112.5) ||
+          (rotation >= 247.5 && rotation < 292.5)
+        ) {
+          setImageWidth(ImageWidth - deltaY);
+          setImageHeight(ImageHeight + deltaX);
+          setFrameWidth(currentWidth + deltaX);
+          setFrameHeight(currentHeight - deltaY);
+        } else if (
+          (rotation >= 112.5 && rotation < 157.5) ||
+          (rotation >= 292.5 && rotation < 337.5)
+        ) {
+          setImageWidth(ImageWidth + deltaX);
+          setImageHeight(ImageHeight - deltaY);
 
-        setFrameWidth(currentWidth + deltaX);
-        setFrameHeight(currentHeight - deltaY);
+          setFrameHeight(
+            Math.abs((ImageHeight - deltaY) * Math.cos(angle)) +
+              Math.abs((ImageWidth + deltaX) * Math.sin(angle))
+          );
+          setFrameWidth(
+            Math.abs((ImageHeight - deltaY) * Math.sin(angle)) +
+              Math.abs((ImageWidth + deltaX) * Math.cos(angle))
+          );
+        } else if (
+          (rotation >= 202.5 && rotation < 247.5) ||
+          (rotation >= 22.5 && rotation < 67.5)
+        ) {
+          setImageWidth(ImageWidth + deltaX);
+          setImageHeight(ImageHeight - deltaY);
 
+          setFrameHeight(
+            Math.abs((ImageHeight - deltaY) * Math.cos(angle)) +
+              Math.abs((ImageWidth + deltaX) * Math.sin(angle))
+          );
+          setFrameWidth(
+            Math.abs((ImageHeight - deltaY) * Math.sin(angle)) +
+              Math.abs((ImageWidth + deltaX) * Math.cos(angle))
+          );
+        } else {
+          setImageWidth(ImageWidth + deltaX);
+          setImageHeight(ImageHeight - deltaY);
+          setFrameWidth(currentWidth + deltaX);
+          setFrameHeight(currentHeight - deltaY);
+        }
         positionsRef.current[props.id] = {
           ...positionsRef.current[props.id],
           x: position.x,
@@ -112,6 +160,7 @@ const CanvasImage = (props) => {
         };
 
         setPosition(positionsRef.current[props.id]);
+        //========================================
       } else if (id === "bottom-right") {
         if (
           (rotation >= 67.5 && rotation < 112.5) ||
@@ -158,9 +207,50 @@ const CanvasImage = (props) => {
           setFrameHeight(currentHeight + deltaY);
         }
       } else if (id === "bottom-left") {
-        setFrameWidth(currentWidth - deltaX);
-        setFrameHeight(currentHeight + deltaY);
+        if (
+          (rotation >= 67.5 && rotation < 112.5) ||
+          (rotation >= 247.5 && rotation < 292.5)
+        ) {
+          setImageWidth(ImageWidth + deltaY);
+          setImageHeight(ImageHeight - deltaX);
+          setFrameWidth(currentWidth - deltaX);
+          setFrameHeight(currentHeight + deltaY);
+        } else if (
+          (rotation >= 112.5 && rotation < 157.5) ||
+          (rotation >= 292.5 && rotation < 337.5)
+        ) {
+          setImageWidth(ImageWidth - deltaX);
+          setImageHeight(ImageHeight + deltaY);
 
+          setFrameHeight(
+            Math.abs((ImageHeight + deltaY) * Math.cos(angle)) +
+              Math.abs((ImageWidth - deltaX) * Math.sin(angle))
+          );
+          setFrameWidth(
+            Math.abs((ImageHeight + deltaY) * Math.sin(angle)) +
+              Math.abs((ImageWidth - deltaX) * Math.cos(angle))
+          );
+        } else if (
+          (rotation >= 202.5 && rotation < 247.5) ||
+          (rotation >= 22.5 && rotation < 67.5)
+        ) {
+          setImageWidth(ImageWidth - deltaX);
+          setImageHeight(ImageHeight + deltaY);
+
+          setFrameHeight(
+            Math.abs((ImageHeight + deltaY) * Math.cos(angle)) +
+              Math.abs((ImageWidth - deltaX) * Math.sin(angle))
+          );
+          setFrameWidth(
+            Math.abs((ImageHeight + deltaY) * Math.sin(angle)) +
+              Math.abs((ImageWidth - deltaX) * Math.cos(angle))
+          );
+        } else {
+          setImageWidth(ImageWidth - deltaX);
+          setImageHeight(ImageHeight + deltaY);
+          setFrameWidth(currentWidth - deltaX);
+          setFrameHeight(currentHeight + deltaY);
+        }
         positionsRef.current[props.id] = {
           ...positionsRef.current[props.id],
           x: position.x + deltaX,
@@ -168,8 +258,50 @@ const CanvasImage = (props) => {
         };
         setPosition(positionsRef.current[props.id]);
       } else if (id === "top-left") {
-        setFrameWidth(currentWidth - deltaX);
-        setFrameHeight(currentHeight - deltaY);
+        if (
+          (rotation >= 67.5 && rotation < 112.5) ||
+          (rotation >= 247.5 && rotation < 292.5)
+        ) {
+          setImageWidth(ImageWidth - deltaY);
+          setImageHeight(ImageHeight - deltaX);
+          setFrameWidth(currentWidth - deltaX);
+          setFrameHeight(currentHeight - deltaY);
+        } else if (
+          (rotation >= 112.5 && rotation < 157.5) ||
+          (rotation >= 292.5 && rotation < 337.5)
+        ) {
+          setImageWidth(ImageWidth - deltaX);
+          setImageHeight(ImageHeight - deltaY);
+
+          setFrameHeight(
+            Math.abs((ImageHeight - deltaY) * Math.cos(angle)) +
+              Math.abs((ImageWidth - deltaX) * Math.sin(angle))
+          );
+          setFrameWidth(
+            Math.abs((ImageHeight - deltaY) * Math.sin(angle)) +
+              Math.abs((ImageWidth - deltaX) * Math.cos(angle))
+          );
+        } else if (
+          (rotation >= 202.5 && rotation < 247.5) ||
+          (rotation >= 22.5 && rotation < 67.5)
+        ) {
+          setImageWidth(ImageWidth - deltaY);
+          setImageHeight(ImageHeight - deltaX);
+
+          setFrameHeight(
+            Math.abs((ImageHeight - deltaX) * Math.cos(angle)) +
+              Math.abs((ImageWidth - deltaY) * Math.sin(angle))
+          );
+          setFrameWidth(
+            Math.abs((ImageHeight - deltaX) * Math.sin(angle)) +
+              Math.abs((ImageWidth - deltaY) * Math.cos(angle))
+          );
+        } else {
+          setImageWidth(ImageWidth - deltaX);
+          setImageHeight(ImageHeight - deltaY);
+          setFrameWidth(currentWidth - deltaX);
+          setFrameHeight(currentHeight - deltaY);
+        }
 
         positionsRef.current[props.id] = {
           x: position.x + deltaX,
@@ -298,16 +430,15 @@ const CanvasImage = (props) => {
               className="turn"
               onPointerDown={handleturn}
               src="/images/refresh.png"
+              style={{
+                bottom: `-${ImageHeight / 2}px`,
+              }}
             />
           )}
         </div>
         {showFrameTools && (
           <>
-            <FrameTools
-              handleResize={handleResize}
-              dotSize={dotSize}
-              handleturn={handleturn}
-            />
+            <FrameTools handleResize={handleResize} dotSize={dotSize} />
           </>
         )}
       </div>

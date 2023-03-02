@@ -11,7 +11,7 @@ import domtoimage from "dom-to-image";
 import Signin from "./Signin";
 import { storage } from "../firebase";
 import { ref } from "firebase/storage";
-
+import FontList from "./FontList";
 import { uuidv4 } from "@firebase/util";
 import { SketchPicker } from "react-color";
 import { getDownloadURL } from "firebase/storage";
@@ -60,6 +60,10 @@ const Canvas = (props) => {
   //test
   const [maxLayer, setMaxlayer] = useState(0);
   const [zIndex, setzIndex] = useState({});
+  const [url, seturl] = useState("");
+  const [showMessage, setShowMessage] = useState(false);
+  const [ShowBackgroundPicker, setShowBackgroundPicker] = useState(false);
+  const [backgroundColor, setBackgroundColor] = useState("transparent");
 
   const handleScaleChange = (event) => {
     setScale(event.target.value);
@@ -104,6 +108,8 @@ const Canvas = (props) => {
       setCanvasImages([...canvasImages, { id: id, src: newSrc }]);
       setCancel(false);
       setIsSelected(props.Imgid);
+      setShowImageTool(true);
+      setShowCanvasTool(false);
       selectedIdRef.current = props.Imgid;
       setzIndex((prevzIndex) => ({
         ...prevzIndex,
@@ -117,6 +123,8 @@ const Canvas = (props) => {
       setCanvasTexts([...canvasTexts, { id: props.Textid }]);
       setCancel(false);
       setIsSelected(props.Textid);
+      setShowTextTool(true);
+      setShowCanvasTool(false);
       selectedIdRef.current = props.Textid;
       setzIndex((prevzIndex) => ({
         ...prevzIndex,
@@ -173,10 +181,16 @@ const Canvas = (props) => {
     return () => {
       document.removeEventListener("pointerdown", handleSelect);
     };
-  }, [canvasImages, canvasTexts, ShowTextPicker]);
+  }, [
+    canvasImages,
+    canvasTexts,
+    ShowTextPicker,
+    ShowCanvasPicker,
+    ShowBackgroundPicker,
+  ]);
 
   const handleSelect = (event) => {
-    // console.log("event.target", event.target);
+    console.log("event.target", event.target.closest(".picker-position"));
 
     const isImageInCanvas = canvasImages.some(
       (img) => img.id === event.target.id
@@ -187,6 +201,7 @@ const Canvas = (props) => {
     if (isImageInCanvas || isTextInCanvas) {
       setShowCanvasTool(false);
       setCancel(false);
+      setShowMessage(false);
       setIsSelected(event.target.id);
       selectedIdRef.current = event.target.id;
       if (isImageInCanvas) {
@@ -200,13 +215,31 @@ const Canvas = (props) => {
       event.target.closest(".config-box") != null ||
       event.target.className === "resize-dot" ||
       event.target.closest(".config-detail") != null ||
-      event.target.className === "turn"
+      event.target.className === "turn" ||
+      event.target.closest(".side-icons") != null
     ) {
+      console.log("1");
       setCancel(false);
     } else if (ShowTextPicker && event.target.closest(".picker") === null) {
+      console.log("2");
       setCancel(false);
       setShowTextPicker(false);
+    } else if (
+      ShowCanvasPicker &&
+      event.target.closest(".canvas-picker") === null
+    ) {
+      console.log("3");
+      setCancel(false);
+      setShowCanvasPicker(false);
+    } else if (
+      ShowBackgroundPicker &&
+      event.target.closest(".picker-position") === null
+    ) {
+      console.log("5");
+      setCancel(false);
+      setShowBackgroundPicker(false);
     } else {
+      console.log("4", ShowBackgroundPicker);
       setCancel(true);
       setShowTextTool(false);
       setShowImageTool(false);
@@ -233,7 +266,7 @@ const Canvas = (props) => {
   };
 
   const handleImgDelete = (event) => {
-    console.log("wong");
+    // console.log("wong");
     if (event.key === "Backspace") {
       const id = selectedIdRef.current;
       // const id = event.target.children[0].children[0].getAttribute("id");
@@ -254,11 +287,16 @@ const Canvas = (props) => {
       domtoimage.toBlob(canvas).then(function (blob) {
         const storageRef = ref(storage, `${canvas.children[0].id}.jpg`);
         // 測試圖片生成是否正常
-        window.saveAs(blob, "my-result.png");
+        // window.saveAs(blob, "my-result.png");
 
         //將圖片放入storage
-        // uploadBytes(storageRef, blob).then((snapshot) => {
-        //   console.log(window.location.host+"/poster/"+canvas.children[0].id);
+        uploadBytes(storageRef, blob).then((snapshot) => {
+          navigator.clipboard.writeText(
+            window.location.host + "/poster/" + canvas.children[0].id
+          );
+          seturl(window.location.host + "/poster/" + canvas.children[0].id);
+          setShowMessage(true);
+        });
       });
     } else {
       setShowSignin(true);
@@ -364,6 +402,13 @@ const Canvas = (props) => {
     }));
   };
 
+  const handleBackgroundChange = (newColor) => {
+    setBackgroundColor((prevBackgroundColor) => ({
+      ...prevBackgroundColor,
+      [selectedIdRef.current]: newColor.hex,
+    }));
+  };
+
   const handleCanvasColorChange = (newColor) => {
     setCanvasColor(newColor.hex);
   };
@@ -392,7 +437,7 @@ const Canvas = (props) => {
     });
   };
   const handleForward = () => {
-    console.log("向前", zIndex[selectedIdRef.current], maxLayer, zIndex);
+    // console.log("向前", zIndex[selectedIdRef.current], maxLayer, zIndex);
     if (
       zIndex[selectedIdRef.current] >= 0 &&
       zIndex[selectedIdRef.current] < maxLayer
@@ -401,12 +446,12 @@ const Canvas = (props) => {
         ...prevzIndex,
         [selectedIdRef.current]: zIndex[selectedIdRef.current] + 1,
       }));
-      console.log(zIndex);
+      // console.log(zIndex);
     }
   };
 
   const handleBackward = () => {
-    console.log("向後", zIndex[selectedIdRef.current], maxLayer, zIndex);
+    // console.log("向後", zIndex[selectedIdRef.current], maxLayer, zIndex);
     if (
       zIndex[selectedIdRef.current] > 0 &&
       zIndex[selectedIdRef.current] <= maxLayer
@@ -415,7 +460,7 @@ const Canvas = (props) => {
         ...prevzIndex,
         [selectedIdRef.current]: zIndex[selectedIdRef.current] - 1,
       }));
-      console.log(zIndex);
+      // console.log(zIndex);
     }
   };
   // const fontNames = fontList.map((font) => font.family);
@@ -436,21 +481,22 @@ const Canvas = (props) => {
               <div
                 className="canvasColor-preview"
                 onClick={() => {
-                  setShowCanvasPicker(!ShowCanvasPicker);
+                  setShowCanvasPicker(true);
                 }}
                 style={{
                   backgroundColor: CanvasColor || "#FFFFFF",
                 }}
-              ></div>
-              {ShowCanvasPicker && (
-                <>
-                  <SketchPicker
-                    className="canvas-picker"
-                    color={CanvasColor}
-                    onChange={handleCanvasColorChange}
-                  />
-                </>
-              )}
+              >
+                {ShowCanvasPicker && (
+                  <>
+                    <SketchPicker
+                      className="canvas-picker"
+                      color={CanvasColor}
+                      onChange={handleCanvasColorChange}
+                    />
+                  </>
+                )}
+              </div>
             </>
           )}
           {showImageTool && (
@@ -460,7 +506,17 @@ const Canvas = (props) => {
                 src="/images/forward.png"
                 onClick={handleForward}
               />
-              <img className="config-button2" src="/images/delete.png" />
+              <img
+                className="config-button2"
+                onClick={() => {
+                  setCanvasImages(
+                    canvasImages.filter(
+                      (Image) => Image.id !== selectedIdRef.current
+                    )
+                  );
+                }}
+                src="/images/delete.png"
+              />
               <img
                 className="config-button2"
                 src="/images/backward.png"
@@ -513,14 +569,35 @@ const Canvas = (props) => {
                   }}
                   src="/images/b.png"
                 />
-                <div className="textcolor ">
+                <div id="picker-position">
                   <img
-                    className=""
+                    className="config-button"
                     onClick={() => {
-                      setShowTextPicker(true);
+                      setShowBackgroundPicker(true);
+                    }}
+                    style={{
+                      backgroundColor:
+                        backgroundColor[selectedIdRef.current] || "#FFA99F",
                     }}
                     src="/images/a.png"
                   />
+                  {ShowBackgroundPicker && (
+                    <>
+                      <SketchPicker
+                        className="background-picker"
+                        bcolor={backgroundColor[selectedIdRef.current]}
+                        onChange={handleBackgroundChange}
+                      />
+                    </>
+                  )}
+                </div>
+                <div
+                  className="textcolor"
+                  onClick={() => {
+                    setShowTextPicker(true);
+                  }}
+                >
+                  <img src="/images/a.png" />
                   <div
                     className="textColor-preview"
                     style={{
@@ -543,7 +620,17 @@ const Canvas = (props) => {
                   src="/images/forward.png"
                   onClick={handleForward}
                 />
-                <img className="config-button2" src="/images/delete.png" />
+                <img
+                  className="config-button2"
+                  onClick={() => {
+                    setCanvasTexts(
+                      canvasTexts.filter(
+                        (Text) => Text.id !== selectedIdRef.current
+                      )
+                    );
+                  }}
+                  src="/images/delete.png"
+                />
                 <img
                   className="config-button2"
                   src="/images/backward.png"
@@ -557,6 +644,12 @@ const Canvas = (props) => {
             onClick={handleScreenShot}
             src="/images/share.png"
           />
+          {showMessage && (
+            <>
+              <div className="url">{url}</div>
+              <div className="message">已複製分享連結</div>
+            </>
+          )}
         </div>
       </div>
       <div className="canvas-container">
@@ -613,6 +706,7 @@ const Canvas = (props) => {
                   // maxLayer={maxLayer}
                   zIndex={zIndex[Text.id] || 1}
                   scale={scale}
+                  backgroundColor={backgroundColor[Text.id]}
                 />
               ))}
             </div>

@@ -1,44 +1,46 @@
-.display-zone{
-    background-color: #ececec;
-    width: 100%;
-    height: calc(99vh - 5vh);
-    display: flex;
-    flex-direction: column
+.display-zone {
+  background-color: #ececec;
+  width: 100%;
+  height: calc(99vh - 5vh);
+  display: flex;
+  flex-direction: column;
 }
 
-.tool-zone{
-    background-color: #FFF;
-    height: 8vh;
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.tool-zone {
+  background-color: #fff;
+  height: 8vh;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.result-container{
-    overflow: auto;
-    /* 扣除工具區域 */
-    height: calc(100% - 8vh);
+.result-container {
+  overflow: auto;
+  /* 扣除工具區域 */
+  height: calc(100% - 8vh);
+  display: flex;
 }
 
-.downlaod{
-    margin: 20px 5px;
-    display: flex;
-    align-items: center;
-    padding: 0 15px;
-    height: 45px;
-    border-radius: 5px;
-    cursor: pointer;
-    float: right;
+.downlaod {
+  margin: 20px 5px;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  height: 45px;
+  border-radius: 5px;
+
+  float: right;
 }
 
-.downlaodimg{
-    width: 50px;
-    height: 50px;
-    border-radius:5px;
-    display: flex;
-    align-items: center;
-    margin: 0 15px;
+.downlaodimg {
+  width: 50px;
+  height: 50px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  margin: 0 15px;
+  cursor: pointer;
 }

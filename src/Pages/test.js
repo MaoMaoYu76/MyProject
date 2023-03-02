@@ -4,36 +4,45 @@ import { useEffect } from "react";
 import { SketchPicker } from "react-color";
 
 function TEST() {
-  const [rotation, setRotation] = useState(0);
-  const [mouseDown, setMouseDown] = useState(false);
-  const [startX, setStartX] = useState(0);
+  const [fontList, setFontList] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const handleMouseDown = (e) => {
-    setMouseDown(true);
-    setStartX(e.clientX);
-  };
+  useEffect(() => {
+    const fetchFonts = async () => {
+      const response = await fetch(
+        "https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyBWCWoHellq7xHFlfc5YiziHIBOjok9PP4"
+      );
+      const json = await response.json();
+      setFontList(json.items);
+    };
+    fetchFonts();
+  }, []);
 
-  const handleMouseMove = (e) => {
-    if (mouseDown) {
-      const diffX = startX - e.clientX;
-      const newRotation = rotation - diffX;
-      setRotation(newRotation);
-      setStartX(e.clientX);
-    }
-  };
-
-  const handleMouseUp = () => {
-    setMouseDown(false);
-  };
+  const filteredFonts = fontList
+    .filter((font) =>
+      font.family.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      // Put selected fonts first
+      if (selectedFonts.includes(a.family)) return -1;
+      if (selectedFonts.includes(b.family)) return 1;
+      // Sort remaining fonts alphabetically
+      return a.family.localeCompare(b.family);
+    });
 
   return (
-    <div
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      style={{ transform: `rotate(${rotation}deg)` }}
-    >
-      <img src="/images/posters.png" alt="" />
+    <div>
+      <input
+        type="text"
+        placeholder="Search fonts..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <ul>
+        {filteredFonts.map((font) => (
+          <li key={font.family}>{font.family}</li>
+        ))}
+      </ul>
     </div>
   );
 }

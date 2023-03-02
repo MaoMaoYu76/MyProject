@@ -17,6 +17,7 @@ import { listAll } from "firebase/storage";
 import { db } from "../firebase";
 import { getDocs } from "firebase/firestore";
 import { collection } from "firebase/firestore";
+import FontList from "./FontList";
 
 const EditZone = (props) => {
   console.log("EditZone");
@@ -354,6 +355,9 @@ const EditZone = (props) => {
             </div>
           </>
         )}
+        <div className="font-container">
+          <FontList />
+        </div>
         <div className="edit-zone">
           <Canvas
             boundaries={handleBoundaries}

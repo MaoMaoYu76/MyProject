@@ -1,0 +1,64 @@
+.scroll-box {
+  overflow: auto;
+  /* margin: px; */
+}
+
+.search-box {
+  display: flex;
+  padding: 25px;
+  position: relative;
+  width: 390px;
+  position: sticky;
+  top: 0px;
+  background-color: #fff;
+  height: 100px;
+  box-shadow: 0 2px 8px rgb(14 19 24 / 7%);
+}
+
+.font-search {
+  background-image: url("https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/web%2Fsearch.png?alt=media&token=a7b367e2-176e-46c2-8b6f-63dae1f69f35");
+  background-repeat: no-repeat;
+  background-position: 95%;
+  width: 250px;
+  height: 50px;
+  border: #b8b8b8 solid 1px;
+  border-radius: 5px;
+  padding: 0 8px;
+  font-size: 18px;
+}
+
+.font-search:focus {
+  background-image: none;
+}
+
+.close {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  right: 50px;
+}
+
+.font-items {
+  /* margin: 0 5px; */
+}
+
+.font-item {
+  height: 55px;
+  list-style-type: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  padding: 0 25px;
+}
+
+.font-item:hover {
+  background-color: #e7e7e7;
+  width: 100%;
+}
+
+.ch {
+  padding: 25px;
+  border-top: #e7e7e7 solid 2px;
+  font-size: large;
+}

@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { useRef } from "react";
 import { useEffect } from "react";
-import "../Styles/CanvasText.css";
+import "../Styles/CanvasElements.css";
 import Border from "./border";
 import FrameTools from "./FrameTools";
 
@@ -63,7 +63,6 @@ const CanvasText = (props) => {
     }
   }, [props.selected, props.fontWeight, props.cancel]);
 
-  console.log(rotation);
   //控制大小拖曳
   const handleResize = (event) => {
     setResizing(true);
@@ -189,11 +188,12 @@ const CanvasText = (props) => {
     const centerX = target.x + target.width / 2;
     const centerY = target.y + target.height / 2;
     const handlePointerMove = (event) => {
-      const angle =
-        (Math.atan2(event.clientY - centerY, event.clientX - centerX) * 180) /
-        Math.PI;
-
-      rotationRef.current[props.id] = angle - 90;
+      const angle = Math.atan2(
+        event.clientX - centerX,
+        centerY - event.clientY
+      );
+      // console.log("turn", angle);
+      rotationRef.current[props.id] = (angle * 180) / Math.PI + 180;
       setRotation(rotationRef.current[props.id]);
     };
 
@@ -221,9 +221,8 @@ const CanvasText = (props) => {
           onPointerDown={handlePointerDown}
         >
           <div
+            className="canvas-image-container"
             style={{
-              width: "100%",
-              height: "100%",
               transform: `rotate(${rotation}deg)`,
             }}
           >
@@ -242,22 +241,27 @@ const CanvasText = (props) => {
                 cursor: cursor,
                 color: props.color,
                 fontFamily: props.fontFamily,
+                backgroundColor: props.backgroundColor,
               }}
             ></input>
             {showFrameTools && (
               <img
-                className="trun"
+                className="turn"
                 onPointerDown={handleturn}
                 src="/images/refresh.png"
                 style={{
-                  bottom: `-${ImageHeight}px`,
+                  bottom: `-${ImageHeight * 2}px`,
                 }}
               />
             )}
           </div>
           {showFrameTools && (
             <>
-              <FrameTools handleResize={handleResize} dotSize={dotSize} />
+              <FrameTools
+                handleResize={handleResize}
+                dotSize={dotSize}
+                // handleturn={handleturn}
+              />
             </>
           )}
         </div>
