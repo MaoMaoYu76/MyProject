@@ -21,6 +21,10 @@ import { doc } from "firebase/firestore";
 import { saveAs } from "file-saver";
 import { setDoc } from "firebase/firestore";
 import { db } from "../firebase";
+// import html2canvas from "html2canvas";
+// import domtoimage from "dom-to-image-google-font-issue";
+// import * as htmlToImage from "html-to-image";
+// import { toBlob } from "html-to-image";
 
 const Canvas = (props) => {
   const size = useContext(SizeData);
@@ -43,6 +47,7 @@ const Canvas = (props) => {
   const [IsSetting, setIsSetting] = useState(false);
   const [alert, setAlert] = useState(null);
   const [imagesData, setImagesData] = useState([]);
+  const [textsData, setTextsData] = useState([]);
   const [cancel, setCancel] = useState(false);
   const [fontWeight, setFontWeight] = useState(false);
   const [fontSizes, setFontSizes] = useState({});
@@ -55,7 +60,6 @@ const Canvas = (props) => {
   const [CanvasColor, setCanvasColor] = useState("#FFFFFF");
   const [ShowTextPicker, setShowTextPicker] = useState(false);
   const [ShowCanvasPicker, setShowCanvasPicker] = useState(false);
-  const [fontList, setFontList] = useState([]);
   const [selectedFont, setSelectedFont] = useState({});
   //test
   const [maxLayer, setMaxlayer] = useState(0);
@@ -63,7 +67,10 @@ const Canvas = (props) => {
   const [url, seturl] = useState("");
   const [showMessage, setShowMessage] = useState(false);
   const [ShowBackgroundPicker, setShowBackgroundPicker] = useState(false);
-  const [backgroundColor, setBackgroundColor] = useState("transparent");
+  const [saving, setSaving] = useState(false);
+  const [backgroundColor, setBackgroundColor] = useState({});
+  const [projectName, setProjectName] = useState("");
+  const scaleRef = useRef("");
 
   const handleScaleChange = (event) => {
     setScale(event.target.value);
@@ -110,6 +117,7 @@ const Canvas = (props) => {
       setIsSelected(props.Imgid);
       setShowImageTool(true);
       setShowCanvasTool(false);
+      setShowMessage(false);
       selectedIdRef.current = props.Imgid;
       setzIndex((prevzIndex) => ({
         ...prevzIndex,
@@ -125,6 +133,7 @@ const Canvas = (props) => {
       setIsSelected(props.Textid);
       setShowTextTool(true);
       setShowCanvasTool(false);
+      setShowMessage(false);
       selectedIdRef.current = props.Textid;
       setzIndex((prevzIndex) => ({
         ...prevzIndex,
@@ -133,14 +142,14 @@ const Canvas = (props) => {
     }
   }, [props.Textid]);
 
-  useEffect(() => {
-    if (props.Shapesid) {
-      setCanvasTexts([...canvasShapes, { id: props.Shapesid }]);
-      setCancel(false);
-      setIsSelected(props.Shapesid);
-      selectedIdRef.current = props.Textid;
-    }
-  }, [props.Shapesid]);
+  // useEffect(() => {
+  //   if (props.Shapesid) {
+  //     setCanvasTexts([...canvasShapes, { id: props.Shapesid }]);
+  //     setCancel(false);
+  //     setIsSelected(props.Shapesid);
+  //     selectedIdRef.current = props.Textid;
+  //   }
+  // }, [props.Shapesid]);
   // console.log(IsSelected);
   //選擇畫布尺寸
   useEffect(() => {
@@ -190,7 +199,7 @@ const Canvas = (props) => {
   ]);
 
   const handleSelect = (event) => {
-    console.log("event.target", event.target.closest(".picker-position"));
+    console.log("event.target", event.target);
 
     const isImageInCanvas = canvasImages.some(
       (img) => img.id === event.target.id
@@ -207,6 +216,7 @@ const Canvas = (props) => {
       if (isImageInCanvas) {
         setShowImageTool(true);
         setShowTextTool(false);
+        props.handleShowBox(false);
       } else {
         setShowTextTool(true);
         setShowImageTool(false);
@@ -216,7 +226,8 @@ const Canvas = (props) => {
       event.target.className === "resize-dot" ||
       event.target.closest(".config-detail") != null ||
       event.target.className === "turn" ||
-      event.target.closest(".side-icons") != null
+      event.target.closest(".side-icons") != null ||
+      event.target.closest(".scroll-box") != null
     ) {
       console.log("1");
       setCancel(false);
@@ -242,7 +253,10 @@ const Canvas = (props) => {
       console.log("4", ShowBackgroundPicker);
       setCancel(true);
       setShowTextTool(false);
+      props.handleShowBox(false);
       setShowImageTool(false);
+      selectedIdRef.current = "";
+      setIsSelected("");
     }
   };
 
@@ -253,10 +267,17 @@ const Canvas = (props) => {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [canvasTexts]);
+  }, [
+    canvasTexts,
+    props.searching,
+    canvasImages,
+    InFocusRef.current,
+    selectedIdRef.current,
+  ]);
 
   const handleKeyDown = (event) => {
-    if (event.key === "Backspace" && !InFocusRef.current) {
+    // console.log("selectedIdRef.current", canvasTexts);
+    if (event.key === "Backspace" && !InFocusRef.current && !props.searching) {
       // console.log(canvasTexts);
       setCanvasTexts(
         canvasTexts.filter((Text) => Text.id !== selectedIdRef.current)
@@ -277,27 +298,38 @@ const Canvas = (props) => {
   // console.log(window.location);
   //處理快照
   const handleScreenShot = async () => {
+    setCancel(true);
+    setShowTextTool(false);
+    setShowImageTool(false);
+    setShowCanvasTool(false);
     //讀取會員登入狀態否則跳出登入提示
     if (currentUser) {
       // console.log(currentUser);
       const canvas = document.getElementById("canvas");
+      scaleRef.current = scale;
       setScale(100);
 
-      //DEMO使用的存儲
-      domtoimage.toBlob(canvas).then(function (blob) {
-        const storageRef = ref(storage, `${canvas.children[0].id}.jpg`);
-        // 測試圖片生成是否正常
-        // window.saveAs(blob, "my-result.png");
+      // html2canvas(canvas, { allowTaint: true }).then((canvas) => {
+      //   document.body.appendChild(canvas);
+      // });
+      domtoimage
+        .toBlob(canvas, { crossOrigin: "anonymous" })
+        .then(function (blob) {
+          // 測試圖片生成是否正常
+          // document.body.appendChild(canvas);
+          const storageRef = ref(storage, `${canvas.children[0].id}.jpg`);
+          // window.saveAs(blob, "my-result.png");
 
-        //將圖片放入storage
-        uploadBytes(storageRef, blob).then((snapshot) => {
-          navigator.clipboard.writeText(
-            window.location.host + "/poster/" + canvas.children[0].id
-          );
-          seturl(window.location.host + "/poster/" + canvas.children[0].id);
-          setShowMessage(true);
+          // 將圖片放入storage
+          uploadBytes(storageRef, blob).then((snapshot) => {
+            navigator.clipboard.writeText(
+              window.location.host + "/poster/" + canvas.children[0].id
+            );
+            seturl(window.location.host + "/poster/" + canvas.children[0].id);
+            setShowMessage(true);
+          });
         });
-      });
+      setScale(scaleRef.current);
     } else {
       setShowSignin(true);
       setAlert(<div className="alert"> 登入尚可發布作品</div>);
@@ -313,36 +345,77 @@ const Canvas = (props) => {
     }
   };
 
+  const handleSave = () => {
+    setSaving(true);
+    setCancel(true);
+    setShowTextTool(false);
+    setShowImageTool(false);
+    selectedIdRef.current = "";
+    setIsSelected("");
+    const canvas = document.getElementById("canvas");
+    scaleRef.current = scale;
+    setScale(100);
+    domtoimage
+      .toBlob(canvas, { crossOrigin: "anonymous" })
+      .then(function (blob) {
+        // document.body.appendChild(canvas);
+        const storageRef = ref(
+          storage,
+          `${currentUser.uid}/Snapshot/${canvasID}.jpg`
+        );
+        uploadBytes(storageRef, blob).then((snapshot) => {});
+      });
+    setTimeout(() => {
+      setSaving(false);
+      setScale(scaleRef.current);
+      console.log(scaleRef.current);
+    }, 1000);
+  };
+
   //即時存儲
   useEffect(() => {
     // console.log("imagesData", imagesData);
-    const newObj = { images: [] };
+    const newObj = {
+      images: [],
+      texts: [],
+      width: initialWidth,
+      height: initialHeight,
+      backgroundColor: CanvasColor,
+      name: projectName,
+    };
     const timer = setTimeout(() => {
-      const canvas = document.getElementById("canvas");
-      if (currentUser != undefined) {
-        // domtoimage.toBlob(canvas).then(function (blob) {
-        //   const storageRef = ref(
-        //     storage,
-        //     `${currentUser.uid}/Snapshot/${canvasID}.jpg`
-        //   );
-        //   uploadBytes(storageRef, blob)
-        //     .then((snapshot) => {})
-        //     .catch((error) => {
-        //       console.log(error);
-        //     });
-        // });
+      // const canvas = document.getElementById("canvas");
+      // // scaleRef.current = 25;
+      // // setScale(100);
+      // domtoimage
+      //   .toBlob(canvas, { crossOrigin: "anonymous" })
+      //   .then(function (blob) {
+      //     // 測試圖片生成是否正常
+      //     // document.body.appendChild(canvas);
+      //     const storageRef = ref(
+      //       storage,
+      //       `${currentUser.uid}/Snapshot/${canvasID}.jpg`
+      //     );
+      //     // window.saveAs(blob, "my-result.png");
 
-        newObj["images"] = imagesData;
-        // console.log(newObj);
-        // setDoc(doc(db, `${currentUser.uid}`, canvasID), newObj);
-      }
+      //     // 將圖片放入storage
+      //     uploadBytes(storageRef, blob).then((snapshot) => {
+      //       // setScale(scaleRef.current);
+      //     });
+      //   });
+
+      newObj["images"] = imagesData;
+      newObj["texts"] = textsData;
+      console.log(newObj);
+      console.log("canvasID", canvasID);
+      // setDoc(doc(db, `${currentUser.uid}`, canvasID), newObj);
     }, 10000);
 
     // 在组件重新渲染或被卸载时，清除计时器
     return () => {
       clearTimeout(timer);
     };
-  }, [currentUser, imagesData]);
+  }, [currentUser, imagesData, textsData, CanvasColor, canvasID]);
 
   const handleimageData = (imageData) => {
     // console.log("imageData", imageData);
@@ -362,6 +435,24 @@ const Canvas = (props) => {
     });
   };
 
+  const handletextData = (textData) => {
+    // console.log("imageData", imageData);
+    setTextsData((prevTextsData) => {
+      const textIndex = prevTextsData.findIndex(
+        (text) => text.id === textData.id
+      );
+      if (textIndex !== -1) {
+        // 如果找到相同的 id，就更新對應的資料
+        const newTextsData = [...prevTextsData];
+        newTextsData[textIndex] = textData;
+        return newTextsData;
+      } else {
+        // 如果沒有找到相同的 id，就新增資料
+        return [...prevTextsData, textData];
+      }
+    });
+  };
+
   // const handleTextTool = (value) => {
   //   setShowTextTool(value);
   // };
@@ -369,6 +460,7 @@ const Canvas = (props) => {
   const handleCanvasTool = () => {
     if (cancel) {
       setShowCanvasTool(true);
+      setShowMessage(false);
     }
   };
 
@@ -380,6 +472,11 @@ const Canvas = (props) => {
   useEffect(() => {
     IsSettingRef.current = IsSetting;
   }, [IsSetting]);
+
+  useEffect(() => {
+    setFontSizesText(fontSizes[selectedIdRef.current]);
+  }, [selectedIdRef.current]);
+
   const handleFontSize = (id, value) => {
     // console.log("IsSetting", IsSettingRef.current, "FontSizes", fontSizes);
     if (!IsSettingRef.current) {
@@ -414,28 +511,31 @@ const Canvas = (props) => {
   };
 
   useEffect(() => {
-    const fetchFonts = async () => {
-      const response = await fetch(
-        "https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyBWCWoHellq7xHFlfc5YiziHIBOjok9PP4"
-      );
-      const json = await response.json();
-      setFontList(json.items);
-    };
-    fetchFonts();
-  }, []);
-
-  const handleFontChange = (event) => {
-    setSelectedFont((prevSelect) => ({
-      ...prevSelect,
-      [selectedIdRef.current]: event.target.value,
-    }));
-    const font = event.target.value;
-    WebFont.load({
-      google: {
-        families: [font],
-      },
-    });
-  };
+    if (props.font) {
+      setSelectedFont((prevSelect) => ({
+        ...prevSelect,
+        [selectedIdRef.current]: props.font,
+      }));
+      const font = props.font;
+      WebFont.load({
+        google: {
+          families: [font],
+        },
+      });
+    }
+  }, [props.font]);
+  // const handleFontChange = (event) => {
+  //   setSelectedFont((prevSelect) => ({
+  //     ...prevSelect,
+  //     [selectedIdRef.current]: event.target.value,
+  //   }));
+  //   const font = event.target.value;
+  //   WebFont.load({
+  //     google: {
+  //       families: [font],
+  //     },
+  //   });
+  // };
   const handleForward = () => {
     // console.log("向前", zIndex[selectedIdRef.current], maxLayer, zIndex);
     if (
@@ -528,27 +628,29 @@ const Canvas = (props) => {
           {showTextTool && (
             <>
               <div className="config-box">
-                <select
+                <div
                   className="fontselect"
-                  onChange={handleFontChange}
-                  value={selectedFont[selectedIdRef.current]}
+                  onClick={() => {
+                    props.handleShowBox(true);
+                  }}
                 >
-                  {fontList.map((font) => (
-                    <option
-                      key={font.family}
-                      value={font.family}
-                      style={{
-                        fontFamily: font.family,
-                        fontWeight: "normal",
-                        fontStyle: "normal",
-                      }}
-                    >
-                      {font.family}
-                    </option>
-                  ))}
-                </select>
+                  <div className="fontselect-content">
+                    {selectedFont[selectedIdRef.current] || "Noto Sans"}
+                  </div>
+                  <img src="/images/down.png" />
+                </div>
                 <div className="font-size-container">
-                  <button className="minus size-config">
+                  <button
+                    onClick={() => {
+                      setIsSetting(true);
+                      setFontSizes((prevFontSizes) => ({
+                        ...prevFontSizes,
+                        [selectedIdRef.current]: fontSizesText - 1,
+                      }));
+                      setIsSetting(false);
+                    }}
+                    className="minus size-config"
+                  >
                     <img className="config-img" src="/images/minus.png" />
                   </button>
                   <input
@@ -558,7 +660,17 @@ const Canvas = (props) => {
                     onClick={handleClick}
                     value={fontSizesText || 25}
                   ></input>
-                  <button className="add size-config">
+                  <button
+                    onClick={() => {
+                      setIsSetting(true);
+                      setFontSizes((prevFontSizes) => ({
+                        ...prevFontSizes,
+                        [selectedIdRef.current]: fontSizesText + 1,
+                      }));
+                      setIsSetting(false);
+                    }}
+                    className="add size-config"
+                  >
                     <img className="config-img" src="/images/add.png" />
                   </button>
                 </div>
@@ -574,6 +686,9 @@ const Canvas = (props) => {
                     className="config-button"
                     onClick={() => {
                       setShowBackgroundPicker(true);
+                      if (ShowTextPicker) {
+                        setShowTextPicker(false);
+                      }
                     }}
                     style={{
                       backgroundColor:
@@ -585,7 +700,7 @@ const Canvas = (props) => {
                     <>
                       <SketchPicker
                         className="background-picker"
-                        bcolor={backgroundColor[selectedIdRef.current]}
+                        color={backgroundColor}
                         onChange={handleBackgroundChange}
                       />
                     </>
@@ -595,6 +710,9 @@ const Canvas = (props) => {
                   className="textcolor"
                   onClick={() => {
                     setShowTextPicker(true);
+                    if (ShowBackgroundPicker) {
+                      setShowBackgroundPicker(false);
+                    }
                   }}
                 >
                   <img src="/images/a.png" />
@@ -672,9 +790,9 @@ const Canvas = (props) => {
               onClick={handleCanvasTool}
               id={canvasID}
             >
-              {canvasImages.map((Image, index) => (
+              {canvasImages.map((Image) => (
                 <CanvasImage
-                  key={index}
+                  key={Image.id}
                   src={Image.src}
                   id={Image.id}
                   onKeyDown={handleImgDelete}
@@ -687,26 +805,26 @@ const Canvas = (props) => {
                   // maxLayer={maxLayer}
                 />
               ))}
-              {canvasTexts.map((Text, index) => (
+              {canvasTexts.map((Text) => (
                 <CanvasText
-                  key={index}
+                  key={Text.id}
                   id={Text.id}
                   // handleTextTool={handleTextTool}
                   fontWeight={fontWeight}
                   // onClick={handleTextClick(Text.id)}
                   onKeyDown={handleKeyDown}
-                  // imageData={handleimageData}
+                  textData={handletextData}
                   handleInFocus={handleInFocus}
                   handleFontSize={handleFontSize}
                   fontSize={fontSizes[Text.id] || 25}
                   selected={IsSelected}
                   cancel={cancel}
-                  fontFamily={selectedFont[Text.id]}
+                  fontFamily={selectedFont[Text.id] || "Noto Sans"}
                   color={TextColor[Text.id] || "#000000"}
                   // maxLayer={maxLayer}
                   zIndex={zIndex[Text.id] || 1}
                   scale={scale}
-                  backgroundColor={backgroundColor[Text.id]}
+                  backgroundColor={backgroundColor[Text.id] || "transparent"}
                 />
               ))}
             </div>
@@ -723,8 +841,21 @@ const Canvas = (props) => {
             min="10"
             max="500"
           ></input>
+          {saving && (
+            <>
+              <div className="saving">
+                <div className="loading"></div>
+                　Saving
+              </div>
+              <div className="mask"></div>
+            </>
+          )}
+          <img
+            className="saveimg"
+            onClick={handleSave}
+            src="/images/save.png"
+          />
         </div>
-        {scale}
       </div>
     </>
   );

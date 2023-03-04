@@ -38,6 +38,7 @@ const EditZone = (props) => {
   const [selectedBox, setSelectedBox] = useState("");
   const [uploadImages, setUploadImages] = useState([]);
   const [snapshots, setSnapshots] = useState([]);
+  const [display, setDisplay] = useState("none");
   const toolImages = [
     "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4193312.png?alt=media&token=c0d409c1-affa-4d4c-97f9-522f99b142ed",
     "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/bear.png?alt=media&token=f6c73a80-0315-47e3-a0cf-2884986403e9",
@@ -52,18 +53,37 @@ const EditZone = (props) => {
     "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4392505.png?alt=media&token=833ecae9-43d7-474e-adc1-d4cb8d15b6c4",
     "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4481010.png?alt=media&token=6ece33ec-0f1b-417d-84ef-0eb1127d5139",
   ];
-  const shapes = [
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/circle.png?alt=media&token=39b39960-4510-4f09-bea3-2b9c58e4633b",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/square.png?alt=media&token=857156c4-c97b-42eb-b992-23af0ec98c27",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/triangle.png?alt=media&token=55bc391c-ce8d-4757-9919-c9f4617db15c",
-  ];
+  // const shapes = [
+  //   "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/circle.png?alt=media&token=39b39960-4510-4f09-bea3-2b9c58e4633b",
+  //   "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/square.png?alt=media&token=857156c4-c97b-42eb-b992-23af0ec98c27",
+  //   "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/triangle.png?alt=media&token=55bc391c-ce8d-4757-9919-c9f4617db15c",
+  // ];
   const [boundaries, setBoundaries] = useState();
   const [Imgid, setImgId] = useState();
   const [Textid, setTextId] = useState();
-  const [canvasData, setCanvasData] = useState();
 
   //test
+  const [font, setFont] = useState("Noto Sans");
+  const [searching, setSearching] = useState();
+  const [creating, setCreating] = useState(false);
 
+  const handleSearch = (value) => {
+    setSearching(value);
+  };
+
+  const handleFont = (font) => {
+    setFont(font);
+  };
+
+  const handleShowBox = (value) => {
+    value ? setDisplay("flex") : setDisplay("none");
+    if (!showBox && value) {
+      setShowBox(value);
+    }
+    if (!selectedBox && !value && display != "none") {
+      setShowBox(value);
+    }
+  };
   const handleBoundaries = (boundaries) => {
     setBoundaries(boundaries);
   };
@@ -93,7 +113,7 @@ const EditZone = (props) => {
           display: "grid",
           gridTemplateColumns: `90px ${twoArea}px`,
         });
-  }, [innerWidth]);
+  }, [innerWidth, showBox]);
 
   //開啟工具欄
   const handleBoxOn = (event) => {
@@ -103,8 +123,18 @@ const EditZone = (props) => {
         display: "grid",
         gridTemplateColumns: `90px 400px ${threeArea}px`,
       });
+    } else {
+      setDisplay("none");
     }
-    if (selectedBox === event.target.id && showBox) {
+
+    if (selectedBox === event.target.id && showBox && display === "flex") {
+      setDisplay("none");
+    } else if (
+      selectedBox === event.target.id &&
+      showBox &&
+      display === "none"
+    ) {
+      console.log("B");
       handleBoxOff();
     } else {
       setSelectedBox(event.target.id);
@@ -192,31 +222,53 @@ const EditZone = (props) => {
     }
   }, [currentUser]);
 
-  const AuthProject = (props) => {
-    return (
-      <div className="project-item" onClick={handleLoad}>
-        <img src={props.src} id={props.id} />
-      </div>
-    );
-  };
+  // const AuthProject = (props) => {
+  //   return (
+  //     <div className="project-item" onClick={handleLoad}>
+  //       <img src={props.src} id={props.id} />
+  //     </div>
+  //   );
+  // };
 
-  const handleLoad = (event) => {
-    // e.target.id
-    const canvasData = {};
-    // console.log(event);
-    getDocs(collection(db, `${currentUser.uid}`)).then((querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-        if (doc.id === event.target.id) {
-          canvasData[doc.id] = { ...doc.data() };
-          setCanvasData(canvasData);
-        }
-      });
-    });
-  };
-  // console.log("canvasData",canvasData);
+  // const handleLoad = (event) => {
+  //   // e.target.id
+  //   const canvasData = {};
+  //   // console.log(event);
+  //   getDocs(collection(db, `${currentUser.uid}`)).then((querySnapshot) => {
+  //     querySnapshot.forEach((doc) => {
+  //       if (doc.id === event.target.id) {
+  //         canvasData[doc.id] = { ...doc.data() };
+  //         setCanvasData(canvasData);
+  //       }
+  //     });
+  //   });
+  // };
+  // console.log("canvasData", canvasData);
 
   return (
     <>
+      {creating && (
+        <>
+          <div className="create">
+            <img
+              className="close-create"
+              onClick={() => {
+                setCreating(false);
+              }}
+              src="/images/close.png"
+            />
+            <div className="option">
+              <img src="images/photo.png" className="optionimg" />
+              直立式海報
+            </div>
+            <div className="option">
+              <img src="images/card.png" className="optionimg" />
+              橫向卡片
+            </div>
+          </div>
+          <div className="mask"></div>
+        </>
+      )}
       <div style={sideboxStyle}>
         <div className="sidebar">
           <div
@@ -277,7 +329,7 @@ const EditZone = (props) => {
           <>
             <div className="side-container">
               <div
-                className="side-boxes"
+                className="image-box"
                 id="Image"
                 style={{
                   display: selectedBox === "Image" ? "grid" : "none",
@@ -301,10 +353,19 @@ const EditZone = (props) => {
                 ))}
               </div>
               <div
-                className="side-boxes"
+                className="text-box"
                 id="Upload"
                 style={{ display: selectedBox === "Upload" ? "grid" : "none" }}
               >
+                <div
+                  className="add-text"
+                  onClick={() => {
+                    setTextId(shortid.generate());
+                  }}
+                >
+                  <img className="addnew" src="/images/button.png" />
+                  點擊上傳專屬素材
+                </div>
                 {uploadImages.map((toolImage, index) => (
                   <BoxImage
                     key={index}
@@ -322,20 +383,41 @@ const EditZone = (props) => {
                 ))}
               </div>
               <div
-                className="side-boxes"
+                className="project-box"
                 id="Project"
                 style={{ display: selectedBox === "Project" ? "grid" : "none" }}
               >
                 {snapshots.map((snapshot, index) => (
                   <AuthProject
-                    key={index}
+                    key={snapshot.id}
                     src={snapshot.src}
                     id={snapshot.id}
                   />
                 ))}
+                <div
+                  className="single-project"
+                  onClick={() => {
+                    setCreating(true);
+                  }}
+                >
+                  <div className="add-preview">
+                    <img className="add-project" src="/images/button.png" />
+                  </div>
+                  <div className="newproject">點擊新增專案</div>
+                </div>
+
+                {/* <div className="single-project">
+                  <div className="preview">
+                    <img className="previewimg" src="/images/my-result.png" />
+                  </div>
+                  <div className="project-name">
+                    咩咩咩咩au, au ,au,咩咩咩 咩
+                  </div>
+                  <div className="project-type">海報</div>
+                </div>*/}
               </div>
               <div
-                className="side-boxes"
+                className="text-box"
                 id="Text"
                 style={{ display: selectedBox === "Text" ? "grid" : "none" }}
               >
@@ -345,7 +427,8 @@ const EditZone = (props) => {
                     setTextId(shortid.generate());
                   }}
                 >
-                  新增文字區塊
+                  <img className="addnew" src="/images/button.png" />
+                  點擊新增文字區塊
                 </div>
               </div>
 
@@ -355,8 +438,17 @@ const EditZone = (props) => {
             </div>
           </>
         )}
-        <div className="font-container">
-          <FontList />
+        <div
+          className="font-container"
+          style={{
+            display: display,
+          }}
+        >
+          <FontList
+            handleShowBox={handleShowBox}
+            handleFont={handleFont}
+            handleSearch={handleSearch}
+          />
         </div>
         <div className="edit-zone">
           <Canvas
@@ -366,6 +458,9 @@ const EditZone = (props) => {
             Imgid={Imgid}
             canvasData={canvasData}
             Textid={Textid}
+            handleShowBox={handleShowBox}
+            font={font}
+            searching={searching}
           />
         </div>
       </div>

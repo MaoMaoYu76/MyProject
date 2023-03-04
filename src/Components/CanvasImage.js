@@ -27,14 +27,29 @@ const CanvasImage = (props) => {
   const [count, setCount] = useState(0);
   const rotationRef = useRef({});
   const [rotation, setRotation] = useState(rotationRef.current[props.id] || 0);
+  const [turnsize, setTurnsize] = useState(30);
 
   useEffect(() => {
     if (rotation === 0) {
       setImageWidth(FrameWidth);
       setImageHeight(FrameHeight);
-    } else {
     }
+    setCount(count + 1);
   }, [rotation, FrameWidth, FrameHeight]);
+
+  useEffect(() => {
+    if (props.selected === props.id && props.cancel === false) {
+      if (props.scale < 40) {
+        setTurnsize(60);
+      } else if (props.scale < 60) {
+        setTurnsize(40);
+      } else if (props.scale > 200) {
+        setTurnsize(20);
+      } else if (props.scale > 60 && props.scale < 200) {
+        setTurnsize(30);
+      }
+    }
+  }, [props.selected, props.cancel]);
 
   //封裝資料
   useEffect(() => {
@@ -45,9 +60,12 @@ const CanvasImage = (props) => {
         src: props.src,
         x: position.x,
         y: position.y,
-        height: FrameHeight,
-        width: FrameWidth,
+        frameheight: FrameHeight,
+        framewidth: FrameWidth,
+        hight: ImageHeight,
+        width: ImageWidth,
         transform: `rotate(${rotation}deg)`,
+        zIndex: props.zIndex,
       };
       props.imageData(imageData);
     }, 5000);
@@ -70,6 +88,7 @@ const CanvasImage = (props) => {
         setFrameHeight(image.height);
       };
     }
+    setCount(count + 1);
   }, [props.src, props.rest]);
 
   //控制大小縮放
@@ -160,7 +179,6 @@ const CanvasImage = (props) => {
         };
 
         setPosition(positionsRef.current[props.id]);
-        //========================================
       } else if (id === "bottom-right") {
         if (
           (rotation >= 67.5 && rotation < 112.5) ||
@@ -380,7 +398,7 @@ const CanvasImage = (props) => {
 
     const handlePointerUp = () => {
       document.removeEventListener("pointermove", handlePointerMove);
-      // setCount(count + 1);
+      setCount(count + 1);
     };
     document.addEventListener("pointermove", handlePointerMove);
     document.addEventListener("pointerup", handlePointerUp);
@@ -390,27 +408,24 @@ const CanvasImage = (props) => {
   return (
     <>
       <div
+        className="canvas-image-container"
         tabIndex={0}
         style={{
           width: FrameWidth,
           height: FrameHeight,
           border: `${border} solid #ff719a`,
-          position: "relative",
-          position: "absolute",
-          boxSizing: "content-box",
           zIndex: props.zIndex,
           left: position.x,
           top: position.y,
           margin: `-${border}`,
           userSelect: "none",
           // transform: `rotate(${rotation}deg)`,
-          overflow: "visible",
         }}
         onPointerDown={handlePointerDown}
         onKeyDown={onKeyDown}
       >
         <div
-          className="canvas-image-container"
+          className="image-container"
           style={{
             transform: `rotate(${rotation}deg)`,
           }}
@@ -431,7 +446,8 @@ const CanvasImage = (props) => {
               onPointerDown={handleturn}
               src="/images/refresh.png"
               style={{
-                bottom: `-${ImageHeight / 2}px`,
+                width: turnsize,
+                bottom: `-${ImageHeight / 2.5}px`,
               }}
             />
           )}

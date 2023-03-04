@@ -35,11 +35,8 @@
   width: 30px;
   height: 30px;
   position: absolute;
-  right: 50px;
-}
-
-.font-items {
-  /* margin: 0 5px; */
+  right: 30px;
+  cursor: pointer;
 }
 
 .font-item {

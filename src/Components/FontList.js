@@ -3,11 +3,24 @@ import "../Styles/FontList.css";
 import WebFont from "webfontloader";
 import { useRef } from "react";
 
-const FontList = () => {
+const FontList = (props) => {
   const [fontList, setFontList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showSelectedFonts, setShowSelectedFonts] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const elementRefs = useRef([]);
   const observerRef = useRef(null);
+  const fontListRef = useRef(null);
+  const [fonts, setFonts] = useState([]);
+  const fontsRef = useRef(null);
+
+  useEffect(() => {
+    fontListRef.current = fontList;
+  }, [fontList]);
+
+  useEffect(() => {
+    fontsRef.current = fonts;
+  }, [fonts]);
 
   const selectedFonts = [
     "Noto Sans Traditional Chinese",
@@ -32,7 +45,18 @@ const FontList = () => {
       setFontList(json.items);
     };
     fetchFonts();
+    WebFont.load({
+      google: {
+        families: selectedFonts,
+      },
+    });
   }, []);
+
+  useEffect(() => {
+    if (filteredFonts.length > 0) {
+      setFonts(filteredFonts.slice(0, 13));
+    }
+  }, [filteredFonts]);
 
   const selectedFontsList = fontList
     .filter((font) => selectedFonts.includes(font.family))
@@ -41,102 +65,63 @@ const FontList = () => {
         selectedFonts.indexOf(a.family) - selectedFonts.indexOf(b.family)
     );
 
-  const remainingFontsList = fontList
-    .filter((font) => !selectedFonts.includes(font.family))
-    .sort((a, b) => a.family.localeCompare(b.family));
+  const filteredFonts = fontList.filter((font) =>
+    font.family.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  //   const filteredFonts = fontList
-  //     .filter((font) =>
-  //       font.family.toLowerCase().includes(searchTerm.toLowerCase())
-  //     )
-  //     .sort((a, b) => {
-  //       // Put selected fonts first
-  //       if (selectedFonts.includes(a.family)) return -1;
-  //       if (selectedFonts.includes(b.family)) return 1;
-  //       // Sort remaining fonts alphabetically
-  //       return a.family.localeCompare(b.family);
-  //     });
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(handleObserver, {
+      rootMargin: "0px",
+      threshold: 1.0,
+    });
 
-  //   const fontNames = fontList.map((font) => font.family);
-  //   console.log(fontNames);
+    setTimeout(() => {
+      observerRef.current.observe(elementRefs.current[0]);
+    }, 1000);
 
-  const loadFonts = async (fontFamilies) => {
-    const chunkSize = 5; // 每次加載的字型數量
-    let startIndex = 0; // 起始索引
-    while (startIndex < fontFamilies.length) {
-      const chunkFamilies = fontFamilies.slice(
-        startIndex,
-        startIndex + chunkSize
-      );
-      // await new Promise((resolve) => {
-      //   WebFont.load({
-      //     google: {
-      //       families: chunkFamilies,
-      //     },
-      //     active: resolve,
-      //   });
-      // });
-      startIndex += chunkSize;
-    }
+    return () => observerRef.current.disconnect();
+  }, []);
+
+  const handleObserver = (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const index = fontsRef.current.length;
+        if (index % 13 === 0) {
+          const nextIndex = index + 13;
+          const nextTarget = elementRefs.current[nextIndex];
+          if (nextTarget) {
+            observerRef.current.observe(nextTarget);
+          }
+          loadMoreFonts();
+        }
+      }
+    });
   };
 
-  // 傳入所有需要加載的字型
-  loadFonts(fontList.map((font) => font.family));
-
-  //   useEffect(() => {
-  //     // 取得畫面中使用的字型選項
-
-  //     const fontFamilies = filteredFonts.map((font) => font.family);
-
-  //     const chunkSize = 13;
-  //     let startIndex = 0;
-
-  //     // 建立 IntersectionObserver 實例，監聽 search-box
-  //     observerRef.current = new IntersectionObserver(
-  //       (entries) => {
-  //         entries.forEach((entry) => {
-  //           console.log(entry);
-  //           // 當 search-box 的內容區塊捲動時，預載下一批字型
-  //           if (
-  //             entry.target.scrollTop + entry.target.clientHeight >=
-  //               entry.target.scrollHeight &&
-  //             startIndex < fontFamilies.length
-  //           ) {
-  //             const chunkFamilies = fontFamilies.slice(
-  //               startIndex,
-  //               startIndex + chunkSize
-  //             );
-  //             //   setIsLoading(true);
-  //             //   WebFont.load({
-  //             //     google: {
-  //             //       families: chunkFamilies,
-  //             //     },
-  //             //     active: () => {
-  //             //       // 字型預載完成後，更新起始索引，並設定 isLoading 為 false
-  //             //       startIndex += chunkSize;
-  //             //       setIsLoading(false);
-  //             //     },
-  //             //   });
-  //           }
-  //         });
-  //       },
-  //       {
-  //         root: document.querySelector(".font-items"),
-  //         rootMargin: "0px",
-  //         threshold: 1.0,
-  //       }
-  //     );
-
-  //     // 監聽 search-box 的內容區塊
-  //     observerRef.current.observe(
-  //       document.getElementsByClassName("font-item")[12]
-  //     );
-
-  //     // 返回 cleanup 函式，解除 IntersectionObserver 的監聽
-  //     return () => {
-  //       observerRef.current.disconnect();
-  //     };
-  //   }, [filteredFonts]);
+  const loadMoreFonts = async () => {
+    const chunkSize = 13;
+    const startIndex = fontsRef.current.length;
+    const chunkFamilies = fontListRef.current
+      .slice(startIndex, startIndex + chunkSize)
+      .map((font) => font.family);
+    if (chunkFamilies.length > 0) {
+      setIsLoading(true);
+      await new Promise((resolve) => {
+        WebFont.load({
+          google: {
+            families: chunkFamilies,
+          },
+          active: () => {
+            setFonts((prevFonts) => [
+              ...prevFonts,
+              ...fontListRef.current.slice(startIndex, startIndex + chunkSize),
+            ]);
+            setIsLoading(false);
+          },
+        });
+      });
+    }
+  };
 
   return (
     <div className="scroll-box">
@@ -146,29 +131,54 @@ const FontList = () => {
           type="text"
           placeholder="Search fonts..."
           value={searchTerm}
+          onFocus={() => {
+            setShowSelectedFonts(false);
+            props.handleSearch(true);
+          }}
+          onBlur={() => {
+            setShowSelectedFonts(true);
+            props.handleSearch(false);
+          }}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <img className="close" src="/images/close.png" />
+        <img
+          className="close"
+          onClick={() => {
+            props.handleShowBox(false);
+          }}
+          src="/images/close.png"
+        />
       </div>
-      <div className="ch">中文適用</div>
       <ul className="font-items">
-        {selectedFontsList.map((font) => (
+        {showSelectedFonts && (
+          <>
+            <div className="ch">中文適用</div>
+            {selectedFontsList.map((font) => (
+              <li
+                className="font-item"
+                onClick={() => {
+                  props.handleFont(font.family);
+                }}
+                style={{
+                  fontFamily: font.family,
+                  fontWeight: "normal",
+                  fontStyle: "normal",
+                }}
+                key={font.family}
+              >
+                {font.family}
+              </li>
+            ))}
+            <div className="ch">其他字型</div>
+          </>
+        )}
+        {filteredFonts.map((font, index) => (
           <li
             className="font-item"
-            style={{
-              fontFamily: font.family,
-              fontWeight: "normal",
-              fontStyle: "normal",
+            ref={(el) => (elementRefs.current[index] = el)}
+            onClick={() => {
+              props.handleFont(font.family);
             }}
-            key={font.family}
-          >
-            {font.family}
-          </li>
-        ))}
-        <div className="ch"></div>
-        {remainingFontsList.map((font) => (
-          <li
-            className="font-item"
             style={{
               fontFamily: font.family,
               fontWeight: "normal",

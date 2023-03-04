@@ -29,12 +29,39 @@ const CanvasText = (props) => {
   const movingRef = useRef(false);
   const [newText, setNewText] = useState("Please enter text");
   const [fontSize, setFontSize] = useState(25);
+  const [turnsize, setTurnsize] = useState(25);
   const [textAlign, setTextAlign] = useState("center");
   const [cursor, setCursor] = useState("pointer");
   const [fontWeight, setFontWeight] = useState(500);
-
+  const [count, setCount] = useState(0);
   const rotationRef = useRef({});
   const [rotation, setRotation] = useState(rotationRef.current[props.id] || 0);
+
+  //封裝資料
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      let textData = {};
+      textData = {
+        id: props.id,
+        x: position.x,
+        y: position.y,
+        hight: ImageHeight,
+        width: ImageWidth,
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        transform: `rotate(${rotation}deg)`,
+        color: props.color,
+        fontFamily: props.fontFamily,
+        backgroundColor: props.backgroundColor,
+        value: newText,
+        zIndex: props.zIndex,
+      };
+      props.textData(textData);
+    }, 5000);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [count]);
 
   useEffect(() => {
     if (props.fontSize) {
@@ -44,12 +71,21 @@ const CanvasText = (props) => {
   }, [props.fontSize]);
 
   useEffect(() => {
-    setFontSize(ImageHeight * 0.63);
+    setFontSize(Math.round(ImageHeight * 0.63));
     props.handleFontSize(props.id, fontSize);
   }, [ImageHeight]);
 
   useEffect(() => {
     if (props.selected === props.id && props.cancel === false) {
+      if (props.scale < 40) {
+        setTurnsize(60);
+      } else if (props.scale < 60) {
+        setTurnsize(40);
+      } else if (props.scale > 200) {
+        setTurnsize(20);
+      } else if (props.scale > 60 && props.scale < 200) {
+        setTurnsize(25);
+      }
       if (props.fontWeight === true) {
         setFontWeight(900);
       } else {
@@ -120,7 +156,7 @@ const CanvasText = (props) => {
     document.addEventListener("pointerup", () => {
       document.removeEventListener("pointermove", onMouseMove);
       setResizing(false);
-      //   setCount(count + 1);
+      setCount(count + 1);
     });
 
     ondragstart = function () {
@@ -149,7 +185,7 @@ const CanvasText = (props) => {
       const handlePointerUp = () => {
         document.removeEventListener("pointermove", handlePointerMove);
         movingRef.current = false;
-        // setCount(count + 1);
+        setCount(count + 1);
       };
 
       if (resizing === false) {
@@ -164,6 +200,7 @@ const CanvasText = (props) => {
 
   const handleChange = (event) => {
     setNewText(event.target.value);
+    setCount(count + 1);
   };
 
   const handleFocus = () => {
@@ -199,11 +236,12 @@ const CanvasText = (props) => {
 
     const handlePointerUp = () => {
       document.removeEventListener("pointermove", handlePointerMove);
-      // setCount(count + 1);
+      setCount(count + 1);
     };
     document.addEventListener("pointermove", handlePointerMove);
     document.addEventListener("pointerup", handlePointerUp);
   };
+
   return (
     <>
       <div tabIndex={0} onKeyDown={onKeyDown(props.id)}>
@@ -221,7 +259,7 @@ const CanvasText = (props) => {
           onPointerDown={handlePointerDown}
         >
           <div
-            className="canvas-image-container"
+            className="image-container"
             style={{
               transform: `rotate(${rotation}deg)`,
             }}
@@ -250,6 +288,7 @@ const CanvasText = (props) => {
                 onPointerDown={handleturn}
                 src="/images/refresh.png"
                 style={{
+                  width: turnsize,
                   bottom: `-${ImageHeight * 2}px`,
                 }}
               />

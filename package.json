@@ -16,8 +16,11 @@
   "dependencies": {
     "@babel/preset-react": "^7.18.6",
     "canvas2image": "^1.0.5",
+    "dom-to-image-font-patch": "^1.0.1",
+    "dom-to-image-google-font-issue": "^2.6.2",
     "file-saver": "^2.0.5",
     "firebase": "^9.16.0",
+    "html-to-image": "^1.11.11",
     "html2canvas": "^1.4.1",
     "html2canvas-proxy": "^1.0.1",
     "lodash": "^4.17.21",
