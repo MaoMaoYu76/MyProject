@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useRef } from "react";
+import "../Styles/SideImages.css";
 
 const BoxImage = (props) => {
   const [toolPosition, setToolPosition] = useState({ x: 0, y: 0 });
@@ -58,18 +59,14 @@ const BoxImage = (props) => {
   return (
     <div className="grid-item">
       <img
+        className="box-images"
         src={src}
         id={props.id}
         ref={imgRef}
         style={{
-          position: "absolute",
           zIndex: zIndex,
           left: toolPosition.x,
           top: toolPosition.y,
-          cursor: "move",
-          width: "100px",
-          height: "100px",
-          margin: "20px",
           opacity: opacity,
         }}
         onPointerDown={handleToolDown}

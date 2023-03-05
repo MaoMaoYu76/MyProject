@@ -24,7 +24,6 @@ const CanvasImage = (props) => {
   const [ImageWidth, setImageWidth] = useState();
   const [ImageHeight, setImageHeight] = useState();
   const [resizing, setResizing] = useState(false);
-  const [count, setCount] = useState(0);
   const rotationRef = useRef({});
   const [rotation, setRotation] = useState(rotationRef.current[props.id] || 0);
   const [turnsize, setTurnsize] = useState(30);
@@ -34,7 +33,6 @@ const CanvasImage = (props) => {
       setImageWidth(FrameWidth);
       setImageHeight(FrameHeight);
     }
-    setCount(count + 1);
   }, [rotation, FrameWidth, FrameHeight]);
 
   useEffect(() => {
@@ -53,32 +51,40 @@ const CanvasImage = (props) => {
 
   //封裝資料
   useEffect(() => {
-    const timer = setTimeout(() => {
-      let imageData = {};
-      imageData = {
-        id: props.id,
-        src: props.src,
-        x: position.x,
-        y: position.y,
-        frameheight: FrameHeight,
-        framewidth: FrameWidth,
-        hight: ImageHeight,
-        width: ImageWidth,
-        transform: `rotate(${rotation}deg)`,
-        zIndex: props.zIndex,
-      };
-      props.imageData(imageData);
-    }, 5000);
-    return () => {
-      clearTimeout(timer);
+    let imageData = {};
+    imageData = {
+      id: props.id,
+      src: props.src,
+      x: position.x,
+      y: position.y,
+      frameheight: FrameHeight,
+      framewidth: FrameWidth,
+      hight: ImageHeight,
+      width: ImageWidth,
+      rotation: rotation,
+      zIndex: props.zIndex,
     };
-  }, [count]);
+    props.imageData(imageData);
+  }, [
+    props.id,
+    props.src,
+    position,
+    FrameHeight,
+    FrameWidth,
+    ImageHeight,
+    ImageWidth,
+    rotation,
+    props.zIndex,
+  ]);
 
   //讀取預設寬高
   useEffect(() => {
     if (rest) {
-      setFrameWidth(rest.width);
-      setFrameHeight(rest.height);
+      setFrameWidth(rest.framewidth);
+      setFrameHeight(rest.frameheight);
+      setImageHeight(rest.hight);
+      setImageWidth(rest.width);
+      setRotation(rest.rotation);
     } else {
       const image = new Image();
       image.src = props.src;
@@ -88,7 +94,6 @@ const CanvasImage = (props) => {
         setFrameHeight(image.height);
       };
     }
-    setCount(count + 1);
   }, [props.src, props.rest]);
 
   //控制大小縮放
@@ -335,7 +340,6 @@ const CanvasImage = (props) => {
       document.removeEventListener("pointermove", onMouseMove);
 
       setResizing(false);
-      setCount(count + 1);
     });
 
     ondragstart = function () {
@@ -360,7 +364,6 @@ const CanvasImage = (props) => {
 
       const handlePointerUp = () => {
         document.removeEventListener("pointermove", handlePointerMove);
-        setCount(count + 1);
       };
 
       if (resizing === false) {
@@ -398,12 +401,11 @@ const CanvasImage = (props) => {
 
     const handlePointerUp = () => {
       document.removeEventListener("pointermove", handlePointerMove);
-      setCount(count + 1);
     };
     document.addEventListener("pointermove", handlePointerMove);
     document.addEventListener("pointerup", handlePointerUp);
   };
-  // console.log(rotation);
+  // console.log(position);
 
   return (
     <>
@@ -447,7 +449,7 @@ const CanvasImage = (props) => {
               src="/images/refresh.png"
               style={{
                 width: turnsize,
-                bottom: `-${ImageHeight / 2.5}px`,
+                bottom: `-${ImageHeight / 3}px`,
               }}
             />
           )}

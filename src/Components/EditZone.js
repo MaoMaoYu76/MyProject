@@ -3,7 +3,8 @@ import React, { useEffect } from "react";
 import "../Styles/EditZone.css";
 import { useState } from "react";
 import BoxImage from "./BoxImage";
-// import AuthProject from "./AuthProject";
+import UploadImage from "./UploadImage";
+import AuthProject from "./AuthProject";
 import Canvas from "./Canvas";
 import shortid from "shortid";
 import { debounce } from "lodash";
@@ -18,10 +19,12 @@ import { db } from "../firebase";
 import { getDocs } from "firebase/firestore";
 import { collection } from "firebase/firestore";
 import FontList from "./FontList";
+import Signin from "./Signin";
 
 const EditZone = (props) => {
   console.log("EditZone");
   const currentUser = useContext(CurrentUser);
+  const [alert, setAlert] = useState(null);
 
   //切版相關
   const [sideboxStyle, setSideboxStyle] = useState({
@@ -43,15 +46,21 @@ const EditZone = (props) => {
     "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4193312.png?alt=media&token=c0d409c1-affa-4d4c-97f9-522f99b142ed",
     "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/bear.png?alt=media&token=f6c73a80-0315-47e3-a0cf-2884986403e9",
     "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/5463321.png?alt=media&token=e3ab2628-0ca5-4e40-9fe9-bc59a73368df",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/5463405.png?alt=media&token=fd4ae01e-db9b-46c5-9009-616cb1f1a4d0",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/6443634.png?alt=media&token=3f95b586-7a33-4ae3-b266-07f70574d991",
     "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4383887.png?alt=media&token=cd7e1f52-08ec-4003-b094-45d796ee631c",
     "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4383956.png?alt=media&token=8cc0e484-838e-4bcf-a57e-886a5b400ff0",
     "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4383973.png?alt=media&token=f68bfab4-2aba-4cf9-8c4f-c6a19ffdaf59",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4392550.png?alt=media&token=22ae07aa-5aa6-4e71-bbe2-52cd480f65dd",
     "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4392447.png?alt=media&token=a33e8698-b405-427d-b2ed-2a388bd03147",
     "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4392505.png?alt=media&token=833ecae9-43d7-474e-adc1-d4cb8d15b6c4",
     "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4481010.png?alt=media&token=6ece33ec-0f1b-417d-84ef-0eb1127d5139",
+    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4289412.png?alt=media&token=7cb9dfbe-ee9c-4f3d-9d88-7aa25eafea98",
+    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4289415.png?alt=media&token=9ffd7597-29fd-4e66-9a84-e3cf159aad7b",
+    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4359655.png?alt=media&token=bec9d714-ac4a-4205-90c7-d0862da51204",
+    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4359700.png?alt=media&token=1cb7cf3a-cd3c-427b-93b5-582503a7f5d2",
+    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4383882.png?alt=media&token=490b89c6-02f9-44e9-9b7f-c8593595859c",
+    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4383939.png?alt=media&token=4e774fe9-548a-45a4-bd2c-9b8b34000761",
+    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4825045.png?alt=media&token=2a64388d-8c10-4af2-aac0-fe2141b06912",
+    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4861659.png?alt=media&token=b25d2b11-118a-413f-a86c-5f861e358b1e",
+    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4861742.png?alt=media&token=8764f6ad-48a2-4fa0-9e38-48ed39a147fc",
   ];
   // const shapes = [
   //   "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/circle.png?alt=media&token=39b39960-4510-4f09-bea3-2b9c58e4633b",
@@ -61,11 +70,13 @@ const EditZone = (props) => {
   const [boundaries, setBoundaries] = useState();
   const [Imgid, setImgId] = useState();
   const [Textid, setTextId] = useState();
-
+  const [canvasData, setCanvasData] = useState();
   //test
   const [font, setFont] = useState("Noto Sans");
+  const [size, setSize] = useState([529.1, 396.8, 125]);
   const [searching, setSearching] = useState();
   const [creating, setCreating] = useState(false);
+  const [showSignin, setShowSignin] = useState(false);
 
   const handleSearch = (value) => {
     setSearching(value);
@@ -117,27 +128,44 @@ const EditZone = (props) => {
 
   //開啟工具欄
   const handleBoxOn = (event) => {
-    if (!showBox) {
-      setShowBox(true);
-      setSideboxStyle({
-        display: "grid",
-        gridTemplateColumns: `90px 400px ${threeArea}px`,
-      });
-    } else {
-      setDisplay("none");
-    }
-
-    if (selectedBox === event.target.id && showBox && display === "flex") {
-      setDisplay("none");
-    } else if (
-      selectedBox === event.target.id &&
-      showBox &&
-      display === "none"
+    if (
+      event.target.id === "Image" ||
+      event.target.id === "Text" ||
+      currentUser
     ) {
-      console.log("B");
-      handleBoxOff();
+      if (!showBox) {
+        setShowBox(true);
+        setSideboxStyle({
+          display: "grid",
+          gridTemplateColumns: `90px 400px ${threeArea}px`,
+        });
+      } else {
+        setDisplay("none");
+      }
+
+      if (selectedBox === event.target.id && showBox && display === "flex") {
+        setDisplay("none");
+      } else if (
+        selectedBox === event.target.id &&
+        showBox &&
+        display === "none"
+      ) {
+        handleBoxOff();
+      } else {
+        setSelectedBox(event.target.id);
+      }
     } else {
-      setSelectedBox(event.target.id);
+      setShowSignin(true);
+      setAlert(<div className="alert"> 登入使用會員專屬功能</div>);
+
+      const handleMask = (event) => {
+        // console.log(event.target);
+
+        if (event.target === document.querySelector(".mask")) {
+          setShowSignin(false);
+        }
+      };
+      addEventListener("click", handleMask);
     }
   };
 
@@ -151,15 +179,12 @@ const EditZone = (props) => {
   };
 
   //黏貼事件
-
   useEffect(() => {
     const handlePaste = (event) => {
       //呼叫剪貼板內的數據
       const items = event.clipboardData.items;
-      console.log(items);
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
-        console.log(item);
         //遍歷後確認是否包含圖像且只取最後一個
         if (item.type.indexOf("image") !== -1) {
           const file = item.getAsFile();
@@ -173,6 +198,13 @@ const EditZone = (props) => {
           uploadBytes(storageRef, file).then((snapshot) => {
             getDownloadURL(storageRef).then((url) => {
               //拿到 url 後加入畫布
+              const file = url.split("/").pop();
+              const fileName = file.slice(0, -4);
+              setUploadImages((prevUploadImages) => [
+                ...prevUploadImages,
+                { url, fileName },
+              ]);
+
               setNewCanvasImageSrc(url);
               setImgId(imgId);
             });
@@ -180,16 +212,18 @@ const EditZone = (props) => {
         }
       }
     };
-    //使用 useEffect 控制事件偵測只執行一次
     document.addEventListener("paste", handlePaste);
     if (currentUser != undefined) {
       const storageRef = ref(storage, `${currentUser.uid}/Upload/`);
-      const urls = [];
       listAll(storageRef).then(function (result) {
         result.items.forEach(function (imageRef) {
           getDownloadURL(ref(storage, imageRef.fullPath)).then((url) => {
-            urls.push(url);
-            setUploadImages(urls);
+            const file = imageRef.fullPath.split("/").pop();
+            const fileName = file.slice(0, -4);
+            setUploadImages((prevUploadImages) => [
+              ...prevUploadImages,
+              { url, fileName },
+            ]);
           });
         });
       });
@@ -200,19 +234,27 @@ const EditZone = (props) => {
   }, [currentUser]);
   //在currentUser改變後重新執行
 
+  //找出所有專案截圖
   useEffect(() => {
     if (currentUser != undefined) {
-      // const canvas = document.getElementById('canvas');
       const storageRef = ref(storage, `${currentUser.uid}/Snapshot/`);
-      listAll(storageRef).then(function (result) {
-        result.items.forEach(function (imageRef) {
+      listAll(storageRef).then((result) => {
+        result.items.forEach((imageRef) => {
           getDownloadURL(ref(storage, imageRef.fullPath))
             .then((url) => {
-              setSnapshots((prevState) => [
-                ...prevState,
-                { id: imageRef.name.split(".")[0], src: url },
-              ]);
-              //prevState可以避免覆蓋，否則snapshots只有最後一個內容
+              setSnapshots((prevState) => {
+                const isExisting = prevState.some(
+                  (item) =>
+                    item.id === imageRef.name.split(".")[0] && item.src === url
+                );
+                if (!isExisting) {
+                  return [
+                    ...prevState,
+                    { id: imageRef.name.split(".")[0], src: url },
+                  ];
+                }
+                return prevState;
+              });
             })
             .catch((error) => {
               console.log(error);
@@ -222,31 +264,32 @@ const EditZone = (props) => {
     }
   }, [currentUser]);
 
-  // const AuthProject = (props) => {
-  //   return (
-  //     <div className="project-item" onClick={handleLoad}>
-  //       <img src={props.src} id={props.id} />
-  //     </div>
-  //   );
-  // };
+  // 上傳素材到 Firebase Storage
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    const imgId = shortid.generate();
+    const storageRef = ref(storage, `${currentUser.uid}/Upload/${imgId}.jpg`);
 
-  // const handleLoad = (event) => {
-  //   // e.target.id
-  //   const canvasData = {};
-  //   // console.log(event);
-  //   getDocs(collection(db, `${currentUser.uid}`)).then((querySnapshot) => {
-  //     querySnapshot.forEach((doc) => {
-  //       if (doc.id === event.target.id) {
-  //         canvasData[doc.id] = { ...doc.data() };
-  //         setCanvasData(canvasData);
-  //       }
-  //     });
-  //   });
-  // };
-  // console.log("canvasData", canvasData);
+    await uploadBytes(storageRef, file).then((snapshot) => {
+      getDownloadURL(storageRef).then((url) => {
+        const file = url.split("/").pop();
+        const fileName = file.slice(0, -4);
+        setUploadImages((prevUploadImages) => [
+          ...prevUploadImages,
+          { url, fileName },
+        ]);
+      });
+    });
+  };
 
   return (
     <>
+      {showSignin && (
+        <>
+          <div className="mask"></div>
+          <Signin alert={alert} />
+        </>
+      )}
       {creating && (
         <>
           <div className="create">
@@ -258,11 +301,27 @@ const EditZone = (props) => {
               src="/images/close.png"
             />
             <div className="option">
-              <img src="images/photo.png" className="optionimg" />
+              <img
+                src="images/photo.png"
+                onClick={() => {
+                  setSize([1587.4, 2245, 25]);
+                  setCreating(false);
+                  setCanvasData();
+                }}
+                className="optionimg"
+              />
               直立式海報
             </div>
             <div className="option">
-              <img src="images/card.png" className="optionimg" />
+              <img
+                src="images/card.png"
+                onClick={() => {
+                  setSize([529.1, 396.8, 125]);
+                  setCreating(false);
+                  setCanvasData();
+                }}
+                className="optionimg"
+              />
               橫向卡片
             </div>
           </div>
@@ -357,21 +416,28 @@ const EditZone = (props) => {
                 id="Upload"
                 style={{ display: selectedBox === "Upload" ? "grid" : "none" }}
               >
-                <div
-                  className="add-text"
-                  onClick={() => {
-                    setTextId(shortid.generate());
-                  }}
-                >
+                <label className="add-text" htmlFor="image-upload">
                   <img className="addnew" src="/images/button.png" />
                   點擊上傳專屬素材
-                </div>
+                </label>
+                <input
+                  id="image-upload"
+                  type="file"
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                />
                 {uploadImages.map((toolImage, index) => (
-                  <BoxImage
-                    key={index}
-                    src={toolImage}
+                  <UploadImage
+                    index={index}
+                    key={toolImage.fileName}
+                    src={toolImage.url}
                     boundaries={boundaries}
-                    id={shortid.generate()}
+                    id={toolImage.fileName}
+                    reset={(id) => {
+                      setUploadImages(
+                        uploadImages.filter((item) => item.fileName !== id)
+                      );
+                    }}
                     oncopystate={(src) => {
                       // console.log("src",src);
                       if (src != undefined) {
@@ -387,13 +453,6 @@ const EditZone = (props) => {
                 id="Project"
                 style={{ display: selectedBox === "Project" ? "grid" : "none" }}
               >
-                {snapshots.map((snapshot, index) => (
-                  <AuthProject
-                    key={snapshot.id}
-                    src={snapshot.src}
-                    id={snapshot.id}
-                  />
-                ))}
                 <div
                   className="single-project"
                   onClick={() => {
@@ -405,16 +464,24 @@ const EditZone = (props) => {
                   </div>
                   <div className="newproject">點擊新增專案</div>
                 </div>
-
-                {/* <div className="single-project">
-                  <div className="preview">
-                    <img className="previewimg" src="/images/my-result.png" />
-                  </div>
-                  <div className="project-name">
-                    咩咩咩咩au, au ,au,咩咩咩 咩
-                  </div>
-                  <div className="project-type">海報</div>
-                </div>*/}
+                {snapshots.map((snapshot) => (
+                  <AuthProject
+                    key={snapshot.id}
+                    src={snapshot.src}
+                    id={snapshot.id}
+                    check={(id) => {
+                      setSnapshots(snapshots.filter((item) => item.id !== id));
+                    }}
+                    handleCanvasData={(data) => {
+                      setSize(
+                        data[snapshot.id].height > 2000
+                          ? [1587.4, 2245, 25]
+                          : [529.1, 396.8, 125]
+                      );
+                      setCanvasData(data);
+                    }}
+                  />
+                ))}
               </div>
               <div
                 className="text-box"
@@ -452,15 +519,41 @@ const EditZone = (props) => {
         </div>
         <div className="edit-zone">
           <Canvas
-            boundaries={handleBoundaries}
             showBox={showBox}
+            size={size}
             newCanvasImageSrc={newCanvasImageSrc}
             Imgid={Imgid}
             canvasData={canvasData}
             Textid={Textid}
-            handleShowBox={handleShowBox}
             font={font}
             searching={searching}
+            boundaries={handleBoundaries}
+            handleShowBox={handleShowBox}
+            check={(canvasID) => {
+              const storageRef = ref(
+                storage,
+                `${currentUser.uid}/Snapshot/${canvasID}.jpg`
+              );
+              getDownloadURL(storageRef).then((url) => {
+                setSnapshots((prevState) => {
+                  const existingIndex = prevState.findIndex(
+                    (item) => item.id === canvasID
+                  );
+                  if (existingIndex !== -1) {
+                    return prevState.map((item, index) => {
+                      if (index === existingIndex) {
+                        return {
+                          ...item,
+                          src: url,
+                        };
+                      }
+                      return item;
+                    });
+                  }
+                  return [...prevState, { id: canvasID, src: url }];
+                });
+              });
+            }}
           />
         </div>
       </div>

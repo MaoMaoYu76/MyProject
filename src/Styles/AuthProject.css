@@ -1,0 +1,71 @@
+.name-container {
+  display: flex;
+  align-items: center;
+}
+.project-name {
+  font-size: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 5px;
+  margin: 5px 0;
+  width: 120px;
+  color: #fff;
+  text-align: center;
+}
+
+.name-input {
+  width: 150px;
+  padding: 5px;
+  font-size: 16px;
+  border-radius: 5px;
+}
+
+.edit {
+  width: 18px;
+  height: 18px;
+  margin: 0 5px;
+}
+
+.project-type {
+  color: #b8b8b8;
+}
+
+.preview {
+  margin: 5px;
+  height: 130px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  border-radius: 5px;
+}
+
+.previewimg {
+  width: 150px;
+  border-radius: 5px;
+}
+
+.more {
+  position: relative;
+  /* top: 15px;
+  right: 15px; */
+  width: 35px;
+  padding: 5px;
+  background-color: #000;
+  border-radius: 5px;
+}
+.more-container {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+.project-setting {
+  position: absolute;
+  background-color: #fff;
+  width: 300px;
+  height: 150px;
+  top: 35px;
+  left: 0;
+  border-radius: 5px;
+  z-index: 1;
+}

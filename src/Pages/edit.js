@@ -5,31 +5,25 @@ import EditZone from "../Components/EditZone";
 import { useState } from "react";
 import { createContext } from "react";
 
-export const SizeData = createContext()
-export const CurrentUser = createContext()
+export const SizeData = createContext();
+export const CurrentUser = createContext();
 
 function EDIT() {
-    console.log("EDIT");
-    const [size, setSize] = useState([529.1, 396.8, 130]);
-    const [currentUser, setCurrentUser] = useState();
+  console.log("EDIT");
+  const [currentUser, setCurrentUser] = useState();
 
-    const handleSizeChange = (newSize) => {
-        setSize(newSize);
-    };
+  const checkCurrentUser = (currentUser) => {
+    setCurrentUser(currentUser);
+  };
 
-    const checkCurrentUser = (currentUser) => {
-        setCurrentUser(currentUser);
-        // console.log(currentUser);
-    }
-
-    return <>
-        <SizeData.Provider value={size} >
-            <CurrentUser.Provider value={currentUser}>
-                <LogoBar onSizeChange={handleSizeChange} currentUser={checkCurrentUser} />
-                <EditZone />
-            </CurrentUser.Provider>
-        </SizeData.Provider>
+  return (
+    <>
+      <CurrentUser.Provider value={currentUser}>
+        <LogoBar currentUser={checkCurrentUser} />
+        <EditZone />
+      </CurrentUser.Provider>
     </>
+  );
 }
 
-export default EDIT
+export default EDIT;

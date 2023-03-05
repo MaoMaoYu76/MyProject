@@ -8,132 +8,118 @@ import { useEffect } from "react";
 import Signin from "./Signin";
 
 const LogoBar = (props) => {
+  console.log("LogoBar");
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showSignin, setShowSignin] = useState(false);
 
-    console.log("LogoBar");
-    const [currentUser, setCurrentUser] = useState(null);
-    const [showSizeOptions, setSizeOptions] = useState(false);
-    const [showSignin, setShowSignin] = useState(false)
+  const logOut = () => {
+    signOut(auth)
+      .then(() => {
+        //登出後重新導向
+        setCurrentUser(null);
+        window.location = "/";
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
-    const handleSizeChange = (newSize) => {
-        props.onSizeChange(newSize);
-    };
-
-    const logOut = () => {
-
-        signOut(auth).then(() => {
-            //登出後重新導向
-            setCurrentUser(null);
-            window.location = '/';
-        }).catch((error) => {
-            console.log(error)
-        });
-    }
-
-    //偵測登入情況
-    useEffect(() => {
-        onAuthStateChanged(auth, (currentUser) => {
-            if (currentUser) {
-                // console.log("currentUser",currentUser);
-                setCurrentUser(currentUser);
-                if (window.location.pathname === "/canvas") {
-                    props.currentUser(currentUser);
-                }
-            };
-        });
-    }, [])
-
-    //登入資訊顯示
-    const Barcontent = () => {
-        // console.log(currentUser);
-        if (currentUser != null) {
-            const profilepic = () => {
-                if (currentUser.photoURL != null) {
-                    return currentUser.photoURL
-                }
-                else {
-                    return "/images/defaultpic.png"
-                }
-            }
-            return <>
-                <div className="link" onClick={logOut}>登出</div>
-                <img className="Userphoto" src={profilepic()} />
-            </>
-        }
-        else {
-            return <div className="link" onClick={StarSignin}>登入</div>
-        }
-    }
-
-    const Settings = () => {
-
+  //偵測登入情況
+  useEffect(() => {
+    onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        // console.log("currentUser",currentUser);
+        setCurrentUser(currentUser);
         if (window.location.pathname === "/canvas") {
-            return <><div onClick={() => setSizeOptions(!showSizeOptions)} className="canvas-console">調整尺寸
-                {showSizeOptions && <>
-                    <div className="size-options">
-                        <p className="size" onClick={() => handleSizeChange([1587.4, 2245, 25])}>直立式海報42*59.4cm</p>
-                        <p className="size" onClick={() => handleSizeChange([529.1, 396.8, 130])}>卡片14*10.5cm</p>
-                    </div>
-                </>}
-                <img onClick={() => setSizeOptions(!showSizeOptions)} className="bar-icon" src="images/arrow-down.png" />
-            </div>
-            </>
+          props.currentUser(currentUser);
         }
-    }
+      }
+    });
+  }, []);
 
-    const StarSignin = () => {
-        setShowSignin(true)
-        const handleMask = (event) => {
-
-            console.log(event.target);
-            if (event.target === document.querySelector(".mask")) {
-                setShowSignin(false)
-            }
+  //登入資訊顯示
+  const Barcontent = () => {
+    // console.log(currentUser);
+    if (currentUser != null) {
+      const profilepic = () => {
+        if (currentUser.photoURL != null) {
+          return currentUser.photoURL;
+        } else {
+          return "/images/defaultpic.png";
         }
-        addEventListener("click", handleMask)
-    }
-
-
-
-    if (window.location.pathname === "/") {
-        return <>
-            {showSignin && <>
-                <div className="mask"></div>
-                <Signin setShowSignin={setShowSignin} />
-            </>}
-            <div className="barcontain">
-                <div className="bar">
-                    <div className="logo-container">
-                        <Link to={"/"} className="logo"></Link>
-                    </div>
-                    <div className="auth">
-                        <Barcontent />
-                    </div>
-                </div>
-            </div>
+      };
+      return (
+        <>
+          <div className="link" onClick={logOut}>
+            登出
+          </div>
+          <img className="Userphoto" src={profilepic()} />
         </>
+      );
+    } else {
+      return (
+        <div className="link" onClick={StarSignin}>
+          登入
+        </div>
+      );
     }
-    else {
-        return <>
-            {showSignin && <>
-                <div className="mask"></div>
-                <Signin setShowSignin={setShowSignin} />
-            </>}
-            <div className="canvas-barcontain">
-                <div className="bar">
-                    <div className="edit-function">
-                        <div className="logo-container">
-                            <Link to={"/"} className="canvas-logo"></Link>
-                        </div>
-                        <Settings />
-                    </div>
-                    <div className="auth">
-                        <Barcontent />
-                    </div>
-                </div>
+  };
+
+  const StarSignin = () => {
+    setShowSignin(true);
+    const handleMask = (event) => {
+      console.log(event.target);
+      if (event.target === document.querySelector(".mask")) {
+        setShowSignin(false);
+      }
+    };
+    addEventListener("click", handleMask);
+  };
+
+  if (window.location.pathname === "/") {
+    return (
+      <>
+        {showSignin && (
+          <>
+            <div className="mask"></div>
+            <Signin setShowSignin={setShowSignin} />
+          </>
+        )}
+        <div className="barcontain">
+          <div className="bar">
+            <div className="logo-container">
+              <Link to={"/"} className="logo"></Link>
             </div>
-        </>
-
-    }
-
-}
-export default LogoBar
+            <div className="auth">
+              <Barcontent />
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  } else {
+    return (
+      <>
+        {showSignin && (
+          <>
+            <div className="mask"></div>
+            <Signin setShowSignin={setShowSignin} />
+          </>
+        )}
+        <div className="canvas-barcontain">
+          <div className="bar">
+            <div className="edit-function">
+              <div className="logo-container">
+                <Link to={"/"} className="canvas-logo"></Link>
+              </div>
+            </div>
+            <div className="auth">
+              <Barcontent />
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+};
+export default LogoBar;

@@ -51,7 +51,6 @@
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: repeat(auto-fit, minmax(130px, 1fr));
   height: 98%;
-  position: relative;
   /* align-items: center;
     justify-items: center; */
 }
@@ -63,24 +62,25 @@
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: repeat(auto-fit, 130px);
   height: 98%;
-  position: relative;
   justify-items: center;
 }
 
 .add-text {
-  color: #fff;
-  font-weight: 700;
-  text-align: center;
-  margin-top: 20px;
+  margin: 20px;
   cursor: pointer;
   grid-column: 1/4;
-  width: 300px;
+  width: 350px;
   height: 70px;
   border-radius: 5px;
   background-color: rgba(184, 184, 184, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #fff;
+  font-weight: 700;
+}
+
+.upload-label {
 }
 
 .add-text:hover {
@@ -98,7 +98,7 @@
   display: none;
   border-radius: 5px;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: repeat(auto-fit, 200px);
+  grid-template-rows: repeat(auto-fit, 230px);
   height: 98%;
   position: relative;
 }
@@ -112,22 +112,12 @@
   margin: 10px;
   border-radius: 5px;
   cursor: pointer;
+  position: relative;
 }
 .single-project:hover {
   background-color: rgba(128, 128, 128, 0.5);
 }
 
-.preview {
-  margin: 5px;
-  height: 130px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-}
-.previewimg {
-  width: 150px;
-  border-radius: 5px;
-}
 .add-preview {
   margin: 5px;
   display: flex;
@@ -145,21 +135,6 @@
 }
 .add-project {
   width: 100px;
-}
-
-.project-name {
-  font-size: 18px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 0 5px;
-  margin: 5px 0;
-  width: 150px;
-  color: #fff;
-}
-
-.project-type {
-  color: #b8b8b8;
 }
 
 .close-boxes {
@@ -188,9 +163,6 @@
     grid-template-rows: repeat(3,fr); */
   /* position: relative; */
   /* width: 100%; */
-}
-.grid-item {
-  position: relative;
 }
 
 .project-item img {

@@ -1,27 +1,117 @@
-const AuthProject = (props) => {
-  const [canvasData, setCanvasData] = useState();
-  const [previewimg, setpreviewimg] = useState();
+import { CurrentUser } from "../Pages/edit";
+import { useState } from "react";
+import React from "react";
+import { db } from "../firebase";
+import { getDocs } from "firebase/firestore";
+import { collection } from "firebase/firestore";
+import { useContext } from "react";
+import "../Styles/AuthProject.css";
+import { useEffect } from "react";
+import { updateDoc } from "firebase/firestore";
+import { doc } from "firebase/firestore";
+import { deleteDoc } from "firebase/firestore";
+import { ref } from "firebase/storage";
+import { storage } from "../firebase";
+import { deleteObject } from "firebase/storage";
 
-  const handleLoad = (event) => {
-    // e.target.id
+const AuthProject = (props) => {
+  const currentUser = useContext(CurrentUser);
+  const [type, setType] = useState();
+  const [projectName, setProjectName] = useState();
+  const [canvasData, setCanvasData] = useState();
+  const [showDelete, setShowDelete] = useState(false);
+  const [showSetting, setShowSetting] = useState(true);
+  const [inputDisplay, setInputDisplay] = useState("none");
+
+  useEffect(() => {
     const canvasData = {};
-    // console.log(event);
     getDocs(collection(db, `${currentUser.uid}`)).then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
-        if (doc.id === event.target.id) {
+        if (doc.id === props.id) {
           canvasData[doc.id] = { ...doc.data() };
-          setCanvasData(canvasData);
+          setType(canvasData[doc.id].height > 2000 ? "直立式海報" : "橫向卡片");
+          setProjectName(
+            canvasData[doc.id].name != "" ? canvasData[doc.id].name : "我的專案"
+          );
+          setCanvasData((prevData) => ({
+            ...prevData,
+            [doc.id]: canvasData[doc.id],
+          }));
         }
       });
     });
-  };
+  }, []);
+
   return (
-    <div className="single-project" onClick={handleLoad}>
-      <div className="preview">
-        <img className="previewimg" src={props.src} id={props.id} />
+    <div
+      className="single-project"
+      onMouseOver={() => setShowDelete(true)}
+      onMouseOut={() => setShowDelete(false)}
+      onClick={() => props.handleCanvasData(canvasData)}
+    >
+      <div className="more-container">
+        {showDelete && (
+          <>
+            <img
+              className="more"
+              src="images/delete-w.png"
+              onClick={(e) => {
+                e.stopPropagation();
+                deleteDoc(doc(db, `${currentUser.uid}`, props.id));
+                const storageRef = ref(
+                  storage,
+                  `${currentUser.uid}/Snapshot/${props.id}.jpg`
+                );
+                deleteObject(storageRef).then(() => {
+                  console.log("照片已刪除");
+                });
+                props.check(props.id);
+              }}
+            />
+          </>
+        )}
       </div>
-      <div className="project-name">咩咩咩咩au, au ,au,咩咩咩 咩</div>
-      <div className="project-type">海報</div>
+      <div className="preview">
+        <img className="previewimg" src={props.src} />
+      </div>
+      <div
+        className="name-container"
+        onClick={() => {
+          setShowSetting(false);
+          setInputDisplay("block");
+        }}
+      >
+        {showSetting && (
+          <>
+            <div className="project-name">{projectName}</div>
+            <img className="edit" src="images/edit.png" />
+          </>
+        )}
+        <input
+          style={{
+            display: inputDisplay,
+          }}
+          className="name-input"
+          value={projectName}
+          onChange={(e) => {
+            setProjectName(e.target.value);
+          }}
+          onFocus={(e) => e.target.select()}
+          onBlur={() => {
+            setShowSetting(true);
+            setInputDisplay("none");
+            updateDoc(doc(db, `${currentUser.uid}`, props.id), {
+              name: projectName,
+            });
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.target.blur();
+            }
+          }}
+        ></input>
+      </div>
+      <div className="project-type">{type}</div>
     </div>
   );
 };

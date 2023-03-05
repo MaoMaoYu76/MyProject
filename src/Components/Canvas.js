@@ -27,10 +27,12 @@ import { db } from "../firebase";
 // import { toBlob } from "html-to-image";
 
 const Canvas = (props) => {
-  const size = useContext(SizeData);
+  // const size = useContext(SizeData);
   const currentUser = useContext(CurrentUser);
-  const [initialWidth, initialHeight, initialScale] = size;
-  const [scale, setScale] = useState(initialScale);
+  // const [initialWidth, initialHeight, initialScale] = size;
+  const [initialWidth, setInitialWidth] = useState(props.size[0]);
+  const [initialHeight, setInitialHeight] = useState(props.size[1]);
+  const [scale, setScale] = useState(props.size[2]);
   const [height, setHeight] = useState(initialHeight);
   const [width, setWidth] = useState(initialWidth);
   const [canvasID, setCanvasID] = useState(uuidv4());
@@ -92,21 +94,75 @@ const Canvas = (props) => {
   };
 
   useEffect(() => {
+    // console.log(props.size);
+    console.log(canvasData);
+    setCanvasImages([]);
+    setCanvasTexts([]);
+    setInitialWidth(props.size[0]);
+    setInitialHeight(props.size[1]);
+    setScale(props.size[2]);
+    setCanvasColor("#FFFFFF");
     if (canvasData != undefined) {
       setCanvasID(Object.keys(canvasData)[0]);
-      const images = canvasData[Object.keys(canvasData)[0]]["images"];
-      for (let i = 0; i < images.length; i++) {
-        setCanvasImages((prevState) => [
-          ...prevState,
-          {
-            id: images[i].id,
-            src: images[i].src,
-            rest: images[i],
-          },
-        ]);
+      console.log("backgroundColor", Object.keys(canvasData)[0]);
+      setCanvasColor(canvasData[Object.keys(canvasData)[0]].backgroundColor);
+      if (canvasData[Object.keys(canvasData)[0]]["images"] != []) {
+        const images = canvasData[Object.keys(canvasData)[0]]["images"];
+        for (let i = 0; i < images.length; i++) {
+          setCanvasImages((prevState) => [
+            ...prevState,
+            {
+              id: images[i].id,
+              src: images[i].src,
+              rest: images[i],
+            },
+          ]);
+          setzIndex((prevzIndex) => ({
+            ...prevzIndex,
+            [images[i].id]: images[i].zIndex,
+          }));
+        }
       }
+      if (canvasData[Object.keys(canvasData)[0]]["texts"] != []) {
+        const texts = canvasData[Object.keys(canvasData)[0]]["texts"];
+        for (let i = 0; i < texts.length; i++) {
+          setCanvasTexts((prevState) => [
+            ...prevState,
+            {
+              id: texts[i].id,
+              rest: texts[i],
+            },
+          ]);
+          setFontWeight((prevFontWeight) => ({
+            ...prevFontWeight,
+            [texts[i].id]: texts[i].fontWeight === 900 ? true : false,
+          }));
+          setFontSizes((prevFontSizes) => ({
+            ...prevFontSizes,
+            [texts[i].id]: texts[i].fontSize,
+          }));
+          setSelectedFont((prevSelect) => ({
+            ...prevSelect,
+            [texts[i].id]: texts[i].fontFamily,
+          }));
+          setTextColor((prevTextColor) => ({
+            ...prevTextColor,
+            [texts[i].id]: texts[i].color,
+          }));
+          setzIndex((prevzIndex) => ({
+            ...prevzIndex,
+            [texts[i].id]: texts[i].zIndex,
+          }));
+          setBackgroundColor((prevBackgroundColor) => ({
+            ...prevBackgroundColor,
+            [texts[i].id]: texts[i].backgroundColor,
+          }));
+        }
+      }
+    } else {
+      setCanvasID(uuidv4());
     }
-  }, [canvasData]);
+  }, [canvasData, props.size]);
 
   useEffect(() => {
     if (props.newCanvasImageSrc) {
@@ -152,9 +208,6 @@ const Canvas = (props) => {
   // }, [props.Shapesid]);
   // console.log(IsSelected);
   //選擇畫布尺寸
-  useEffect(() => {
-    setScale(initialScale);
-  }, [size]);
 
   //偵測登入狀態
   useEffect(() => {
@@ -199,7 +252,7 @@ const Canvas = (props) => {
   ]);
 
   const handleSelect = (event) => {
-    console.log("event.target", event.target);
+    // console.log("event.target", event.target);
 
     const isImageInCanvas = canvasImages.some(
       (img) => img.id === event.target.id
@@ -346,30 +399,63 @@ const Canvas = (props) => {
   };
 
   const handleSave = () => {
-    setSaving(true);
-    setCancel(true);
-    setShowTextTool(false);
-    setShowImageTool(false);
-    selectedIdRef.current = "";
-    setIsSelected("");
-    const canvas = document.getElementById("canvas");
-    scaleRef.current = scale;
-    setScale(100);
-    domtoimage
-      .toBlob(canvas, { crossOrigin: "anonymous" })
-      .then(function (blob) {
-        // document.body.appendChild(canvas);
-        const storageRef = ref(
-          storage,
-          `${currentUser.uid}/Snapshot/${canvasID}.jpg`
-        );
-        uploadBytes(storageRef, blob).then((snapshot) => {});
-      });
-    setTimeout(() => {
-      setSaving(false);
-      setScale(scaleRef.current);
-      console.log(scaleRef.current);
-    }, 1000);
+    if (currentUser) {
+      setSaving(true);
+      setCancel(true);
+      setShowTextTool(false);
+      setShowImageTool(false);
+      selectedIdRef.current = "";
+      setIsSelected("");
+
+      const canvas = document.getElementById("canvas");
+
+      scaleRef.current = scale;
+      setScale(100);
+
+      domtoimage
+        .toBlob(canvas, { crossOrigin: "anonymous" })
+        .then(function (blob) {
+          // document.body.appendChild(canvas);
+          const storageRef = ref(
+            storage,
+            `${currentUser.uid}/Snapshot/${canvasID}.jpg`
+          );
+          uploadBytes(storageRef, blob).then((snapshot) => {
+            setScale(scaleRef.current);
+          });
+        });
+
+      const newObj = {
+        images: [],
+        texts: [],
+        width: initialWidth,
+        height: initialHeight,
+        backgroundColor: CanvasColor,
+        name: projectName,
+      };
+
+      newObj["images"] = imagesData;
+      newObj["texts"] = textsData;
+
+      setDoc(doc(db, `${currentUser.uid}`, canvasID), newObj);
+      console.log("savedData", newObj);
+      setTimeout(() => {
+        setSaving(false);
+        props.check(canvasID);
+      }, 1500);
+    } else {
+      setShowSignin(true);
+      setAlert(<div className="alert"> 登入尚可儲存專案</div>);
+
+      const handleMask = (event) => {
+        // console.log(event.target);
+
+        if (event.target === document.querySelector(".mask")) {
+          setShowSignin(false);
+        }
+      };
+      addEventListener("click", handleMask);
+    }
   };
 
   //即時存儲
@@ -406,8 +492,8 @@ const Canvas = (props) => {
 
       newObj["images"] = imagesData;
       newObj["texts"] = textsData;
-      console.log(newObj);
-      console.log("canvasID", canvasID);
+      // console.log(newObj);
+      // console.log("canvasID", canvasID);
       // setDoc(doc(db, `${currentUser.uid}`, canvasID), newObj);
     }, 10000);
 
@@ -571,7 +657,7 @@ const Canvas = (props) => {
       {showSignin && (
         <>
           <div className="mask"></div>
-          <Signin setShowSignin={setShowSignin} alert={alert} />
+          <Signin alert={alert} />
         </>
       )}
       <div className="editer-top editer">
@@ -677,7 +763,10 @@ const Canvas = (props) => {
                 <img
                   className="config-button"
                   onClick={() => {
-                    setFontWeight(!fontWeight);
+                    setFontWeight((prevFontWeight) => ({
+                      ...prevFontWeight,
+                      [selectedIdRef.current]: !fontWeight,
+                    }));
                   }}
                   src="/images/b.png"
                 />
@@ -809,8 +898,9 @@ const Canvas = (props) => {
                 <CanvasText
                   key={Text.id}
                   id={Text.id}
+                  rest={Text.rest}
                   // handleTextTool={handleTextTool}
-                  fontWeight={fontWeight}
+                  fontWeight={fontWeight[Text.id]}
                   // onClick={handleTextClick(Text.id)}
                   onKeyDown={handleKeyDown}
                   textData={handletextData}

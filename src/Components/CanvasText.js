@@ -33,35 +33,42 @@ const CanvasText = (props) => {
   const [textAlign, setTextAlign] = useState("center");
   const [cursor, setCursor] = useState("pointer");
   const [fontWeight, setFontWeight] = useState(500);
-  const [count, setCount] = useState(0);
   const rotationRef = useRef({});
   const [rotation, setRotation] = useState(rotationRef.current[props.id] || 0);
 
   //封裝資料
   useEffect(() => {
-    const timer = setTimeout(() => {
-      let textData = {};
-      textData = {
-        id: props.id,
-        x: position.x,
-        y: position.y,
-        hight: ImageHeight,
-        width: ImageWidth,
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        transform: `rotate(${rotation}deg)`,
-        color: props.color,
-        fontFamily: props.fontFamily,
-        backgroundColor: props.backgroundColor,
-        value: newText,
-        zIndex: props.zIndex,
-      };
-      props.textData(textData);
-    }, 5000);
-    return () => {
-      clearTimeout(timer);
+    let textData = {};
+    textData = {
+      id: props.id,
+      x: position.x,
+      y: position.y,
+      hight: ImageHeight,
+      width: ImageWidth,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      rotation: rotation,
+      color: props.color,
+      fontFamily: props.fontFamily,
+      backgroundColor: props.backgroundColor,
+      value: newText,
+      zIndex: props.zIndex,
     };
-  }, [count]);
+    props.textData(textData);
+  }, [
+    props.id,
+    position,
+    ImageHeight,
+    ImageWidth,
+    fontSize,
+    fontWeight,
+    rotation,
+    props.color,
+    props.fontFamily,
+    props.backgroundColor,
+    newText,
+    props.zIndex,
+  ]);
 
   useEffect(() => {
     if (props.fontSize) {
@@ -98,6 +105,15 @@ const CanvasText = (props) => {
       firstpickRef.current = false;
     }
   }, [props.selected, props.fontWeight, props.cancel]);
+
+  useEffect(() => {
+    if (rest) {
+      setImageHeight(rest.hight);
+      setImageWidth(rest.width);
+      setRotation(rest.rotation);
+      setNewText(rest.value);
+    }
+  }, [props.rest]);
 
   //控制大小拖曳
   const handleResize = (event) => {
@@ -156,7 +172,6 @@ const CanvasText = (props) => {
     document.addEventListener("pointerup", () => {
       document.removeEventListener("pointermove", onMouseMove);
       setResizing(false);
-      setCount(count + 1);
     });
 
     ondragstart = function () {
@@ -185,7 +200,6 @@ const CanvasText = (props) => {
       const handlePointerUp = () => {
         document.removeEventListener("pointermove", handlePointerMove);
         movingRef.current = false;
-        setCount(count + 1);
       };
 
       if (resizing === false) {
@@ -200,7 +214,6 @@ const CanvasText = (props) => {
 
   const handleChange = (event) => {
     setNewText(event.target.value);
-    setCount(count + 1);
   };
 
   const handleFocus = () => {
@@ -236,7 +249,6 @@ const CanvasText = (props) => {
 
     const handlePointerUp = () => {
       document.removeEventListener("pointermove", handlePointerMove);
-      setCount(count + 1);
     };
     document.addEventListener("pointermove", handlePointerMove);
     document.addEventListener("pointerup", handlePointerUp);
