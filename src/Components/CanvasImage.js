@@ -111,32 +111,42 @@ const CanvasImage = (props) => {
     let currentWidth = FrameWidth;
     let currentHeight = FrameHeight;
     const onMouseMove = (event) => {
-      const angle = ((rotation - 180) * Math.PI) / 180;
-      const angle2 = (1.5708 - angle) / 2 + angle;
-
       const deltaX = (event.clientX - initialX) / (props.scale * 0.01);
       const deltaY = (event.clientY - initialY) / (props.scale * 0.01);
+      const angle = ((rotation - 180) * Math.PI) / 180;
+      const xh = Math.abs(deltaX) * Math.tan(angle);
+      // const xh = deltaX * Math.tan(angle);
+      const yh = Math.abs(deltaY) - xh;
+      // const yh = deltaY - xh;
+
+      // const xhh= (Math.abs(deltaX)/cos(angle))+(yh*sin(angle))
+
       // const hypotenuse = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
 
-      // let newdeltaX;
-      // let newdeltaY;
-      // if (deltaY < 0) {
-      //   newdeltaY = -(hypotenuse * Math.cos(angle2));
-      // } else {
-      //   newdeltaY = hypotenuse * Math.cos(angle2);
-      // }
-      // if (deltaX < 0) {
-      //   newdeltaX = -(hypotenuse * Math.sin(angle2));
-      // } else {
-      //   newdeltaX = hypotenuse * Math.sin(angle2);
-      // }
-
+      let newdeltaX;
+      let newdeltaY;
+      if (deltaY < 0) {
+        newdeltaY = yh * Math.cos(angle);
+      } else {
+        newdeltaY = -(yh * Math.cos(angle));
+      }
+      if (deltaX < 0) {
+        newdeltaX = Math.abs(deltaX) / Math.cos(angle) + yh * Math.sin(angle);
+      } else {
+        newdeltaX = -(
+          Math.abs(deltaX) / Math.cos(angle) +
+          yh * Math.sin(angle)
+        );
+      }
+      // newdeltaY = yh * Math.cos(angle);
+      // newdeltaX = Math.abs(deltaX) / Math.cos(angle) + yh * Math.sin(angle);
       // 判斷位置
       if (id === "top-right") {
         if (
           (rotation >= 67.5 && rotation < 112.5) ||
           (rotation >= 247.5 && rotation < 292.5)
         ) {
+          // console.log("newdeltaX", newdeltaX, "newdeltaY", newdeltaY);
           setImageWidth(ImageWidth - deltaY);
           setImageHeight(ImageHeight + deltaX);
           setFrameWidth(currentWidth + deltaX);
@@ -185,50 +195,51 @@ const CanvasImage = (props) => {
 
         setPosition(positionsRef.current[props.id]);
       } else if (id === "bottom-right") {
-        if (
-          (rotation >= 67.5 && rotation < 112.5) ||
-          (rotation >= 247.5 && rotation < 292.5)
-        ) {
-          setImageWidth(ImageWidth + deltaY);
-          setImageHeight(ImageHeight + deltaX);
-          setFrameWidth(currentWidth + deltaX);
-          setFrameHeight(currentHeight + deltaY);
-        } else if (
-          (rotation >= 112.5 && rotation < 157.5) ||
-          (rotation >= 292.5 && rotation < 337.5)
-        ) {
-          setImageWidth(ImageWidth + deltaX);
-          setImageHeight(ImageHeight + deltaY);
+        // if (
+        //   (rotation >= 67.5 && rotation < 112.5) ||
+        //   (rotation >= 247.5 && rotation < 292.5)
+        // ) {
+        //   setImageWidth(ImageWidth + newdeltaY);
+        //   setImageHeight(ImageHeight + deltaX);
+        //   setFrameWidth(currentWidth + deltaX);
+        //   setFrameHeight(currentHeight + newdeltaY);
+        // } else if (
+        //   (rotation >= 112.5 && rotation < 157.5) ||
+        //   (rotation >= 292.5 && rotation < 337.5)
+        // ) {
+        //   setImageWidth(ImageWidth + newdeltaX);
+        //   setImageHeight(ImageHeight + newdeltaY);
 
-          setFrameHeight(
-            Math.abs((ImageHeight + deltaY) * Math.cos(angle)) +
-              Math.abs((ImageWidth + deltaX) * Math.sin(angle))
-          );
-          setFrameWidth(
-            Math.abs((ImageHeight + deltaY) * Math.sin(angle)) +
-              Math.abs((ImageWidth + deltaX) * Math.cos(angle))
-          );
-        } else if (
-          (rotation >= 202.5 && rotation < 247.5) ||
-          (rotation >= 22.5 && rotation < 67.5)
-        ) {
-          setImageWidth(ImageWidth + deltaY);
-          setImageHeight(ImageHeight + deltaX);
+        //   setFrameHeight(
+        //     Math.abs((ImageHeight + newdeltaY) * Math.cos(angle)) +
+        //       Math.abs((ImageWidth + newdeltaX) * Math.sin(angle))
+        //   );
+        //   setFrameWidth(
+        //     Math.abs((ImageHeight + newdeltaY) * Math.sin(angle)) +
+        //       Math.abs((ImageWidth + newdeltaX) * Math.cos(angle))
+        //   );
+        // } else if (
+        //   (rotation >= 202.5 && rotation < 247.5) ||
+        //   (rotation >= 22.5 && rotation < 67.5)
+        // ) {
+        //   setImageWidth(ImageWidth + newdeltaY);
+        //   setImageHeight(ImageHeight + newdeltaX);
 
-          setFrameHeight(
-            Math.abs((ImageHeight + deltaX) * Math.cos(angle)) +
-              Math.abs((ImageWidth + deltaY) * Math.sin(angle))
-          );
-          setFrameWidth(
-            Math.abs((ImageHeight + deltaX) * Math.sin(angle)) +
-              Math.abs((ImageWidth + deltaY) * Math.cos(angle))
-          );
-        } else {
-          setImageWidth(ImageWidth + deltaX);
-          setImageHeight(ImageHeight + deltaY);
-          setFrameWidth(currentWidth + deltaX);
-          setFrameHeight(currentHeight + deltaY);
-        }
+        //   setFrameHeight(
+        //     Math.abs((ImageHeight + newdeltaX) * Math.cos(angle)) +
+        //       Math.abs((ImageWidth + newdeltaY) * Math.sin(angle))
+        //   );
+        //   setFrameWidth(
+        //     Math.abs((ImageHeight + newdeltaX) * Math.sin(angle)) +
+        //       Math.abs((ImageWidth + newdeltaY) * Math.cos(angle))
+        //   );
+        // } else {
+        // console.log("newdeltaX", newdeltaX, "newdeltaY", newdeltaY);
+        setImageWidth(ImageWidth + newdeltaX);
+        setImageHeight(ImageHeight + newdeltaY);
+        setFrameWidth(currentWidth + newdeltaX);
+        setFrameHeight(currentHeight + newdeltaY);
+        // }
       } else if (id === "bottom-left") {
         if (
           (rotation >= 67.5 && rotation < 112.5) ||

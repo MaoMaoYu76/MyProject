@@ -1,49 +1,81 @@
-import React from "react";
-import { useState } from "react";
-import { useEffect } from "react";
-import { SketchPicker } from "react-color";
+import React, { useState, useEffect } from "react";
+import "../Styles/FontList.css";
+import WebFont from "webfontloader";
+import { useRef } from "react";
 
-function TEST() {
-  const [fontList, setFontList] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+const FontList = (props) => {
+  const angle = ((25 - 180) * Math.PI) / 180;
+  console.log(2.6 * Math.sin(angle));
+  // const [loadedFonts, setLoadedFonts] = useState([]);
+  // const [fontName, setfontName] = useState("NotoSerifTC-Regular");
 
-  useEffect(() => {
-    const fetchFonts = async () => {
-      const response = await fetch(
-        "https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyBWCWoHellq7xHFlfc5YiziHIBOjok9PP4"
-      );
-      const json = await response.json();
-      setFontList(json.items);
-    };
-    fetchFonts();
-  }, []);
+  // const loadFont = (fontName, fontUrl) => {
+  //   const fontFace = new FontFace(fontName, `url(${fontUrl})`);
+  //   fontFace.load().then(() => {
+  //     document.fonts.add(fontFace);
+  //     setLoadedFonts([...loadedFonts, fontName]);
+  //   });
+  // };
 
-  const filteredFonts = fontList
-    .filter((font) =>
-      font.family.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
-      // Put selected fonts first
-      if (selectedFonts.includes(a.family)) return -1;
-      if (selectedFonts.includes(b.family)) return 1;
-      // Sort remaining fonts alphabetically
-      return a.family.localeCompare(b.family);
-    });
+  // useEffect(() => {
+  //   const fontUrl = `fonts/${fontName}.otf`;
+  //   if (!loadedFonts.includes(fontName)) {
+  //     loadFont(fontName, fontUrl);
+  //   }
+  // }, []);
 
-  return (
-    <div>
-      <input
-        type="text"
-        placeholder="Search fonts..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <ul>
-        {filteredFonts.map((font) => (
-          <li key={font.family}>{font.family}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-export default TEST;
+  // const handleFontChange = (event, fontName) => {
+  //   setfontName(fontName);
+  //   const fontUrl = `fonts/${fontName}.otf`;
+  //   if (!loadedFonts.includes(fontName)) {
+  //     loadFont(fontName, fontUrl);
+  //   }
+  // };
+
+  // return (
+  //   <div className="scroll-box">
+  //     <div className="search-box">
+  //       <img
+  //         className="close"
+  //         onClick={() => {
+  //           props.handleShowBox(false);
+  //         }}
+  //         src="/images/close.png"
+  //       />
+  //     </div>
+  //     <ul className="font-items">
+  //       {loadedFonts.map((fontName) => (
+  //         <style key={fontName}>
+  //           {`
+  //             @font-face {
+  //               font-family: "${fontName}";
+  //               src: url("fonts/${fontName}.otf");
+  //             }
+  //           `}
+  //         </style>
+  //       ))}
+  //       <li
+  //         style={{
+  //           fontFamily: "NotoSerifTC-Regular",
+  //           fontWeight: fontName === "NotoSerifTC-Regular" ? "bold" : "normal",
+  //         }}
+  //         onClick={(event) => handleFontChange(event, "NotoSerifTC-Regular")}
+  //       >
+  //         NotoSerifTC
+  //       </li>
+  //       <li
+  //         style={{
+  //           fontFamily: "NotoSansCJKtc-Regular",
+  //           fontWeight:
+  //             fontName === "NotoSansCJKtc-Regular" ? "bold" : "normal",
+  //         }}
+  //         onClick={(event) => handleFontChange(event, "NotoSansCJKtc-Regular")}
+  //       >
+  //         NotoSansCJKtc
+  //       </li>
+  //     </ul>
+  //   </div>
+  // );
+};
+
+export default FontList;

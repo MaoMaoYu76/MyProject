@@ -22,8 +22,10 @@ const AuthProject = (props) => {
   const [showDelete, setShowDelete] = useState(false);
   const [showSetting, setShowSetting] = useState(true);
   const [inputDisplay, setInputDisplay] = useState("none");
+  const [clickCount, setClickCount] = useState(0);
 
   useEffect(() => {
+    setCanvasData();
     const canvasData = {};
     getDocs(collection(db, `${currentUser.uid}`)).then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
@@ -40,14 +42,39 @@ const AuthProject = (props) => {
         }
       });
     });
-  }, []);
+  }, [clickCount]);
+
+  const handleclick = () => {
+    setCanvasData();
+    const canvasData = {};
+    getDocs(collection(db, `${currentUser.uid}`)).then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        if (doc.id === props.id) {
+          canvasData[doc.id] = { ...doc.data() };
+          setProjectName(
+            canvasData[doc.id].name != "" ? canvasData[doc.id].name : "我的專案"
+          );
+          setCanvasData((prevData) => ({
+            ...prevData,
+            [doc.id]: canvasData[doc.id],
+          }));
+          props.handleCanvasData({ [doc.id]: canvasData[doc.id] });
+        }
+      });
+    });
+  };
 
   return (
     <div
       className="single-project"
       onMouseOver={() => setShowDelete(true)}
       onMouseOut={() => setShowDelete(false)}
-      onClick={() => props.handleCanvasData(canvasData)}
+      // onClick={() => {
+      //   // setClickCount((count) => count + 1);
+      //   // console.log(canvasData);
+      //   // props.handleCanvasData(canvasData);
+      // }}
+      onClick={handleclick}
     >
       <div className="more-container">
         {showDelete && (

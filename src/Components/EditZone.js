@@ -4,6 +4,7 @@ import "../Styles/EditZone.css";
 import { useState } from "react";
 import BoxImage from "./BoxImage";
 import UploadImage from "./UploadImage";
+import Template from "./Template";
 import AuthProject from "./AuthProject";
 import Canvas from "./Canvas";
 import shortid from "shortid";
@@ -41,27 +42,10 @@ const EditZone = (props) => {
   const [selectedBox, setSelectedBox] = useState("");
   const [uploadImages, setUploadImages] = useState([]);
   const [snapshots, setSnapshots] = useState([]);
+  const [ToolImages, setToolImages] = useState([]);
+  const [TemplateImages, setTemplateImages] = useState([]);
+  const [PosterImages, setPosterImages] = useState([]);
   const [display, setDisplay] = useState("none");
-  const toolImages = [
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4193312.png?alt=media&token=c0d409c1-affa-4d4c-97f9-522f99b142ed",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/bear.png?alt=media&token=f6c73a80-0315-47e3-a0cf-2884986403e9",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/5463321.png?alt=media&token=e3ab2628-0ca5-4e40-9fe9-bc59a73368df",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4383887.png?alt=media&token=cd7e1f52-08ec-4003-b094-45d796ee631c",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4383956.png?alt=media&token=8cc0e484-838e-4bcf-a57e-886a5b400ff0",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4383973.png?alt=media&token=f68bfab4-2aba-4cf9-8c4f-c6a19ffdaf59",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4392447.png?alt=media&token=a33e8698-b405-427d-b2ed-2a388bd03147",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4392505.png?alt=media&token=833ecae9-43d7-474e-adc1-d4cb8d15b6c4",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4481010.png?alt=media&token=6ece33ec-0f1b-417d-84ef-0eb1127d5139",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4289412.png?alt=media&token=7cb9dfbe-ee9c-4f3d-9d88-7aa25eafea98",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4289415.png?alt=media&token=9ffd7597-29fd-4e66-9a84-e3cf159aad7b",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4359655.png?alt=media&token=bec9d714-ac4a-4205-90c7-d0862da51204",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4359700.png?alt=media&token=1cb7cf3a-cd3c-427b-93b5-582503a7f5d2",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4383882.png?alt=media&token=490b89c6-02f9-44e9-9b7f-c8593595859c",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4383939.png?alt=media&token=4e774fe9-548a-45a4-bd2c-9b8b34000761",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4825045.png?alt=media&token=2a64388d-8c10-4af2-aac0-fe2141b06912",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4861659.png?alt=media&token=b25d2b11-118a-413f-a86c-5f861e358b1e",
-    "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/4861742.png?alt=media&token=8764f6ad-48a2-4fa0-9e38-48ed39a147fc",
-  ];
   // const shapes = [
   //   "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/circle.png?alt=media&token=39b39960-4510-4f09-bea3-2b9c58e4633b",
   //   "https://firebasestorage.googleapis.com/v0/b/react-project-26a32.appspot.com/o/square.png?alt=media&token=857156c4-c97b-42eb-b992-23af0ec98c27",
@@ -131,6 +115,7 @@ const EditZone = (props) => {
     if (
       event.target.id === "Image" ||
       event.target.id === "Text" ||
+      event.target.id === "Template" ||
       currentUser
     ) {
       if (!showBox) {
@@ -264,6 +249,82 @@ const EditZone = (props) => {
     }
   }, [currentUser]);
 
+  useEffect(() => {
+    const storageRef = ref(storage, "/Images");
+    listAll(storageRef).then((result) => {
+      result.items.forEach((imageRef) => {
+        getDownloadURL(ref(storage, imageRef.fullPath)).then((url) => {
+          setToolImages((prevState) => {
+            if (!prevState.some((image) => image.src === url)) {
+              return [...prevState, { id: shortid.generate(), src: url }];
+            }
+            return prevState;
+          });
+        });
+      });
+    });
+  }, [ToolImages]);
+
+  //template
+  // useEffect(() => {
+  //   const storageRef = ref(
+  //     storage,
+  //     size[0] > 2000 ? "/TemplatePoter" : "/Template"
+  //   );
+  //   listAll(storageRef).then((result) => {
+  //     result.items.forEach((imageRef) => {
+  //       getDownloadURL(ref(storage, imageRef.fullPath)).then((url) => {
+  //         setTemplateImages((prevState) => {
+  //           if (!prevState.some((image) => image.src === url)) {
+  //             return [
+  //               ...prevState,
+  //               { id: imageRef.name.split(".")[0], src: url },
+  //             ];
+  //           }
+  //           return prevState;
+  //         });
+  //       });
+  //     });
+  //   });
+  // }, [TemplateImages, size]);
+
+  useEffect(() => {
+    // setTemplateImages([]);
+    const storageRef = ref(storage, "/Template");
+    listAll(storageRef).then((result) => {
+      const newTemplateImages = [];
+      result.items.forEach((imageRef) => {
+        getDownloadURL(ref(storage, imageRef.fullPath)).then((url) => {
+          if (!newTemplateImages.some((image) => image.src === url)) {
+            newTemplateImages.push({
+              id: imageRef.name.split(".")[0],
+              src: url,
+            });
+            setTemplateImages(newTemplateImages);
+          }
+        });
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    const PosterRef = ref(storage, "/TemplatePoster");
+    listAll(PosterRef).then((result) => {
+      const newTemplateImages = [];
+      result.items.forEach((imageRef) => {
+        getDownloadURL(ref(storage, imageRef.fullPath)).then((url) => {
+          if (!newTemplateImages.some((image) => image.src === url)) {
+            newTemplateImages.push({
+              id: imageRef.name.split(".")[0],
+              src: url,
+            });
+            setPosterImages(newTemplateImages);
+          }
+        });
+      });
+    });
+  }, []);
+
   // 上傳素材到 Firebase Storage
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
@@ -334,6 +395,24 @@ const EditZone = (props) => {
             onClick={handleBoxOn}
             className="side-icons"
             style={{
+              backgroundColor:
+                selectedBox === "Template" ? "#2e2e2e" : "#1c160a",
+            }}
+            id="Template"
+          >
+            <img
+              src="/images/template.png"
+              className="side-icon"
+              id="Template"
+            />
+            <div className="icontext" id="Template">
+              Template
+            </div>
+          </div>
+          <div
+            onClick={handleBoxOn}
+            className="side-icons"
+            style={{
               backgroundColor: selectedBox === "Image" ? "#2e2e2e" : "#1c160a",
             }}
             id="Image"
@@ -388,19 +467,77 @@ const EditZone = (props) => {
           <>
             <div className="side-container">
               <div
+                className="template-box"
+                id="Template"
+                style={{
+                  display: selectedBox === "Template" ? "grid" : "none",
+                  borderRadius: "0 5px 5px 5px",
+                }}
+              >
+                {size[0] > 1500
+                  ? PosterImages.map((TemplateImage) => (
+                      <Template
+                        key={TemplateImage.id}
+                        src={TemplateImage.src}
+                        id={TemplateImage.id}
+                        handleCanvasData={(data) => {
+                          setSize(
+                            data[TemplateImage.id].height > 2000
+                              ? [1587.4, 2245, 25]
+                              : [529.1, 396.8, 125]
+                          );
+                          setCanvasData();
+                          setCanvasData(data);
+                        }}
+                      />
+                    ))
+                  : TemplateImages.map((TemplateImage) => (
+                      <Template
+                        key={TemplateImage.id}
+                        src={TemplateImage.src}
+                        id={TemplateImage.id}
+                        handleCanvasData={(data) => {
+                          setSize(
+                            data[TemplateImage.id].height > 2000
+                              ? [1587.4, 2245, 25]
+                              : [529.1, 396.8, 125]
+                          );
+                          setCanvasData();
+                          setCanvasData(data);
+                        }}
+                      />
+                    ))}
+                {/* {TemplateImages.map((TemplateImage) => (
+                  <Template
+                    key={TemplateImage.id}
+                    src={TemplateImage.src}
+                    id={TemplateImage.id}
+                    handleCanvasData={(data) => {
+                      setSize(
+                        data[TemplateImage.id].height > 2000
+                          ? [1587.4, 2245, 25]
+                          : [529.1, 396.8, 125]
+                      );
+                      setCanvasData();
+                      setCanvasData(data);
+                    }}
+                  />
+                ))} */}
+              </div>
+              <div
                 className="image-box"
                 id="Image"
                 style={{
                   display: selectedBox === "Image" ? "grid" : "none",
-                  borderRadius: "0 5px 5px 5px",
+                  borderRadius: "5px",
                 }}
               >
-                {toolImages.map((toolImage, index) => (
+                {ToolImages.map((toolImage, index) => (
                   <BoxImage
-                    key={index}
-                    src={toolImage}
+                    key={toolImage.id}
+                    src={toolImage.src}
                     boundaries={boundaries}
-                    id={shortid.generate()}
+                    id={toolImage.id}
                     oncopystate={(src) => {
                       // console.log("src",src);
                       if (src != undefined) {
@@ -478,6 +615,7 @@ const EditZone = (props) => {
                           ? [1587.4, 2245, 25]
                           : [529.1, 396.8, 125]
                       );
+                      setCanvasData();
                       setCanvasData(data);
                     }}
                   />

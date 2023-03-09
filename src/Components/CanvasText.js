@@ -7,15 +7,20 @@ import Border from "./border";
 import FrameTools from "./FrameTools";
 
 const CanvasText = (props) => {
+  const rest = props.rest;
   const dotSize = Border(props).dotSize;
   const border = Border(props).border;
   const showFrameTools = Border(props).showFrameTools;
   const { onKeyDown } = props;
-  const [ImageWidth, setImageWidth] = useState(300);
-  const [ImageHeight, setImageHeight] = useState(40);
+  const [ImageWidth, setImageWidth] = useState(
+    rest && rest.width !== undefined ? rest.width : 500
+  );
+
+  const [ImageHeight, setImageHeight] = useState(
+    rest && rest.hight !== undefined ? rest.hight : 150
+  );
 
   const positionsRef = useRef({ x: 0, y: 0 });
-  const rest = props.rest;
   const defaluet = rest ? { x: rest.x, y: rest.y } : { x: 0, y: 0 };
 
   const [position, setPosition] = useState(
@@ -27,8 +32,8 @@ const CanvasText = (props) => {
   const [InFocus, setInFocus] = useState(false);
   const firstpickRef = useRef(false);
   const movingRef = useRef(false);
-  const [newText, setNewText] = useState("Please enter text");
-  const [fontSize, setFontSize] = useState(25);
+  const [newText, setNewText] = useState("Enter text");
+  const [fontSize, setFontSize] = useState();
   const [turnsize, setTurnsize] = useState(25);
   const [textAlign, setTextAlign] = useState("center");
   const [cursor, setCursor] = useState("pointer");

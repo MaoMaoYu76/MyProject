@@ -21,6 +21,7 @@ import { doc } from "firebase/firestore";
 import { saveAs } from "file-saver";
 import { setDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import shortid from "shortid";
 // import html2canvas from "html2canvas";
 // import domtoimage from "dom-to-image-google-font-issue";
 // import * as htmlToImage from "html-to-image";
@@ -94,18 +95,20 @@ const Canvas = (props) => {
   };
 
   useEffect(() => {
-    // console.log(props.size);
-    console.log(canvasData);
     setCanvasImages([]);
     setCanvasTexts([]);
+    setImagesData([]);
+    setTextsData([]);
     setInitialWidth(props.size[0]);
     setInitialHeight(props.size[1]);
     setScale(props.size[2]);
     setCanvasColor("#FFFFFF");
     if (canvasData != undefined) {
       setCanvasID(Object.keys(canvasData)[0]);
-      console.log("backgroundColor", Object.keys(canvasData)[0]);
       setCanvasColor(canvasData[Object.keys(canvasData)[0]].backgroundColor);
+      if (canvasData[Object.keys(canvasData)[0]].name != "") {
+        setProjectName(canvasData[Object.keys(canvasData)[0]].name);
+      }
       if (canvasData[Object.keys(canvasData)[0]]["images"] != []) {
         const images = canvasData[Object.keys(canvasData)[0]]["images"];
         for (let i = 0; i < images.length; i++) {
@@ -326,6 +329,8 @@ const Canvas = (props) => {
     canvasImages,
     InFocusRef.current,
     selectedIdRef.current,
+    imagesData,
+    textsData,
   ]);
 
   const handleKeyDown = (event) => {
@@ -334,6 +339,12 @@ const Canvas = (props) => {
       // console.log(canvasTexts);
       setCanvasTexts(
         canvasTexts.filter((Text) => Text.id !== selectedIdRef.current)
+      );
+      setTextsData(
+        textsData.filter((Text) => {
+          console.log(Text.id);
+          Text.id !== selectedIdRef.current;
+        })
       );
       selectedIdRef.current = ""; // 取消選中的 CanvasText
     }
@@ -345,6 +356,8 @@ const Canvas = (props) => {
       const id = selectedIdRef.current;
       // const id = event.target.children[0].children[0].getAttribute("id");
       setCanvasImages(canvasImages.filter((Image) => Image.id !== id));
+      setImagesData(imagesData.filter((Image) => Image.id !== id));
+      selectedIdRef.current = "";
     }
   };
 
@@ -411,7 +424,7 @@ const Canvas = (props) => {
 
       scaleRef.current = scale;
       setScale(100);
-
+      const id = shortid.generate();
       domtoimage
         .toBlob(canvas, { crossOrigin: "anonymous" })
         .then(function (blob) {
@@ -419,6 +432,7 @@ const Canvas = (props) => {
           const storageRef = ref(
             storage,
             `${currentUser.uid}/Snapshot/${canvasID}.jpg`
+            // `/TemplatePoster/${id}.jpg`
           );
           uploadBytes(storageRef, blob).then((snapshot) => {
             setScale(scaleRef.current);
@@ -438,6 +452,7 @@ const Canvas = (props) => {
       newObj["texts"] = textsData;
 
       setDoc(doc(db, `${currentUser.uid}`, canvasID), newObj);
+      // setDoc(doc(db, `public`, id), newObj);
       console.log("savedData", newObj);
       setTimeout(() => {
         setSaving(false);
@@ -744,7 +759,7 @@ const Canvas = (props) => {
                     onChange={handleSizeChange}
                     onKeyDown={handleSubmit}
                     onClick={handleClick}
-                    value={fontSizesText || 25}
+                    value={fontSizesText || 95}
                   ></input>
                   <button
                     onClick={() => {
@@ -906,7 +921,7 @@ const Canvas = (props) => {
                   textData={handletextData}
                   handleInFocus={handleInFocus}
                   handleFontSize={handleFontSize}
-                  fontSize={fontSizes[Text.id] || 25}
+                  fontSize={fontSizes[Text.id]}
                   selected={IsSelected}
                   cancel={cancel}
                   fontFamily={selectedFont[Text.id] || "Noto Sans"}
