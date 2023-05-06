@@ -38,7 +38,7 @@ function Signin(props) {
         // console.log(userCredential.user)
       })
       .catch((error) => {
-        console.log(error);
+        // console.log(error);
       });
   };
 
@@ -48,7 +48,7 @@ function Signin(props) {
         // console.log(userCredential.user)
       })
       .catch((error) => {
-        console.log(error);
+        // console.log(error);
       });
   };
 
@@ -81,14 +81,14 @@ function Signin(props) {
     const email = document.querySelector('input[name="email"]').value;
     signInWithEmailAndPassword(auth, data.email, data.password)
       .then((userCredential) => {
-        console.log(userCredential.user);
+        // console.log(userCredential.user);
       })
       .catch((error) => {
         const errorCode = error.code;
         //IIFE立即調用函數表達式
         //(function() {函數內部的程式碼})();
         const alertContent = (() => {
-          console.log(errorCode);
+          // console.log(errorCode);
           if (errorCode === "auth/invalid-email") {
             return <div className="alert">信箱格式錯誤</div>;
           } else if (errorCode === "auth/wrong-password") {
@@ -127,12 +127,12 @@ function Signin(props) {
   const handleCreate = () => {
     createUserWithEmailAndPassword(auth, data.email, data.password)
       .then((userCredential) => {
-        console.log(userCredential.user);
+        // console.log(userCredential.user);
       })
       .catch((error) => {
         const errorCode = error.code;
 
-        console.log(errorCode);
+        // console.log(errorCode);
       });
   };
 

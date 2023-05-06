@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import Signin from "./Signin";
 
 const LogoBar = (props) => {
-  console.log("LogoBar");
+  // console.log("LogoBar");
   const [currentUser, setCurrentUser] = useState(null);
   const [showSignin, setShowSignin] = useState(false);
 
@@ -20,7 +20,7 @@ const LogoBar = (props) => {
         window.location = "/";
       })
       .catch((error) => {
-        console.log(error);
+        // console.log(error);
       });
   };
 
@@ -68,7 +68,7 @@ const LogoBar = (props) => {
   const StarSignin = () => {
     setShowSignin(true);
     const handleMask = (event) => {
-      console.log(event.target);
+      // console.log(event.target);
       if (event.target === document.querySelector(".mask")) {
         setShowSignin(false);
       }

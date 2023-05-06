@@ -23,7 +23,7 @@ import FontList from "./FontList";
 import Signin from "./Signin";
 
 const EditZone = (props) => {
-  console.log("EditZone");
+  // console.log("EditZone");
   const currentUser = useContext(CurrentUser);
   const [alert, setAlert] = useState(null);
 
@@ -242,7 +242,7 @@ const EditZone = (props) => {
               });
             })
             .catch((error) => {
-              console.log(error);
+              // console.log(error);
             });
         });
       });

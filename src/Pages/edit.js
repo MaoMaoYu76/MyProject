@@ -9,7 +9,7 @@ export const SizeData = createContext();
 export const CurrentUser = createContext();
 
 function EDIT() {
-  console.log("EDIT");
+  // console.log("EDIT");
   const [currentUser, setCurrentUser] = useState();
 
   const checkCurrentUser = (currentUser) => {

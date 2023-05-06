@@ -23,7 +23,7 @@ function POSTER() {
   //取得圖片url
   useEffect(() => {
     getDownloadURL(ref(storage, `${id}.jpg`)).then((url) => {
-      console.log(url);
+      // console.log(url);
       setUrl(url);
       const img = new Image();
       img.src = url;
@@ -54,7 +54,7 @@ function POSTER() {
   }, [imgRef, scale]);
 
   const handleFrame = () => {
-    console.log(height, width);
+    // console.log(height, width);
     return {
       className: "frame",
       // id: "canvas",

@@ -90,7 +90,7 @@ const AuthProject = (props) => {
                   `${currentUser.uid}/Snapshot/${props.id}.jpg`
                 );
                 deleteObject(storageRef).then(() => {
-                  console.log("照片已刪除");
+                  // console.log("照片已刪除");
                 });
                 props.check(props.id);
               }}

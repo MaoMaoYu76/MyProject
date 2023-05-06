@@ -4,11 +4,6 @@ import WebFont from "webfontloader";
 import { useRef } from "react";
 
 const FontList = (props) => {
-  const angle = ((25 - 180) * Math.PI) / 180;
-  console.log(2.6 * Math.sin(angle));
-  // const [loadedFonts, setLoadedFonts] = useState([]);
-  // const [fontName, setfontName] = useState("NotoSerifTC-Regular");
-
   // const loadFont = (fontName, fontUrl) => {
   //   const fontFace = new FontFace(fontName, `url(${fontUrl})`);
   //   fontFace.load().then(() => {
@@ -16,14 +11,12 @@ const FontList = (props) => {
   //     setLoadedFonts([...loadedFonts, fontName]);
   //   });
   // };
-
   // useEffect(() => {
   //   const fontUrl = `fonts/${fontName}.otf`;
   //   if (!loadedFonts.includes(fontName)) {
   //     loadFont(fontName, fontUrl);
   //   }
   // }, []);
-
   // const handleFontChange = (event, fontName) => {
   //   setfontName(fontName);
   //   const fontUrl = `fonts/${fontName}.otf`;
@@ -31,7 +24,6 @@ const FontList = (props) => {
   //     loadFont(fontName, fontUrl);
   //   }
   // };
-
   // return (
   //   <div className="scroll-box">
   //     <div className="search-box">

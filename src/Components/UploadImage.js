@@ -13,7 +13,7 @@ const UploadImage = (props) => {
   const [zIndex, setzIndex] = useState(1);
   const src = props.src;
   const imgRef = useRef(null);
-  const [showDelete, setShowDelete] = useState(true);
+  const [showDelete, setShowDelete] = useState(false);
   const currentUser = useContext(CurrentUser);
 
   const handleToolDown = (event) => {
@@ -65,8 +65,8 @@ const UploadImage = (props) => {
   return (
     <div
       className="grid-item"
-      onMouseOver={() => setShowDelete(false)}
-      onMouseOut={() => setShowDelete(true)}
+      onMouseOver={() => setShowDelete(true)}
+      onMouseOut={() => setShowDelete(false)}
     >
       <img
         className="upload-images"
@@ -80,6 +80,7 @@ const UploadImage = (props) => {
           opacity: opacity,
         }}
         onPointerDown={handleToolDown}
+        onClick={() => props.oncopystate(src)}
       />
       {showDelete && (
         <img
@@ -91,7 +92,7 @@ const UploadImage = (props) => {
               `${currentUser.uid}/Upload/${props.id}.jpg`
             );
             deleteObject(storageRef).then(() => {
-              console.log("照片已刪除");
+              // console.log("照片已刪除");
               props.reset(props.id);
             });
           }}

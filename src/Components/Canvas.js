@@ -285,28 +285,28 @@ const Canvas = (props) => {
       event.target.closest(".side-icons") != null ||
       event.target.closest(".scroll-box") != null
     ) {
-      console.log("1");
+      // console.log("1");
       setCancel(false);
     } else if (ShowTextPicker && event.target.closest(".picker") === null) {
-      console.log("2");
+      // console.log("2");
       setCancel(false);
       setShowTextPicker(false);
     } else if (
       ShowCanvasPicker &&
       event.target.closest(".canvas-picker") === null
     ) {
-      console.log("3");
+      // console.log("3");
       setCancel(false);
       setShowCanvasPicker(false);
     } else if (
       ShowBackgroundPicker &&
       event.target.closest(".picker-position") === null
     ) {
-      console.log("5");
+      // console.log("5");
       setCancel(false);
       setShowBackgroundPicker(false);
     } else {
-      console.log("4", ShowBackgroundPicker);
+      // console.log("4", ShowBackgroundPicker);
       setCancel(true);
       setShowTextTool(false);
       props.handleShowBox(false);
@@ -342,7 +342,7 @@ const Canvas = (props) => {
       );
       setTextsData(
         textsData.filter((Text) => {
-          console.log(Text.id);
+          // console.log(Text.id);
           Text.id !== selectedIdRef.current;
         })
       );
@@ -453,7 +453,7 @@ const Canvas = (props) => {
 
       setDoc(doc(db, `${currentUser.uid}`, canvasID), newObj);
       // setDoc(doc(db, `public`, id), newObj);
-      console.log("savedData", newObj);
+      // console.log("savedData", newObj);
       setTimeout(() => {
         setSaving(false);
         props.check(canvasID);
